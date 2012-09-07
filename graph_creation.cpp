@@ -214,6 +214,10 @@ void SSIFSource::Clear() {
         pEvent->SetNotifyWindow(NULL, NULL, NULL);
         pEvent = (LPUNKNOWN)NULL;
     }
+    if (left_grabber != NULL) 
+        left_grabber->CloseSyncHandles();
+    if (right_grabber != NULL) 
+        right_grabber->CloseSyncHandles();
     if (pControl) {
         pControl->Stop();
         pControl = (LPUNKNOWN)NULL;
