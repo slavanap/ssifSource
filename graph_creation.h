@@ -12,28 +12,22 @@ enum ShowParameters {
 };
 
 class SSIFSource: public IClip {
-    HANDLE hOpFinished, hThreadDestroy;
-    LPSTR lpThreadError;
-    HRESULT hrThreadCode;
-    AVSValue *args;
-    IScriptEnvironment *env;
-    HANDLE hThread;
-    
     CSampleGrabber *left_grabber, *right_grabber;
     VideoInfo vi, frame_vi;
     int params;
     int current_frame_number;
+    IGraphBuilder *pGraph;
+    CComQIPtr<IMediaEventEx> pEvent;
+    CComQIPtr<IMediaControl> pControl;
+    HWND hWindow;
 
-    static DWORD WINAPI GrabberThreadFunc(LPVOID arg);
-    void ThreadSetError(LPSTR lpMessage, HRESULT hrCode, bool bEvent = true) {
-        lpThreadError = lpMessage;
-        hrThreadCode = hrCode;
-        if (bEvent) SetEvent(hOpFinished);
+    bool bSuccessCreation;
+    SSIFSource(AVSValue& args, IScriptEnvironment* env);
+    void Clear();
+    void Throw(const char* str) {
+        Clear();
+        throw str;
     }
-    void ThreadSetError() {
-        SetEvent(hOpFinished);
-    }
-    SSIFSource();
     void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf);
     void DropGrabberData(CSampleGrabber *grabber);
 public:

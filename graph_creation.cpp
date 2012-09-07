@@ -109,133 +109,60 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
     return 0;
 }
 
-SSIFSource::SSIFSource() {
-    hOpFinished = hThreadDestroy = NULL;
-    lpThreadError = NULL;
-    hrThreadCode = E_UNEXPECTED;
-    args = NULL;
-    env = NULL;
-    hThread = NULL;
+PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = false) {
+    const char* arg_names[2] = {NULL, NULL};
+    AVSValue args[2] = {a, b};
+    return (env->Invoke(horizontal ? "StackHorizontal" : "StackVertical", AVSValue(args,2), arg_names)).AsClip();
+}
 
+SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
     left_grabber = right_grabber = NULL;
-    memset(&vi, 0, sizeof(VideoInfo));
-}
+    current_frame_number = 0;
+    bSuccessCreation = false;
+    pGraph = NULL;
+    hWindow = NULL;
 
-SSIFSource::~SSIFSource() {
-    if (hThread != NULL) SetEvent(hThreadDestroy);
-    if (WaitForSingleObject(hOpFinished, 5000*100) != WAIT_OBJECT_0) {
-        TerminateThread(hThread, 0xFFFFFFFF);
-        // Can't free graph & interfaces created in a foreign thread
-    }
-    SAFE_CloseHandle(hOpFinished);
-    SAFE_CloseHandle(hThreadDestroy);
-}
-
-
-AVSValue __cdecl SSIFSource::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
-    DWORD threadId;
-    SSIFSource *self = new SSIFSource();
-
-    self->current_frame_number = 0;
-
-    self->params = 0;
+    params = 0;
     if (args[2].AsBool(false))
-        self->params |= SP_LEFTVIEW;
+        params |= SP_LEFTVIEW;
     if (args[3].AsBool(true))
-        self->params |= SP_RIGHTVIEW;
+        params |= SP_RIGHTVIEW;
     if (args[4].AsBool(false))
-        self->params |= SP_HORIZONTALSTACK;
+        params |= SP_HORIZONTALSTACK;
 
-    self->hOpFinished = CreateEvent(NULL, TRUE, FALSE, NULL);
-    self->hThreadDestroy = CreateEvent(NULL, TRUE, FALSE, NULL);
-    self->args = &args;
-    self->env = env;
-    self->lpThreadError = NULL;
-    self->hrThreadCode = E_UNEXPECTED;
-    self->hThread = CreateThread(NULL, 0, &GrabberThreadFunc, self, 0, &threadId);
-
-    if (self->hThread == NULL) {
-        self->ThreadSetError("Can't create a new thread!", GetLastError(), false);
-        goto error;
-    }
-    // Wait for thread init
-    if (WaitForSingleObject(self->hOpFinished, INFINITE) != WAIT_OBJECT_0) {
-        self->ThreadSetError("Something strange happen", GetLastError(), false);
-        goto error;
-    }
-    if (FAILED(self->hrThreadCode))
-        goto error;
-    ResetEvent(self->hOpFinished);
-
-    // message loop in child thread already started
-    self->vi = self->frame_vi;
-    if ((self->params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
-        ((self->params & SP_HORIZONTALSTACK) ? self->vi.width : self->vi.height) *= 2;
-
-    // creation finished
-    return self;
-error:
-    {
-        CHAR buffer[1024];
-        LPSTR msg = self->lpThreadError;
-        HRESULT code = self->hrThreadCode;
-        ErrorMessageA(self->hrThreadCode, buffer, 1024);
-        delete self;
-        env->ThrowError("%s (0x%08x: %s)", msg, code, buffer);
-    }
-    return NULL;
-}
-
-DWORD WINAPI SSIFSource::GrabberThreadFunc(LPVOID arg) {
-    SSIFSource *self = (SSIFSource*)arg;
     HRESULT hr = S_OK;
-    IGraphBuilder *pGraph = NULL;
-    CComQIPtr<IMediaEventEx> pEvent;
-    HWND hWindow = CreateWindow(TEXT("EDIT"), NULL, NULL, 0,0,0,0, HWND_DESKTOP, NULL, hInstance, NULL);
+    hWindow = CreateWindow(TEXT("EDIT"), NULL, NULL, 0,0,0,0, HWND_DESKTOP, NULL, hInstance, NULL);
 
     CoInitialize(NULL);
-    //CoInitializeEx(0, COINIT_MULTITHREADED);
     {
         USES_CONVERSION;
-        self->left_grabber = CreateGrabber();
-        if (self->params & SP_RIGHTVIEW) self->right_grabber = CreateGrabber();
-        LPCSTR filename = (*self->args)[0].AsString();
-        hr = CreateGraph(A2W(filename), 
-            static_cast<IBaseFilter*>(self->left_grabber), 
-            static_cast<IBaseFilter*>(self->right_grabber), 
-            &pGraph);
+        left_grabber = new CSampleGrabber(&hr);
+        if (params & SP_RIGHTVIEW) right_grabber = new CSampleGrabber(&hr);
+        LPCSTR filename = args[0].AsString();
+        hr = CreateGraph(A2W(filename), static_cast<IBaseFilter*>(left_grabber), static_cast<IBaseFilter*>(right_grabber), &pGraph);
         if (FAILED(hr)) {
-            if (self->left_grabber != NULL) delete self->left_grabber;
-            if (self->right_grabber != NULL) delete self->right_grabber;
-            self->ThreadSetError("Can't create the graph", hr);
-            return 0;
+            Clear();
+            CoUninitialize();
+            throw "Can't create the graph";
         }
     }
     pEvent = pGraph;
-    if (!pEvent) {
-        self->ThreadSetError("Can't retrieve IMediaEventEx interface", hr, false);
-        goto error;
-    }
+    if (!pEvent) Throw("Can't retrieve IMediaEventEx interface");
+    pControl = pGraph;
+    if (!pControl) Throw("Can't retrieve IMediaControl interface");
     pEvent->SetNotifyWindow((OAHWND)hWindow, WM_GRAPH_EVENT, NULL);
 
     // Run the graph
-    hr = CComQIPtr<IMediaControl>(pGraph)->Run();
-    if (FAILED(hr)) {
-        self->ThreadSetError("Can't run the graph", hr, false);
-        goto error;
-    }
+    hr = pControl->Run();
+    if (FAILED(hr)) Throw("Can't run the graph");
 
-    if (self->left_grabber != NULL && self->right_grabber != NULL) {
-        CSampleGrabber &lg = *self->left_grabber, &rg = *self->right_grabber;
-        if (lg.m_Width != rg.m_Width || lg.m_Height != rg.m_Height || lg.m_SampleSize != rg.m_SampleSize) {
-            self->ThreadSetError("Differences in output video", E_UNEXPECTED, false);
-            goto error;
-        }
-    }
+    if (left_grabber != NULL && right_grabber != NULL)
+        if (left_grabber->m_Width != right_grabber->m_Width || left_grabber->m_Height != right_grabber->m_Height)
+            Throw("Differences in output video");
 
-    CSampleGrabber *def_grabber = (self->left_grabber != NULL) ? self->left_grabber : self->right_grabber;
+    CSampleGrabber *def_grabber = (left_grabber != NULL) ? left_grabber : right_grabber;
     // copy VideoInfo
-    self->frame_vi = def_grabber->avisynth_vi;
+    frame_vi = def_grabber->avisynth_vi;
     // Get total number of frames
     {
         CComQIPtr<IMediaSeeking> pSeeking = pGraph;
@@ -243,112 +170,109 @@ DWORD WINAPI SSIFSource::GrabberThreadFunc(LPVOID arg) {
         pSeeking->GetDuration(&lDuration);
         if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
             nTotalFrames = lDuration / def_grabber->m_AvgTimePerFrame;
-            self->frame_vi.num_frames = (*self->args)[1].AsInt((int)nTotalFrames);
+            frame_vi.num_frames = args[1].AsInt((int)nTotalFrames);
         } else {
             pSeeking->GetDuration(&nTotalFrames);
-            self->frame_vi.num_frames = (int)nTotalFrames;
+            frame_vi.num_frames = (int)nTotalFrames;
         }
     }
 
-    // let the main thread continue
-    self->ThreadSetError(NULL, S_OK);
+    vi = frame_vi;
+    if ((params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
+        ((params & SP_HORIZONTALSTACK) ? vi.width : vi.height) *= 2;
+}
 
-    while (1) {
-        switch(::MsgWaitForMultipleObjects(1, &self->hThreadDestroy, FALSE, INFINITE, QS_ALLINPUT)) {
-            case (WAIT_OBJECT_0 + 1):
-                MSG msg;
-                while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-                    if (msg.message == WM_GRAPH_EVENT) {
-                        long evCode = 0;
-                        LONG_PTR param1 = 0, param2 = 0;
+void SSIFSource::Clear() {
+    if (pControl) {
+        MSG msg;
+        pControl->StopWhenReady();
+        while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
 
-                        HRESULT hr = S_OK;
+        long evCode = 0;
+        LONG_PTR param1 = 0, param2 = 0;
 
-                        // Get the events from the queue.
-                        while (SUCCEEDED(pEvent->GetEvent(&evCode, &param1, &param2, 0)))
-                        {
-                            // Invoke the callback.
-                            if (evCode == EC_COMPLETE) {
-                                CComQIPtr<IMediaControl>(pGraph)->Stop();
-                            }
+        HRESULT hr = S_OK;
 
-                            // Free the event data.
-                            hr = pEvent->FreeEventParams(evCode, param1, param2);
-                            if (FAILED(hr))
-                                break;
-                        }
-                    } 
-                    else if (msg.message == WM_QUIT) {
-                        goto cleanup;
-                    }
-                    else {
-                        TranslateMessage(&msg);
-                        DispatchMessage(&msg);
-                    }
-                }
+        // Get the events from the queue.
+        while (SUCCEEDED(pEvent->GetEvent(&evCode, &param1, &param2, 0)))
+        {
+            // Invoke the callback.
+            if (evCode == EC_COMPLETE) {
+                CComQIPtr<IMediaControl>(pGraph)->Stop();
+            }
+
+            // Free the event data.
+            hr = pEvent->FreeEventParams(evCode, param1, param2);
+            if (FAILED(hr))
                 break;
-            case WAIT_OBJECT_0:
-                CComQIPtr<IMediaControl>(pGraph)->StopWhenReady();
-                PostMessage(NULL, WM_QUIT, 0, 0);
-                break;
-            default:
-                self->ThreadSetError("Waiting error", GetLastError(), false);
-                goto error;
         }
     }
+    if (pEvent) {
+        pEvent->SetNotifyWindow(NULL, NULL, NULL);
+        pEvent = (LPUNKNOWN)NULL;
+    }
+    if (pControl) {
+        pControl->Stop();
+        pControl = (LPUNKNOWN)NULL;
+    }
+    if (hWindow != NULL) {
+        DestroyWindow(hWindow);
+        hWindow = NULL;
+    }
+    if (left_grabber != NULL) {
+        delete left_grabber;
+        left_grabber = NULL;
+    }
+    if (right_grabber != NULL) {
+        delete right_grabber;
+        right_grabber = NULL;
+    }
+    if (pGraph != NULL) {
+        pGraph->Release();
+        pGraph = NULL;
+        CoUninitialize();
+    }
+}
 
-cleanup:
-    self->ThreadSetError(NULL, S_OK, false);
-error:
-    pEvent->SetNotifyWindow(NULL, NULL, NULL);
-    pEvent = (LPUNKNOWN)NULL;
-    DestroyWindow(hWindow);
-    if (self->left_grabber != NULL) self->left_grabber->CloseSyncHandles();
-    if (self->right_grabber != NULL) self->right_grabber->CloseSyncHandles();
-    CComQIPtr<IMediaControl>(pGraph)->Stop();
-    pGraph->Release();
-    CoUninitialize();
-    self->ThreadSetError();
-    return 0;
+SSIFSource::~SSIFSource() {
+    Clear();    
+}
+
+AVSValue __cdecl SSIFSource::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
+    SSIFSource *obj = NULL;
+    try {
+        obj = new SSIFSource(args, env);
+    } catch(const char* str) {
+        env->ThrowError("%s", str);
+    }
+    return obj;
 }
 
 void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf) {
-    BYTE* dst = vf->GetWritePtr();
-    logger.log("M %6d 0x%08x: WaitFor(hDataReady)", current_frame_number-1, grabber);
-    if (WaitForSingleObject(grabber->hDataReady, FRAME_WAITTIME) != WAIT_OBJECT_0) {
-        //vf = 
-        return;
-    }
-    logger.log("M %6d 0x%08x: ResetEvent(hDataReady)", current_frame_number-1, grabber);
-    ResetEvent(grabber->hDataReady);
-    memcpy(dst, grabber->pData, grabber->m_FrameSize);
-    logger.log("M %6d 0x%08x: SetEvent(hDataParsed)", current_frame_number-1, grabber);
+    grabber->pData = vf->GetWritePtr();
+    SetEvent(grabber->hDataReady);
+    WaitForSingleObject(grabber->hDataParsed, INFINITE);
+    ResetEvent(grabber->hDataParsed);
     SetEvent(grabber->hDataParsed);
 }
 
 void SSIFSource::DropGrabberData(CSampleGrabber *grabber) {
-    logger.log("M %6d 0x%08x: WaitFor(hDataReady)", current_frame_number-1, grabber);
-    WaitForSingleObject(grabber->hDataReady, FRAME_WAITTIME);
-    logger.log("M %6d 0x%08x: ResetEvent(hDataReady)", current_frame_number-1, grabber);
-    ResetEvent(grabber->hDataReady);
-    logger.log("M %6d 0x%08x: SetEvent(hDataParsed)", current_frame_number-1, grabber);
+    SetEvent(grabber->hDataReady);
+    WaitForSingleObject(grabber->hDataParsed, INFINITE);
+    ResetEvent(grabber->hDataParsed);
     SetEvent(grabber->hDataParsed);
-}
-
-PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = false) {
-    const char* arg_names[2] = {NULL, NULL};
-    AVSValue args[2] = {a, b};
-    return (env->Invoke(horizontal ? "StackHorizontal" : "StackVertical", AVSValue(args,2), arg_names)).AsClip();
 }
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
     if (n != current_frame_number)
-        return env->NewVideoFrame(frame_vi);
+        return env->NewVideoFrame(vi);
     current_frame_number++;
 
+    //pControl->Run();
     PVideoFrame left, right;
-    if (WaitForSingleObject(hThread, 0) != WAIT_TIMEOUT)
-        env->ThrowError("The graph suddenly has been closed");
     if (params & SP_LEFTVIEW) {
         left = env->NewVideoFrame(frame_vi);
         DataToFrame(left_grabber, left);
