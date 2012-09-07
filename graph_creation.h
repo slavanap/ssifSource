@@ -34,7 +34,7 @@ class SSIFSource: public IClip {
         SetEvent(hOpFinished);
     }
     SSIFSource();
-    void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf);
+    void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env);
     void DropGrabberData(CSampleGrabber *grabber);
 public:
     static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);

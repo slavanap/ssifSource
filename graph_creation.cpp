@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "graph_creation.h"
 
-#define FRAME_WAITTIME 120000
+#define FRAME_WAITTIME 10000
 
 EXTERN_C const CLSID CLSID_NullRenderer;
 
@@ -312,11 +312,18 @@ error:
     return 0;
 }
 
-void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf) {
+PVideoFrame Black(PClip clip, IScriptEnvironment* env) {
+    const char* arg_names1[2] = {0, "color"};
+    AVSValue args1[2] = {clip, 0};
+    PClip resultClip1 = (env->Invoke("BlankClip", AVSValue(args1,2), arg_names1)).AsClip();
+    return resultClip1->GetFrame(0, env);
+}
+
+void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env) {
     BYTE* dst = vf->GetWritePtr();
     logger.log("M %6d 0x%08x: WaitFor(hDataReady)", current_frame_number-1, grabber);
     if (WaitForSingleObject(grabber->hDataReady, FRAME_WAITTIME) != WAIT_OBJECT_0) {
-        //vf = 
+        vf = Black(new FrameHolder(frame_vi, PVideoFrame()), env);
         return;
     }
     logger.log("M %6d 0x%08x: ResetEvent(hDataReady)", current_frame_number-1, grabber);
@@ -343,7 +350,7 @@ PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = fal
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
     if (n != current_frame_number)
-        return env->NewVideoFrame(frame_vi);
+        return Black(this, env);
     current_frame_number++;
 
     PVideoFrame left, right;
@@ -351,13 +358,13 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
         env->ThrowError("The graph suddenly has been closed");
     if (params & SP_LEFTVIEW) {
         left = env->NewVideoFrame(frame_vi);
-        DataToFrame(left_grabber, left);
+        DataToFrame(left_grabber, left, env);
     } else {
         DropGrabberData(left_grabber);
     }
     if (params & SP_RIGHTVIEW) {
         right = env->NewVideoFrame(frame_vi);
-        DataToFrame(right_grabber, right);
+        DataToFrame(right_grabber, right, env);
     }
 
     if ((params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
