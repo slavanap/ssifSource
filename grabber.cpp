@@ -23,30 +23,44 @@ const int avisynth_equivalents[] = {
 };
 int avisynth_accept_formats_count = sizeof(avisynth_accept_formats) / sizeof(const GUID*);
 
-CSampleGrabber::CSampleGrabber(IUnknown* pOuter, HRESULT* phr, BOOL ModifiesData)
-: CTransInPlaceFilter(FILTERNAME, pOuter, CLSID_SampleGrabber, phr)
+CSampleGrabber::CSampleGrabber(HRESULT* phr)
+: CTransInPlaceFilter(FILTERNAME, NULL, CLSID_SampleGrabber, phr)
 {
-    m_SampleSize      = 0;
     m_pAM_MEDIA_TYPE  = NULL;
     m_Width           = 0;
     m_Height          = 0;
-    m_Stride          = 0;
     m_FrameSize       = 0;
     memset(&avisynth_vi, 0, sizeof(VideoInfo));
     m_AvgTimePerFrame = 0;
     hDataReady = CreateEvent(NULL, TRUE, FALSE, NULL);
     hDataParsed = CreateEvent(NULL, TRUE, FALSE, NULL);
+    hEventDisabled = CreateEvent(NULL, TRUE, FALSE, NULL);
+    bEnabled = true;
+    pData = NULL;
     nFrame = 0;
 }
 
 CSampleGrabber::~CSampleGrabber() {
-    CloseSyncHandles();
-}
-
-void CSampleGrabber::CloseSyncHandles() {
-    SetEvent(hDataParsed);
+    if (pData != NULL) {
+        free((void*)pData);
+        pData = NULL;
+    }
+    SetEvent(hDataReady);
     SAFE_CloseHandle(hDataReady);
     SAFE_CloseHandle(hDataParsed);
+    SAFE_CloseHandle(hEventDisabled);
+}
+
+void CSampleGrabber::SetEnabled(bool value) {
+    if (value == bEnabled)
+        return;
+    bEnabled = value;
+    if (value) {
+        ResetEvent(hEventDisabled);
+    }
+    else {
+        SetEvent(hEventDisabled);
+    }
 }
 
 HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt) {
@@ -87,10 +101,8 @@ HRESULT CSampleGrabber::SetMediaType(PIN_DIRECTION direction, const CMediaType* 
         m_mt = *pmt;
         m_Width = vih->bmiHeader.biWidth;
         m_Height = vih->bmiHeader.biHeight;
-        m_SampleSize = pmt->lSampleSize;
         // calculate the stride for RGB formats
         DWORD dwStride = (vih->bmiHeader.biWidth * (vih->bmiHeader.biBitCount / 8) + 3) & ~3;
-        m_Stride = (long)dwStride;
         m_AvgTimePerFrame = vih->AvgTimePerFrame;
     }
     else
@@ -110,21 +122,23 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
         goto Cleanup;
     lSize = pMediaSample->GetSize();
 
-    if (m_FrameSize == 0)
+    if (m_FrameSize == 0) {
         m_FrameSize = lSize;
-    pData = pCurrentBits;
+        pData = (BYTE*)malloc(m_FrameSize);
+    }
 
-    logger.log("C %6d 0x%08x: ResetEvent(hDataParsed)", nFrame, this);
-    ResetEvent(hDataParsed);
-    logger.log("C %6d 0x%08x: SetEvent(hDataReady)", nFrame, this);
-    SetEvent(hDataReady);
-    logger.log("C %6d 0x%08x: WaitFor(hDataParsed)", nFrame, this);
-    WaitForSingleObject(hDataParsed, INFINITE);
-    logger.log("C %6d 0x%08x: Frame Parsed", nFrame, this);
+    HANDLE handles[2] = {hDataReady, hEventDisabled};
+    DWORD res = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
+    if (res == WAIT_OBJECT_0) {
+        ResetEvent(hDataReady);
+        if (pData != NULL)
+            memcpy(pData, pCurrentBits, m_FrameSize);
+        SetEvent(hDataParsed);
+    }
 
     ++nFrame;
 
-    return S_OK;
+    return S_FALSE;
 Cleanup:
     return hr;
 }
@@ -180,10 +194,4 @@ HRESULT CSampleGrabber::GetMediaType(int iPosition, CMediaType* pMediaType) {
 
     *pMediaType = m_pInput->CurrentMediaType();
     return NOERROR;
-}
-
-CSampleGrabber* CreateGrabber() {
-    HRESULT hr = S_OK;
-    CSampleGrabber* obj = new CSampleGrabber(NULL, &hr, FALSE);
-    return (SUCCEEDED(hr)) ? obj : NULL;
 }

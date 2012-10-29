@@ -1,34 +1,33 @@
+#pragma once
+
 typedef TCHAR *PTCHAR;      // don't know why we loose it...
 #include <streams.h>
 #include "avisynth.h"
 
-#pragma once
-
-class CSampleGrabber: public CTransInPlaceFilter
-{
+class CSampleGrabber: public CTransInPlaceFilter {
 private:
     // filter variables
     CMediaType m_mt;
     AM_MEDIA_TYPE *m_pAM_MEDIA_TYPE;
+    bool bEnabled;
 
 public:
-    long m_SampleSize;
     long m_Width;
     long m_Height;
-    long m_Stride;
     DWORD m_FrameSize;
     VideoInfo avisynth_vi;
     LONGLONG m_AvgTimePerFrame;
     HANDLE hDataReady, hDataParsed;
-    BYTE * volatile pData;
-
+    HANDLE hEventDisabled;
+    BYTE *pData;
     int nFrame;
 
 public:
-    CSampleGrabber(IUnknown* pOuter, HRESULT* phr, BOOL ModifiesData);
+    CSampleGrabber(HRESULT* phr);
     ~CSampleGrabber();
 
-    void CloseSyncHandles();
+    bool GetEnabled() const { return bEnabled; }
+    void SetEnabled(bool value);
 
     // CTransInPlaceFilter
     HRESULT CheckInputType(const CMediaType *pmt);
@@ -43,5 +42,3 @@ public:
     HRESULT DecideBufferSize(IMemAllocator* pAlloc, ALLOCATOR_PROPERTIES* pProperties);
     HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
 };
-
-CSampleGrabber* CreateGrabber();
