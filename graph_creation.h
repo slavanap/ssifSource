@@ -21,15 +21,13 @@ class SSIFSource: public IClip {
     CComQIPtr<IMediaControl> pControl;
     HWND hWindow;
 
-    bool bSuccessCreation;
     SSIFSource(AVSValue& args, IScriptEnvironment* env);
     void Clear();
     void Throw(const char* str) {
         Clear();
         throw str;
     }
-    void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf);
-    void DropGrabberData(CSampleGrabber *grabber);
+    void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env);
 public:
     static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
     virtual ~SSIFSource();

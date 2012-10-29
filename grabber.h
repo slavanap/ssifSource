@@ -9,6 +9,7 @@ private:
     // filter variables
     CMediaType m_mt;
     AM_MEDIA_TYPE *m_pAM_MEDIA_TYPE;
+    bool bEnabled;
 
 public:
     long m_Width;
@@ -17,6 +18,7 @@ public:
     VideoInfo avisynth_vi;
     LONGLONG m_AvgTimePerFrame;
     HANDLE hDataReady, hDataParsed;
+    HANDLE hEventDisabled;
     BYTE *pData;
     int nFrame;
 
@@ -24,7 +26,8 @@ public:
     CSampleGrabber(HRESULT* phr);
     ~CSampleGrabber();
 
-    void CloseSyncHandles();
+    bool GetEnabled() const { return bEnabled; }
+    void SetEnabled(bool value);
 
     // CTransInPlaceFilter
     HRESULT CheckInputType(const CMediaType *pmt);

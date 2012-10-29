@@ -34,17 +34,33 @@ CSampleGrabber::CSampleGrabber(HRESULT* phr)
     m_AvgTimePerFrame = 0;
     hDataReady = CreateEvent(NULL, TRUE, FALSE, NULL);
     hDataParsed = CreateEvent(NULL, TRUE, FALSE, NULL);
+    hEventDisabled = CreateEvent(NULL, TRUE, FALSE, NULL);
+    bEnabled = true;
     pData = NULL;
     nFrame = 0;
 }
 
 CSampleGrabber::~CSampleGrabber() {
-    CloseSyncHandles();
-}
-
-void CSampleGrabber::CloseSyncHandles() {
+    if (pData != NULL) {
+        free((void*)pData);
+        pData = NULL;
+    }
+    SetEvent(hDataReady);
     SAFE_CloseHandle(hDataReady);
     SAFE_CloseHandle(hDataParsed);
+    SAFE_CloseHandle(hEventDisabled);
+}
+
+void CSampleGrabber::SetEnabled(bool value) {
+    if (value == bEnabled)
+        return;
+    bEnabled = value;
+    if (value) {
+        ResetEvent(hEventDisabled);
+    }
+    else {
+        SetEvent(hEventDisabled);
+    }
 }
 
 HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt) {
@@ -106,19 +122,23 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
         goto Cleanup;
     lSize = pMediaSample->GetSize();
 
-    if (m_FrameSize == 0)
+    if (m_FrameSize == 0) {
         m_FrameSize = lSize;
+        pData = (BYTE*)malloc(m_FrameSize);
+    }
 
-    logger.log("C %6d 0x%08x: ResetEvent(hDataParsed)", nFrame, this);
-    WaitForSingleObject(hDataReady, INFINITE);
-    ResetEvent(hDataReady);
-    if (pData != NULL)
-        memcpy(pData, pCurrentBits, m_FrameSize);
-    SetEvent(hDataParsed);
+    HANDLE handles[2] = {hDataReady, hEventDisabled};
+    DWORD res = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
+    if (res == WAIT_OBJECT_0) {
+        ResetEvent(hDataReady);
+        if (pData != NULL)
+            memcpy(pData, pCurrentBits, m_FrameSize);
+        SetEvent(hDataParsed);
+    }
 
     ++nFrame;
 
-    return S_OK;
+    return S_FALSE;
 Cleanup:
     return hr;
 }
