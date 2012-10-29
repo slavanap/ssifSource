@@ -92,7 +92,8 @@ lerror:
     prog_bag = (IUnknown*)NULL;
     pDecoder = (IUnknown*)NULL;
     pSplitter = (IUnknown*)NULL;
-    pGraph->Release();
+    if (pGraph!= NULL)
+        pGraph->Release();
     return E_FAIL;
 }
 
