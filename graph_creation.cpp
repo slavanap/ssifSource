@@ -254,7 +254,7 @@ AVSValue __cdecl SSIFSource::Create(AVSValue args, void* user_data, IScriptEnvir
 void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env) {
     SetEvent(grabber->hDataReady);
     if (!grabber->GetEnabled() || (WaitForSingleObject(grabber->hDataParsed, FRAME_WAITTIME) != WAIT_OBJECT_0)) {
-        printf("\nM%08x %6d frame duplicate added\n", grabber, current_frame_number-1);
+        printf("\nssifSource2:M%08x %6d frame duplicate added\n", grabber, current_frame_number-1);
         grabber->SetEnabled(false);
     }
     memcpy(vf->GetWritePtr(), grabber->pData, grabber->m_FrameSize);
@@ -263,6 +263,8 @@ void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEn
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
     if (n != current_frame_number) {
+        printf("\nssifSource2: seeking to frame %d (lastframe %d)\n", n, current_frame_number-1);
+
         CComQIPtr<IMediaSeeking> pSeeking = pGraph;
         LONGLONG lDuration, lPos;
         pSeeking->GetDuration(&lDuration);
