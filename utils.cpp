@@ -62,6 +62,36 @@ HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin *
     return hr;
 }
 
+HRESULT GetPinByName(IBaseFilter* pFilter, PIN_DIRECTION dirreq, LPCWSTR wszName, IPin **ppPin) {
+    CComPtr<IEnumPins> pEnum;
+    *ppPin = NULL;
+
+    if (!pFilter)
+        return E_POINTER;
+
+    HRESULT hr = pFilter->EnumPins(&pEnum);
+    if(FAILED(hr)) 
+        return hr;
+
+    ULONG ulFound;
+    IPin *pPin;
+    hr = E_FAIL;
+
+    while(S_OK == pEnum->Next(1, &pPin, &ulFound)) {
+        PIN_INFO pInfo;
+        pInfo.dir = (PIN_DIRECTION)3;
+        if (SUCCEEDED(pPin->QueryPinInfo(&pInfo))) {
+            if ((dirreq == (PIN_DIRECTION)(-1) || dirreq == pInfo.dir) && !StrCmpW(pInfo.achName, wszName)) {
+                *ppPin = pPin;
+                hr = S_OK;
+                break;
+            }
+        }
+        pPin->Release();
+    } 
+    return hr;
+}
+
 //
 // NOTE: The GetInPin and GetOutPin methods DO NOT increment the reference count
 // of the returned pin.  Use CComPtr interface pointers in your code to prevent

@@ -21,6 +21,7 @@ MYEXTERN HINSTANCE hInstance;
 
 HRESULT DSHelpCreateInstance(LPOLESTR bstrLibName, REFCLSID rclsid, LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppv);
 HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin **ppPin);
+HRESULT GetPinByName(IBaseFilter* pFilter, PIN_DIRECTION dirreq, LPCWSTR wszName, IPin **ppPin);
 
 //
 // NOTE: The GetInPin and GetOutPin methods DO NOT increment the reference count

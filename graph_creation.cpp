@@ -56,8 +56,8 @@ HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* left_grabber, IBaseFilt
 
     hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0), GetInPin(pDecoder, 0), NULL);
     if (FAILED(hr)) goto lerror;
-    hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1), GetInPin(pDecoder, 1), NULL);
-    if (FAILED(hr)) goto lerror;
+    pGraph->ConnectDirect(GetOutPin(pSplitter, 1), GetInPin(pDecoder, 1), NULL);
+    // Ignore the error here. For 'MVC (Full)' support
 
     ASSERT(left_grabber != NULL);
     hr = pGraph->AddFilter(left_grabber, L"LeftView");
