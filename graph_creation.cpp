@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "graph_creation.h"
 
-#define FRAME_WAITTIME 10000
+#define FRAME_WAITTIME 100000
 
 EXTERN_C const CLSID CLSID_NullRenderer;
 
