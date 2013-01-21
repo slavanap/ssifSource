@@ -172,21 +172,11 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
         pSeeking->GetDuration(&tmDuration);
         nTotalFrames = (tmDuration + main_grabber->m_AvgTimePerFrame/2) / main_grabber->m_AvgTimePerFrame;
         frame_vi.num_frames = args[1].AsInt((int)nTotalFrames);
-        logger.log("duration %lld, avg %lld", tmDuration, main_grabber->m_AvgTimePerFrame);
-        main_grabber->bLog = true;
     }
 
     vi = frame_vi;
     if ((params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
         ((params & SP_HORIZONTALSTACK) ? vi.width : vi.height) *= 2;
-
-    ifstream ofsfile("offsets.txt");
-    long hres;
-    REFERENCE_TIME lStart, lEnd;
-    while (ofsfile >> hres >> lStart >> lEnd) {
-        if (hres) env->ThrowError("hres not zero");
-        offsets.push_back(lStart);
-    }
 }
 
 void SSIFSource::Clear() {
@@ -299,8 +289,8 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
                 break;
 
             HRESULT hr = pSeeking->SetPositions(&lPos, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
-            logger.log("frame %d, pos %d, diff %d, res %x", n, (int)(lPos), 
-                (int)((n >= (int)offsets.size()) ? 0 : (offsets[n] - lPos)), hr);
+//          logger.log("frame %d, pos %d, diff %d, res %x", n, (int)(lPos), 
+//              (int)((n >= (int)offsets.size()) ? 0 : (offsets[n] - lPos)), hr);
 
             main_grabber->SetEnabled(true);
             if (sub_grabber) sub_grabber->SetEnabled(true);

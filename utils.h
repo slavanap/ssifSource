@@ -80,4 +80,4 @@ public:
     }
 };
 
-MYEXTERN mylogger logger;
+//MYEXTERN mylogger logger;

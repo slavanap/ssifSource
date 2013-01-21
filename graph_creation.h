@@ -22,8 +22,6 @@ class SSIFSource: public IClip {
     HWND hWindow;
     REFERENCE_TIME tmDuration;
 
-    vector<REFERENCE_TIME> offsets;
-
     SSIFSource(AVSValue& args, IScriptEnvironment* env);
     void Clear();
     void Throw(const char* str) {

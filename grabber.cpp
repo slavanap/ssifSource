@@ -39,7 +39,6 @@ CSampleGrabber::CSampleGrabber(HRESULT* phr)
     pData = NULL;
     nFrame = 0;
     tmLastFrame = 0;
-    bLog = false;
 }
 
 CSampleGrabber::~CSampleGrabber() {
@@ -124,11 +123,13 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
     if (!pMediaSample)
         return E_FAIL;
 
+/*
     if (bLog) {
         REFERENCE_TIME lStart, lEnd;
         hr = pMediaSample->GetTime(&lStart, &lEnd);
         logger.log("%x %d %d %lld %lld", hr, pMediaSample->GetPointer(&pCurrentBits), nFrame, lStart, lEnd);
     }
+*/
 
 
     if (FAILED(pMediaSample->GetPointer(&pCurrentBits)))

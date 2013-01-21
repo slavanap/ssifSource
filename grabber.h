@@ -22,7 +22,6 @@ public:
     BYTE *pData;
     int nFrame;
     REFERENCE_TIME tmLastFrame;
-    bool bLog;
 
 public:
     CSampleGrabber(HRESULT* phr);

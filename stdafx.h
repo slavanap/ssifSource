@@ -18,10 +18,10 @@
 
 #include <assert.h>
 
-#include <fstream>
-#include <vector>
+//#include <fstream>
+//#include <vector>
 
-using namespace std;
+//using namespace std;
 
 
 // TODO: reference additional headers your program requires here
