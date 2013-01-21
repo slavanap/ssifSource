@@ -38,6 +38,8 @@ CSampleGrabber::CSampleGrabber(HRESULT* phr)
     bEnabled = true;
     pData = NULL;
     nFrame = 0;
+    tmLastFrame = 0;
+    bLog = false;
 }
 
 CSampleGrabber::~CSampleGrabber() {
@@ -104,6 +106,9 @@ HRESULT CSampleGrabber::SetMediaType(PIN_DIRECTION direction, const CMediaType* 
         // calculate the stride for RGB formats
         DWORD dwStride = (vih->bmiHeader.biWidth * (vih->bmiHeader.biBitCount / 8) + 3) & ~3;
         m_AvgTimePerFrame = vih->AvgTimePerFrame;
+
+// http://msdn.microsoft.com/ru-ru/library/windows/desktop/dd407015(v=vs.85).aspx
+//        logger.log("t%d", pmt->bTemporalCompression);
     }
     else
         hr = E_FAIL;
@@ -118,9 +123,19 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
 
     if (!pMediaSample)
         return E_FAIL;
+
+    if (bLog) {
+        REFERENCE_TIME lStart, lEnd;
+        hr = pMediaSample->GetTime(&lStart, &lEnd);
+        logger.log("%x %d %d %lld %lld", hr, pMediaSample->GetPointer(&pCurrentBits), nFrame, lStart, lEnd);
+    }
+
+
     if (FAILED(pMediaSample->GetPointer(&pCurrentBits)))
         goto Cleanup;
     lSize = pMediaSample->GetSize();
+
+
 
     if (m_FrameSize == 0) {
         m_FrameSize = lSize;
@@ -130,7 +145,12 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
     HANDLE handles[2] = {hDataReady, hEventDisabled};
     DWORD res = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
     if (res == WAIT_OBJECT_0) {
+        REFERENCE_TIME lEnd;
         ResetEvent(hDataReady);
+        if (FAILED(pMediaSample->GetTime(&tmLastFrame, &lEnd))) {
+            SetEvent(hDataParsed);
+            return E_FAIL;
+        }
         if (pData != NULL)
             memcpy(pData, pCurrentBits, m_FrameSize);
         SetEvent(hDataParsed);
@@ -138,7 +158,7 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
 
     ++nFrame;
 
-    return S_FALSE;
+    return S_OK;
 Cleanup:
     return hr;
 }
