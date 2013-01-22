@@ -142,7 +142,7 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
         if (params & SP_LEFTVIEW)
             main_grabber = left_grabber = new CSampleGrabber(&hr);
         if (params & SP_RIGHTVIEW)
-            *((main_grabber == NULL) ? &main_grabber : &sub_grabber) = right_grabber = new CSampleGrabber(&hr);
+            ((main_grabber == NULL) ? main_grabber : sub_grabber) = right_grabber = new CSampleGrabber(&hr);
         LPCSTR filename = args[0].AsString();
         hr = CreateGraph(A2W(filename), static_cast<IBaseFilter*>(left_grabber), static_cast<IBaseFilter*>(right_grabber), &pGraph);
         if (FAILED(hr)) {
@@ -307,24 +307,25 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 
             SetEvent(main_grabber->hDataReady);
             DWORD wait_res = WaitForSingleObject(main_grabber->hDataParsed, FRAME_WAITTIME);
-            if (wait_res == WAIT_OBJECT_0) {
+            if (wait_res == WAIT_TIMEOUT) {
+                // Seek out of the graph! Trying to seek back.
+                lPos -= FRAME_SEEKBACKFRAMECOUNT * main_grabber->m_AvgTimePerFrame;
+                skip_frames += FRAME_SEEKBACKFRAMECOUNT;
+            }
+            else if (wait_res == WAIT_OBJECT_0) {
+                // If we made it - exit loop.
                 if (main_grabber->tmLastFrame < (main_grabber->m_AvgTimePerFrame / 2))
                     break;
+                // Ok. Continuing seeking one frame back.
                 ResetEvent(main_grabber->hDataParsed);
                 lPos -= main_grabber->m_AvgTimePerFrame;
                 skip_frames++;
             }
-            else if (wait_res == WAIT_TIMEOUT) {
-                // Seek out of the graph! Trying to seek back.
-                ResetEvent(main_grabber->hDataParsed);
-                lPos -= FRAME_SEEKBACKFRAMECOUNT * main_grabber->m_AvgTimePerFrame;
-                skip_frames += FRAME_SEEKBACKFRAMECOUNT;
-            }
             else
-                env->ThrowError("Error %08x occured at WaitForSingleObject API function", wait_res);
+                env->ThrowError("Error %08x occurred at WaitForSingleObject API function", wait_res);
         }
         if (skip_frames < 0)
-            env->ThrowError("Error occured at seeking process");
+            env->ThrowError("Error occurred at seeking process");
         while (skip_frames-- > 0) {
             DropFrame(main_grabber, env, bMainSignal);
             if (sub_grabber) DropFrame(sub_grabber, env);
