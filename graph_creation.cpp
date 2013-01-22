@@ -2,7 +2,8 @@
 #include "utils.h"
 #include "graph_creation.h"
 
-#define FRAME_WAITTIME 100000
+#define FRAME_WAITTIME 30000 // 30 seconds
+#define FRAME_SEEKBACKFRAMECOUNT 200 // 200 frames
 
 EXTERN_C const CLSID CLSID_NullRenderer;
 
@@ -281,6 +282,11 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
         int skip_frames = 0;
 
         while (1) {
+            if (lPos < 0) {
+                skip_frames += (int)(lPos / main_grabber->m_AvgTimePerFrame);
+                lPos = 0;
+            }
+
             main_grabber->SetEnabled(false);
             if (sub_grabber) sub_grabber->SetEnabled(false);
             pControl->Pause();
@@ -300,20 +306,25 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
             ParseEvents();
 
             SetEvent(main_grabber->hDataReady);
-            if (WaitForSingleObject(main_grabber->hDataParsed, FRAME_WAITTIME) != WAIT_OBJECT_0) {
-                // Seek out of the graph!
-                main_grabber->SetEnabled(false);
-                if (sub_grabber) sub_grabber->SetEnabled(false);
-                bMainSignal = true;
-                skip_frames = 0;
-                break;
+            DWORD wait_res = WaitForSingleObject(main_grabber->hDataParsed, FRAME_WAITTIME);
+            if (wait_res == WAIT_OBJECT_0) {
+                if (main_grabber->tmLastFrame < (main_grabber->m_AvgTimePerFrame / 2))
+                    break;
+                ResetEvent(main_grabber->hDataParsed);
+                lPos -= main_grabber->m_AvgTimePerFrame;
+                skip_frames++;
             }
-            if (main_grabber->tmLastFrame < (main_grabber->m_AvgTimePerFrame / 2))
-                break;
-            ResetEvent(main_grabber->hDataParsed);
-            lPos -= main_grabber->m_AvgTimePerFrame;
-            skip_frames++;
+            else if (wait_res == WAIT_TIMEOUT) {
+                // Seek out of the graph! Trying to seek back.
+                ResetEvent(main_grabber->hDataParsed);
+                lPos -= FRAME_SEEKBACKFRAMECOUNT * main_grabber->m_AvgTimePerFrame;
+                skip_frames += FRAME_SEEKBACKFRAMECOUNT;
+            }
+            else
+                env->ThrowError("Error %08x occured at WaitForSingleObject API function", wait_res);
         }
+        if (skip_frames < 0)
+            env->ThrowError("Error occured at seeking process");
         while (skip_frames-- > 0) {
             DropFrame(main_grabber, env, bMainSignal);
             if (sub_grabber) DropFrame(sub_grabber, env);
