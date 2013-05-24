@@ -105,6 +105,9 @@ HRESULT CSampleGrabber::SetMediaType(PIN_DIRECTION direction, const CMediaType* 
         // calculate the stride for RGB formats
         DWORD dwStride = (vih->bmiHeader.biWidth * (vih->bmiHeader.biBitCount / 8) + 3) & ~3;
         m_AvgTimePerFrame = vih->AvgTimePerFrame;
+
+// http://msdn.microsoft.com/ru-ru/library/windows/desktop/dd407015(v=vs.85).aspx
+//        logger.log("t%d", pmt->bTemporalCompression);
     }
     else
         hr = E_FAIL;

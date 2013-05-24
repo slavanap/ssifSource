@@ -2,7 +2,8 @@
 #include "utils.h"
 #include "graph_creation.h"
 
-#define FRAME_WAITTIME 10000
+#define FRAME_WAITTIME 30000 // 30 seconds
+#define FRAME_SEEKBACKFRAMECOUNT 200 // 200 frames
 
 EXTERN_C const CLSID CLSID_NullRenderer;
 
@@ -59,11 +60,15 @@ HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* left_grabber, IBaseFilt
     hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1), GetInPin(pDecoder, 1), NULL);
     // Ignore the error here. For 'MVC (Full)' support
 
-    ASSERT(left_grabber != NULL);
-    hr = pGraph->AddFilter(left_grabber, L"LeftView");
-    if (FAILED(hr)) goto lerror;
-    hr = pGraph->ConnectDirect(GetOutPin(pDecoder, 0), GetInPin(left_grabber, 0), NULL);
-    if (FAILED(hr)) goto lerror;
+    if (left_grabber != NULL) {
+        hr = pGraph->AddFilter(left_grabber, L"LeftView");
+        if (FAILED(hr)) goto lerror;
+        hr = pGraph->ConnectDirect(GetOutPin(pDecoder, 0), GetInPin(left_grabber, 0), NULL);
+        if (FAILED(hr)) goto lerror;
+    }
+    else {
+        left_grabber = pDecoder;
+    }
 
     hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&pRenderer1);
     if (FAILED(hr)) goto lerror;
@@ -106,10 +111,11 @@ PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = fal
 }
 
 SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
-    left_grabber = right_grabber = NULL;
+    main_grabber = sub_grabber = NULL;
     current_frame_number = 0;
     pGraph = NULL;
     hWindow = NULL;
+    tmDuration = 0;
 
     params = 0;
     if (args[2].AsBool(false))
@@ -118,18 +124,18 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
         params |= SP_RIGHTVIEW;
     if (args[4].AsBool(false))
         params |= SP_HORIZONTALSTACK;
+    if (!(params & (SP_LEFTVIEW | SP_RIGHTVIEW)))
+        Throw("No view selected!");
 
     HRESULT hr = S_OK;
-//    hWindow = CreateWindow(TEXT("EDIT"), NULL, NULL, 0,0,0,0, HWND_DESKTOP, NULL, hInstance, NULL);
-
     CoInitialize(NULL);
     {
         USES_CONVERSION;
-        left_grabber = new CSampleGrabber(&hr);
-        if (!(params & SP_LEFTVIEW))
-            left_grabber->SetEnabled(false);
+        CSampleGrabber *left_grabber = NULL, *right_grabber = NULL;
+        if (params & SP_LEFTVIEW)
+            main_grabber = left_grabber = new CSampleGrabber(&hr);
         if (params & SP_RIGHTVIEW)
-            right_grabber = new CSampleGrabber(&hr);
+            ((main_grabber == NULL) ? main_grabber : sub_grabber) = right_grabber = new CSampleGrabber(&hr);
         LPCSTR filename = args[0].AsString();
         hr = CreateGraph(A2W(filename), static_cast<IBaseFilter*>(left_grabber), static_cast<IBaseFilter*>(right_grabber), &pGraph);
         if (FAILED(hr)) {
@@ -148,26 +154,25 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
     hr = pControl->Run();
     if (FAILED(hr)) Throw("Can't run the graph");
 
-    if (left_grabber != NULL && right_grabber != NULL)
-        if (left_grabber->m_Width != right_grabber->m_Width || left_grabber->m_Height != right_grabber->m_Height)
+    if (main_grabber != NULL && sub_grabber != NULL)
+        if (main_grabber->m_Width != sub_grabber->m_Width || main_grabber->m_Height != sub_grabber->m_Height)
             Throw("Differences in output video");
 
-    CSampleGrabber *def_grabber = (left_grabber != NULL) ? left_grabber : right_grabber;
     // copy VideoInfo
-    frame_vi = def_grabber->avisynth_vi;
+    frame_vi = main_grabber->avisynth_vi;
     // Get total number of frames
     {
         CComQIPtr<IMediaSeeking> pSeeking = pGraph;
-        LONGLONG lDuration, nTotalFrames;
-        pSeeking->GetDuration(&lDuration);
-        if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
-            nTotalFrames = lDuration / def_grabber->m_AvgTimePerFrame;
-            frame_vi.num_frames = args[1].AsInt((int)nTotalFrames);
-        }
-        else {
-            pSeeking->GetDuration(&nTotalFrames);
-            frame_vi.num_frames = (int)nTotalFrames;
-        }
+        LONGLONG nTotalFrames;
+        pSeeking->GetDuration(&tmDuration);
+		if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
+			nTotalFrames = (tmDuration + main_grabber->m_AvgTimePerFrame/2) / main_grabber->m_AvgTimePerFrame;
+			frame_vi.num_frames = args[1].AsInt((int)nTotalFrames);
+		}
+		else {
+			pSeeking->GetDuration(&nTotalFrames);
+			frame_vi.num_frames = (int)nTotalFrames;
+		}
     }
 
     vi = frame_vi;
@@ -176,17 +181,17 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
 }
 
 void SSIFSource::Clear() {
-    if (left_grabber != NULL) 
-        left_grabber->SetEnabled(false);
-    if (right_grabber != NULL) 
-        right_grabber->SetEnabled(false);
+    if (main_grabber != NULL) 
+        main_grabber->SetEnabled(false);
+    if (sub_grabber != NULL) 
+        sub_grabber->SetEnabled(false);
     if (pControl) {
-        MSG msg;
         pControl->StopWhenReady();
 
         long evCode = 0;
         LONG_PTR param1 = 0, param2 = 0;
         HRESULT hr = S_OK;
+		MSG msg;
 
         while (1) {
             bool good = false;
@@ -244,14 +249,39 @@ AVSValue __cdecl SSIFSource::Create(AVSValue args, void* user_data, IScriptEnvir
     return obj;
 }
 
-void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env) {
-    SetEvent(grabber->hDataReady);
-    if (!grabber->GetEnabled() || (WaitForSingleObject(grabber->hDataParsed, FRAME_WAITTIME) != WAIT_OBJECT_0)) {
-        printf("\nssifSource2:M%08x %6d frame duplicate added\n", grabber, current_frame_number-1);
+void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env, bool bSignal) {
+    if (bSignal)
+        SetEvent(grabber->hDataReady);
+    if (!grabber->GetEnabled() || (WaitForSingleObject(grabber->hDataParsed, INFINITE) != WAIT_OBJECT_0)) {
+        printf("\nssifSource2: Seek out of graph. %6d frame duplicate added (debug: g%08x m%08x s%08x)\n", 
+            current_frame_number-1, grabber, main_grabber, sub_grabber);
         grabber->SetEnabled(false);
     }
-    memcpy(vf->GetWritePtr(), grabber->pData, grabber->m_FrameSize);
+    if ((void*)vf)
+        memcpy(vf->GetWritePtr(), grabber->pData, grabber->m_FrameSize);
     ResetEvent(grabber->hDataParsed);
+}
+
+void SSIFSource::DropFrame(CSampleGrabber *grabber, IScriptEnvironment* env, bool bSignal) {
+    DataToFrame(grabber, PVideoFrame(), env, bSignal);
+}
+
+void SSIFSource::ParseEvents() {
+    long evCode = 0;
+    LONG_PTR param1 = 0, param2 = 0;
+    HRESULT hr = S_OK;
+    while (SUCCEEDED(pEvent->GetEvent(&evCode, &param1, &param2, 0))) {
+        // Invoke the callback.
+        if (evCode == EC_COMPLETE) {
+            main_grabber->SetEnabled(false);
+            if (sub_grabber) sub_grabber->SetEnabled(false);
+        }
+
+        // Free the event data.
+        hr = pEvent->FreeEventParams(evCode, param1, param2);
+        if (FAILED(hr))
+            break;
+    }
 }
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
@@ -262,8 +292,8 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
         LONGLONG lDuration, lPos;
         pSeeking->GetDuration(&lDuration);
 
-        left_grabber->SetEnabled(false);
-        if (params & SP_RIGHTVIEW) right_grabber->SetEnabled(false);
+        main_grabber->SetEnabled(false);
+        if (sub_grabber) sub_grabber->SetEnabled(false);
 
         pControl->Pause();
         if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
@@ -273,28 +303,25 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
             lPos = n;
         pSeeking->SetPositions(&lPos, AM_SEEKING_AbsolutePositioning, &lPos, AM_SEEKING_AbsolutePositioning);
 
-        left_grabber->SetEnabled(true);
-        if (params & SP_RIGHTVIEW) right_grabber->SetEnabled(true);
+        main_grabber->SetEnabled(true);
+        if (sub_grabber) sub_grabber->SetEnabled(true);
 
         current_frame_number = n;
     }
     current_frame_number++;
 
     pControl->Run();
-    PVideoFrame left, right;
-    if (params & SP_LEFTVIEW) {
-        left = env->NewVideoFrame(frame_vi);
-        DataToFrame(left_grabber, left, env);
-    }
-    if (params & SP_RIGHTVIEW) {
-        right = env->NewVideoFrame(frame_vi);
-        DataToFrame(right_grabber, right, env);
-    }
+	PVideoFrame frame_main, frame_sub;
+	frame_main = env->NewVideoFrame(frame_vi);
+	DataToFrame(main_grabber, frame_main, env /*, bMainSignal */ );
+	if (sub_grabber) {
+		frame_sub = env->NewVideoFrame(frame_vi);
+		DataToFrame(sub_grabber, frame_sub, env);
+	}
 
-    if ((params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
-        return ClipStack(env, new FrameHolder(frame_vi, left), new FrameHolder(frame_vi, right), (params & SP_HORIZONTALSTACK) != 0)->GetFrame(0, env);
-    else if (params & SP_LEFTVIEW)
-        return left;
-    else
-        return right;
+	if (sub_grabber)
+		return ClipStack(env, new FrameHolder(frame_vi, frame_main), new FrameHolder(frame_vi, frame_sub), 
+		(params & SP_HORIZONTALSTACK) != 0)->GetFrame(0, env);
+	else
+		return frame_main;
 }

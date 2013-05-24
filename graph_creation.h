@@ -12,7 +12,7 @@ enum ShowParameters {
 };
 
 class SSIFSource: public IClip {
-    CSampleGrabber *left_grabber, *right_grabber;
+    CSampleGrabber *main_grabber, *sub_grabber;
     VideoInfo vi, frame_vi;
     int params;
     int current_frame_number;
@@ -20,13 +20,16 @@ class SSIFSource: public IClip {
     CComQIPtr<IMediaEventEx> pEvent;
     CComQIPtr<IMediaControl> pControl;
     HWND hWindow;
+    REFERENCE_TIME tmDuration;
 
     void Clear();
     void Throw(const char* str) {
         Clear();
         throw str;
     }
-    void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env);
+    void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env, bool bSignal = true);
+    void DropFrame(CSampleGrabber *grabber, IScriptEnvironment* env, bool bSignal = true);
+    void ParseEvents();
 public:
 	SSIFSource(AVSValue& args, IScriptEnvironment* env);
     virtual ~SSIFSource();
