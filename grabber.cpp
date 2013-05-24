@@ -38,6 +38,7 @@ CSampleGrabber::CSampleGrabber(HRESULT* phr)
     bEnabled = true;
     pData = NULL;
     nFrame = 0;
+    tmLastFrame = 0;
 }
 
 CSampleGrabber::~CSampleGrabber() {
@@ -130,7 +131,12 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
     HANDLE handles[2] = {hDataReady, hEventDisabled};
     DWORD res = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
     if (res == WAIT_OBJECT_0) {
+        REFERENCE_TIME lEnd;
         ResetEvent(hDataReady);
+        if (FAILED(pMediaSample->GetTime(&tmLastFrame, &lEnd))) {
+            SetEvent(hDataParsed);
+            return E_FAIL;
+        }
         if (pData != NULL)
             memcpy(pData, pCurrentBits, m_FrameSize);
         SetEvent(hDataParsed);
@@ -138,7 +144,7 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
 
     ++nFrame;
 
-    return S_FALSE;
+    return S_OK;
 Cleanup:
     return hr;
 }

@@ -56,7 +56,7 @@ HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* left_grabber, IBaseFilt
 
     hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0), GetInPin(pDecoder, 0), NULL);
     if (FAILED(hr)) goto lerror;
-    pGraph->ConnectDirect(GetOutPin(pSplitter, 1), GetInPin(pDecoder, 1), NULL);
+    hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1), GetInPin(pDecoder, 1), NULL);
     // Ignore the error here. For 'MVC (Full)' support
 
     ASSERT(left_grabber != NULL);
@@ -98,13 +98,6 @@ lerror:
 }
 
 // === SSIFSource class =======================================================
-
-
-extern "C" __declspec(dllexport) 
-const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
-    env->AddFunction("ssifSource2", "[ssif_file]s[frame_count]i[left_view]b[right_view]b[horizontal_stack]b", SSIFSource::Create, 0);
-    return 0;
-}
 
 PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = false) {
     const char* arg_names[2] = {NULL, NULL};

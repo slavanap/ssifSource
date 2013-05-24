@@ -21,6 +21,7 @@ public:
     HANDLE hEventDisabled;
     BYTE *pData;
     int nFrame;
+    REFERENCE_TIME tmLastFrame;
 
 public:
     CSampleGrabber(HRESULT* phr);

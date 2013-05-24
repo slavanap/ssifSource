@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ssifSource2"
 	ProjectGUID="{52AD1AFC-8BFF-49C7-AE1F-35FCE6284183}"
 	RootNamespace="ssifSource2"
@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\several_files.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -227,6 +231,10 @@
 			</File>
 			<File
 				RelativePath=".\graph_creation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\several_files.h"
 				>
 			</File>
 			<File

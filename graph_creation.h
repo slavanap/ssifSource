@@ -21,7 +21,6 @@ class SSIFSource: public IClip {
     CComQIPtr<IMediaControl> pControl;
     HWND hWindow;
 
-    SSIFSource(AVSValue& args, IScriptEnvironment* env);
     void Clear();
     void Throw(const char* str) {
         Clear();
@@ -29,9 +28,10 @@ class SSIFSource: public IClip {
     }
     void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env);
 public:
-    static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
+	SSIFSource(AVSValue& args, IScriptEnvironment* env);
     virtual ~SSIFSource();
 
+	static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
     PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env);
 
     bool WINAPI GetParity(int n) { return false; }
