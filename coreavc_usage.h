@@ -1,18 +1,18 @@
 #pragma once
 #include "avisynth.h"
-#include "grabber.h"
+#include "directshow_grabber.h"
 
 const UINT WM_GRAPH_EVENT = WM_APP + 1;
 
-enum ShowParameters {
-    SP_AVCVIEW         = 0x01,
-    SP_MVCVIEW         = 0x02,
-	SP_HORIZONTALSTACK = 0x04,
-	SP_SWAPVIEWS       = 0x08,
-    SP_MASK            = 0x15
+enum ShowParameters2 {
+    SP2_AVCVIEW         = 0x01,
+    SP2_MVCVIEW         = 0x02,
+	SP2_HORIZONTALSTACK = 0x04,
+	SP2_SWAPVIEWS       = 0x08,
+    SP2_MASK            = 0x0F
 };
 
-class SSIFSource: public IClip {
+class SSIFSource2: public IClip {
     CSampleGrabber *main_grabber, *sub_grabber, *skip_grabber;
     VideoInfo vi, frame_vi;
     int params;
@@ -39,8 +39,8 @@ class SSIFSource: public IClip {
 	}
 	bool SwapViewsDetect(const string& filename);
 public:
-	SSIFSource(AVSValue& args, IScriptEnvironment* env);
-    virtual ~SSIFSource();
+	SSIFSource2(AVSValue& args, IScriptEnvironment* env);
+    virtual ~SSIFSource2();
 
 	static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
     PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env);
@@ -63,3 +63,5 @@ public:
     const VideoInfo& WINAPI GetVideoInfo() { return vi; }
     void WINAPI SetCacheHints(int cachehints, int frame_range) { /* empty */ }
 };
+
+PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = false);

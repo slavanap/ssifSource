@@ -46,7 +46,7 @@ void SSIFSourceExt::AddFileNext(const string& name, int frames, bool load) {
 		name.c_str(), frames, load ? "TRUE" : "FALSE");
 	if (load) {
 		AVSValue args[7] = {name.c_str(), frames, bLeft, bRight, bHorizontalStack, iSwapViews, bCreateIndex};
-		SSIFSource *obj = new SSIFSource(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
+		SSIFSource2 *obj = new SSIFSource2(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
 		frames = obj->GetVideoInfo().num_frames;
 		if (cfile_idx < 0) {
 			cfileclip_holder = cfile = obj;
@@ -66,7 +66,7 @@ void SSIFSourceExt::ChangeCurrentFile(int new_idx) {
 	AVSValue args[7] = {files_names[new_idx].c_str(), 
 		framenum_offsets[new_idx+1]-framenum_offsets[new_idx], 
 		bLeft, bRight, bHorizontalStack, iSwapViews, bCreateIndex};
-	cfile = new SSIFSource(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
+	cfile = new SSIFSource2(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
 	cfileclip_holder = cfile;
 	cfile_idx = new_idx;
 }

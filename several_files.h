@@ -1,8 +1,8 @@
 #pragma once
-#include "graph_creation.h"
+#include "coreavc_usage.h"
 
 class SSIFSourceExt: public IClip {
-	SSIFSource *cfile;
+	SSIFSource2 *cfile;
 	PClip cfileclip_holder;
 	int cfile_idx;
 	VideoInfo vi;

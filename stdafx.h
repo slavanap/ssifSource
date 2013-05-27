@@ -23,5 +23,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <tchar.h>
+#include <iostream>
+#include <ctime>
 
 using namespace std;

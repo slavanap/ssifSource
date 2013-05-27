@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "utils.h"
-#include "graph_creation.h"
+#include "coreavc_usage.h"
 
 #define SSIFSOURCE2_PLUGIN "ssifSource2"
 #define FORMAT_PRINTMESSAGE(x) SSIFSOURCE2_PLUGIN ": " x "\n"
@@ -106,13 +106,13 @@ lerror:
 
 // === SSIFSource class =======================================================
 
-PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = false) {
+PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal) {
     const char* arg_names[2] = {NULL, NULL};
     AVSValue args[2] = {a, b};
     return (env->Invoke(horizontal ? "StackHorizontal" : "StackVertical", AVSValue(args,2), arg_names)).AsClip();
 }
 
-SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
+SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
     main_grabber = sub_grabber = skip_grabber = NULL;
     current_frame_number = -1;
     pGraph = NULL;
@@ -121,12 +121,12 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
 
     params = 0;
     if (args[2].AsBool(false))
-        params |= SP_AVCVIEW;
+        params |= SP2_AVCVIEW;
     if (args[3].AsBool(true))
-        params |= SP_MVCVIEW;
+        params |= SP2_MVCVIEW;
     if (args[4].AsBool(false))
-        params |= SP_HORIZONTALSTACK;
-    if (!(params & (SP_AVCVIEW | SP_MVCVIEW)))
+        params |= SP2_HORIZONTALSTACK;
+    if (!(params & (SP2_AVCVIEW | SP2_MVCVIEW)))
         Throw("No view selected!");
 
     HRESULT hr = S_OK;
@@ -135,9 +135,9 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
         USES_CONVERSION;
         CSampleGrabber *avc_grabber = NULL, *mvc_grabber = NULL;
 		avc_grabber = new CSampleGrabber(&hr);
-		if (params & SP_MVCVIEW) {
+		if (params & SP2_MVCVIEW) {
 			mvc_grabber = new CSampleGrabber(&hr);
-			if (params & SP_AVCVIEW) {
+			if (params & SP2_AVCVIEW) {
 				main_grabber = avc_grabber;
 				sub_grabber = mvc_grabber;
 			}
@@ -212,21 +212,21 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
 
     vi = frame_vi;
     if (sub_grabber)
-        ((params & SP_HORIZONTALSTACK) ? vi.width : vi.height) *= 2;
+        ((params & SP2_HORIZONTALSTACK) ? vi.width : vi.height) *= 2;
 
 	// Parsing swap_views parameter
 	int flag_swap_views = args[5].AsInt(-1);
 	if (flag_swap_views != -1) {
 		if (flag_swap_views)
-			params |= SP_SWAPVIEWS;
+			params |= SP2_SWAPVIEWS;
 	}
 	else {
 		if (SwapViewsDetect(args[0].AsString()))
-			params |= SP_SWAPVIEWS;
+			params |= SP2_SWAPVIEWS;
 	}
 }
 
-void SSIFSource::Clear() {
+void SSIFSource2::Clear() {
     if (main_grabber != NULL) 
         main_grabber->SetEnabled(false);
     if (sub_grabber != NULL) 
@@ -281,11 +281,11 @@ void SSIFSource::Clear() {
     }
 }
 
-SSIFSource::~SSIFSource() {
+SSIFSource2::~SSIFSource2() {
     Clear();    
 }
 
-bool SSIFSource::SwapViewsDetect(const string& filename) {
+bool SSIFSource2::SwapViewsDetect(const string& filename) {
 	printf(FORMAT_PRINTMESSAGE("swapviews autodetect mode on. Searching for swapviews flag in mpls files..."));
 
 	size_t pos = filename.find_last_of('\\');
@@ -346,17 +346,17 @@ bool SSIFSource::SwapViewsDetect(const string& filename) {
 	return res;;
 }
 
-AVSValue __cdecl SSIFSource::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
-    SSIFSource *obj = NULL;
+AVSValue __cdecl SSIFSource2::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
+    SSIFSource2 *obj = NULL;
     try {
-        obj = new SSIFSource(args, env);
+        obj = new SSIFSource2(args, env);
     } catch(const char* str) {
         env->ThrowError("%s", str);
     }
     return obj;
 }
 
-void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env, bool bSignal) {
+void SSIFSource2::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env, bool bSignal) {
     if (bSignal)
         SetEvent(grabber->hDataReady);
 	HANDLE handles[2] = {grabber->hDataParsed, grabber->hEventDisabled};
@@ -374,11 +374,11 @@ void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEn
     ResetEvent(grabber->hDataParsed);
 }
 
-void SSIFSource::DropFrame(CSampleGrabber *grabber, IScriptEnvironment* env, bool bSignal) {
+void SSIFSource2::DropFrame(CSampleGrabber *grabber, IScriptEnvironment* env, bool bSignal) {
     DataToFrame(grabber, PVideoFrame(), env, bSignal);
 }
 
-void SSIFSource::ParseEvents() {
+void SSIFSource2::ParseEvents() {
     long evCode = 0;
     LONG_PTR param1 = 0, param2 = 0;
     HRESULT hr = S_OK;
@@ -396,7 +396,7 @@ void SSIFSource::ParseEvents() {
     }
 }
 
-void SSIFSource::SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnvironment* env) {
+void SSIFSource2::SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnvironment* env) {
 	printf(FORMAT_PRINTMESSAGE("seeking to frame %d (lastframe_number = %d)"), framenumber, current_frame_number);
 
 	REFERENCE_TIME lPos = main_grabber->m_AvgTimePerFrame * framenumber;
@@ -445,7 +445,7 @@ void SSIFSource::SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnvironm
 	current_frame_number = framenumber - skip_frames;
 }
 
-PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
+PVideoFrame WINAPI SSIFSource2::GetFrame(int n, IScriptEnvironment* env) {
 	bool bMainSignal = true;
 	bool bSubSignal = true;
 
@@ -488,9 +488,9 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 
 	if (sub_grabber)
 		return ClipStack(env, 
-			new FrameHolder(frame_vi, ((params & SP_SWAPVIEWS) == 0) ? frame_main : frame_sub), 
-			new FrameHolder(frame_vi, ((params & SP_SWAPVIEWS) == 0) ? frame_sub : frame_main), 
-			(params & SP_HORIZONTALSTACK) != 0) -> GetFrame(0, env);
+			new FrameHolder(frame_vi, ((params & SP2_SWAPVIEWS) == 0) ? frame_main : frame_sub), 
+			new FrameHolder(frame_vi, ((params & SP2_SWAPVIEWS) == 0) ? frame_sub : frame_main), 
+			(params & SP2_HORIZONTALSTACK) != 0) -> GetFrame(0, env);
 	else
 		return frame_main;
 }

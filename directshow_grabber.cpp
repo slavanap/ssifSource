@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "utils.h"
-#include "grabber.h"
+#include "directshow_grabber.h"
 
 // This source file is a changed version of this example:
 // http://mobilaboratory.googlecode.com/svn-history/r23/trunk/CameraCapture/SampleGrabberFilterComplete/SampleGrabber.cpp

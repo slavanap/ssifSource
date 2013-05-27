@@ -176,15 +176,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\grabber.cpp"
+				RelativePath=".\coreavc_usage.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\graph_creation.cpp"
+				RelativePath=".\directshow_grabber.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath=".\dllmain.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ldecod_usage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\pipe_tools.cpp"
 				>
 			</File>
 			<File
@@ -222,15 +230,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\avisynth.h"
+				RelativePath=".\coreavc_usage.h"
 				>
 			</File>
 			<File
-				RelativePath=".\grabber.h"
+				RelativePath=".\directshow_grabber.h"
 				>
 			</File>
 			<File
-				RelativePath=".\graph_creation.h"
+				RelativePath=".\ldecod_usage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pipe_tools.h"
 				>
 			</File>
 			<File
