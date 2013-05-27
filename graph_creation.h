@@ -13,13 +13,14 @@ enum ShowParameters {
 };
 
 class SSIFSource: public IClip {
-    CSampleGrabber *main_grabber, *sub_grabber;
+    CSampleGrabber *main_grabber, *sub_grabber, *skip_grabber;
     VideoInfo vi, frame_vi;
     int params;
     int current_frame_number;
     IGraphBuilder *pGraph;
     CComQIPtr<IMediaEventEx> pEvent;
     CComQIPtr<IMediaControl> pControl;
+	CComQIPtr<IMediaSeeking> pSeeking;
     HWND hWindow;
     REFERENCE_TIME tmDuration;
 

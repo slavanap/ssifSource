@@ -4,6 +4,7 @@
 
 #define SSIFSOURCE2_PLUGIN "ssifSource2"
 #define FORMAT_PRINTMESSAGE(x) SSIFSOURCE2_PLUGIN ": " x "\n"
+#define FRAME_WAITTIMEOUT 60000 // 60 seconds
 #define FRAME_SEEKBACKFRAMECOUNT 200 // 200 frames
 
 EXTERN_C const CLSID CLSID_NullRenderer;
@@ -112,7 +113,7 @@ PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal = fal
 }
 
 SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
-    main_grabber = sub_grabber = NULL;
+    main_grabber = sub_grabber = skip_grabber = NULL;
     current_frame_number = -1;
     pGraph = NULL;
     hWindow = NULL;
@@ -133,10 +134,22 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
     {
         USES_CONVERSION;
         CSampleGrabber *avc_grabber = NULL, *mvc_grabber = NULL;
-        if (params & SP_AVCVIEW)
-            main_grabber = avc_grabber = new CSampleGrabber(&hr);
-        if (params & SP_MVCVIEW)
-            ((main_grabber == NULL) ? main_grabber : sub_grabber) = mvc_grabber = new CSampleGrabber(&hr);
+		avc_grabber = new CSampleGrabber(&hr);
+		if (params & SP_MVCVIEW) {
+			mvc_grabber = new CSampleGrabber(&hr);
+			if (params & SP_AVCVIEW) {
+				main_grabber = avc_grabber;
+				sub_grabber = mvc_grabber;
+			}
+			else {
+				skip_grabber = avc_grabber;
+				skip_grabber->SetEnabled(false);
+				main_grabber = mvc_grabber;
+			}
+		}
+		else {
+			main_grabber = avc_grabber;
+		}
         LPCSTR filename = args[0].AsString();
         hr = CreateGraph(A2W(filename), static_cast<IBaseFilter*>(avc_grabber), static_cast<IBaseFilter*>(mvc_grabber), &pGraph);
         if (FAILED(hr)) {
@@ -149,7 +162,8 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
     if (!pEvent) Throw("Can't retrieve IMediaEventEx interface");
     pControl = pGraph;
     if (!pControl) Throw("Can't retrieve IMediaControl interface");
-//    pEvent->SetNotifyWindow((OAHWND)hWindow, WM_GRAPH_EVENT, NULL);
+	pSeeking = pGraph;
+	if (!pSeeking) Throw("Can't retrieve IMediaSeeking interface");
 
     // Run the graph
     hr = pControl->Run();
@@ -164,7 +178,6 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
     // Get total number of frames
 	printf("\n");
     {
-        CComQIPtr<IMediaSeeking> pSeeking = pGraph;
         LONGLONG nTotalFrames;
         pSeeking->GetDuration(&tmDuration);
 		if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
@@ -175,9 +188,9 @@ SSIFSource::SSIFSource(AVSValue& args, IScriptEnvironment* env) {
 				main_grabber->nFrame = 0;
 				main_grabber->SetEnabled(true);
 				if (sub_grabber) sub_grabber->SetEnabled(false);
-				pControl->Run();
 				int last_cn = current_frame_number;
-				while(!main_grabber->bComplited) {
+				while(!main_grabber->bCompleted) {
+					pControl->Run();
 					DropFrame(main_grabber, env);
 					current_frame_number++;
 				}
@@ -347,10 +360,14 @@ void SSIFSource::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEn
     if (bSignal)
         SetEvent(grabber->hDataReady);
 	HANDLE handles[2] = {grabber->hDataParsed, grabber->hEventDisabled};
-    if (WaitForMultipleObjects(2, handles, FALSE, INFINITE) != WAIT_OBJECT_0) {
-        printf("\n" FORMAT_PRINTMESSAGE("Seek out of graph. %6d frame duplicate added (debug: g%08x m%08x s%08x)"), 
-            current_frame_number, grabber, main_grabber, sub_grabber);
-        grabber->SetEnabled(false);
+	DWORD wait_res = WaitForMultipleObjects(2, handles, FALSE, FRAME_WAITTIMEOUT);
+    if (wait_res != WAIT_OBJECT_0) {
+		printf("\n" FORMAT_PRINTMESSAGE("%s Frame #%6d duplicate added (debug: g%08x m%08x s%08x)"), 
+			(wait_res == WAIT_TIMEOUT) ? "Decoding frame timeout reached!!!" : 
+			(wait_res == WAIT_OBJECT_0 + 1) ? "End of graph." : "Seek out of graph.",
+			current_frame_number, grabber, main_grabber, sub_grabber);
+        main_grabber->SetEnabled(false);
+		if (sub_grabber) sub_grabber->SetEnabled(false);
     }
     if ((void*)vf)
         memcpy(vf->GetWritePtr(), grabber->pData, grabber->m_FrameSize);
@@ -382,7 +399,6 @@ void SSIFSource::ParseEvents() {
 void SSIFSource::SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnvironment* env) {
 	printf(FORMAT_PRINTMESSAGE("seeking to frame %d (lastframe_number = %d)"), framenumber, current_frame_number);
 
-	CComQIPtr<IMediaSeeking> pSeeking = pGraph;
 	REFERENCE_TIME lPos = main_grabber->m_AvgTimePerFrame * framenumber;
 	int skip_frames = 0;
 

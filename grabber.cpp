@@ -39,7 +39,7 @@ CSampleGrabber::CSampleGrabber(HRESULT* phr)
     pData = NULL;
     nFrame = 0;
     tmLastFrame = 0;
-	bComplited = false;
+	bCompleted = false;
 }
 
 CSampleGrabber::~CSampleGrabber() {
@@ -125,35 +125,32 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
         goto Cleanup;
     lSize = pMediaSample->GetSize();
 
-    if (m_FrameSize == 0) {
+    if (m_FrameSize == 0)
         m_FrameSize = lSize;
-        pData = (BYTE*)malloc(m_FrameSize);
-    }
 
     HANDLE handles[2] = {hDataReady, hEventDisabled};
     DWORD res = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
     if (res == WAIT_OBJECT_0) {
         REFERENCE_TIME lEnd;
         ResetEvent(hDataReady);
-        if (FAILED(pMediaSample->GetTime(&tmLastFrame, &lEnd))) {
-            SetEvent(hDataParsed);
-            return E_FAIL;
-        }
-        if (pData != NULL)
-            memcpy(pData, pCurrentBits, m_FrameSize);
+        pMediaSample->GetTime(&tmLastFrame, &lEnd);
+		if (pData == NULL) {
+			pData = (BYTE*)malloc(m_FrameSize);
+		}
+        memcpy(pData, pCurrentBits, m_FrameSize);
         SetEvent(hDataParsed);
     }
 
     ++nFrame;
-	bComplited = false;
+	bCompleted = false;
 
-    return S_OK;
+    return S_FALSE;
 Cleanup:
     return hr;
 }
 
 HRESULT CSampleGrabber::EndOfStream() {
-	bComplited = true;
+	bCompleted = true;
 	SetEnabled(false);
 	return CTransInPlaceFilter::EndOfStream();
 }

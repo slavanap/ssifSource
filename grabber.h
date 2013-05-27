@@ -22,7 +22,7 @@ public:
     BYTE *pData;
     int nFrame;
     REFERENCE_TIME tmLastFrame;
-	bool bComplited;
+	bool bCompleted;
 
 public:
     CSampleGrabber(HRESULT* phr);
