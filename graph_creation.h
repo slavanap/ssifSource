@@ -5,10 +5,11 @@
 const UINT WM_GRAPH_EVENT = WM_APP + 1;
 
 enum ShowParameters {
-    SP_LEFTVIEW        = 0x01,
-    SP_RIGHTVIEW       = 0x02,
-    SP_HORIZONTALSTACK = 0x04,
-    SP_MASK            = 0x07
+    SP_AVCVIEW         = 0x01,
+    SP_MVCVIEW         = 0x02,
+	SP_HORIZONTALSTACK = 0x04,
+	SP_SWAPVIEWS       = 0x08,
+    SP_MASK            = 0x15
 };
 
 class SSIFSource: public IClip {
@@ -30,6 +31,12 @@ class SSIFSource: public IClip {
     void DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptEnvironment* env, bool bSignal = true);
     void DropFrame(CSampleGrabber *grabber, IScriptEnvironment* env, bool bSignal = true);
     void ParseEvents();
+	void SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnvironment* env);
+	void SeekToFrame(int framenumber, IScriptEnvironment* env) {
+		bool bMainSignal = true;
+		SeekToFrame(framenumber, bMainSignal, env);
+	}
+	bool SwapViewsDetect(const string& filename);
 public:
 	SSIFSource(AVSValue& args, IScriptEnvironment* env);
     virtual ~SSIFSource();

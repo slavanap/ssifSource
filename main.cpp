@@ -1,54 +1,15 @@
 #include "stdafx.h"
 #include "utils.h"
-#include "grabber.h"
+#include "graph_creation.h"
+#include "several_files.h"
 
-#ifndef _USRDLL
-
-HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* left_dumper, IBaseFilter* right_dumper, IGraphBuilder** ppGraph);
-
-int _tmain(int argc, _TCHAR* argv[]) {
-    hInstance = GetModuleHandle(NULL);
-    IGraphBuilder *pGraph = NULL;
-
-    CoInitialize(NULL);
-    CSampleGrabber *left_view = CreateGrabber();
-    CSampleGrabber *right_view = CreateGrabber();
-
-    left_view->m_hPipe = CreateFile(TEXT("c:\\0\\left.rgb"), 
-        GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    right_view->m_hPipe = CreateFile(TEXT("c:\\0\\right.rgb"), 
-        GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if (FAILED(CreateGraph(L"00001.ssif", static_cast<IBaseFilter*>(left_view), static_cast<IBaseFilter*>(right_view), &pGraph)))
-        return -1;
-    left_view->Release();
-    right_view->Release();
-
-    
-
-    CComQIPtr<IMediaControl>(pGraph)->Run();
-    
-    // Get total number of frames
-    CComQIPtr<IMediaSeeking> pSeeking = pGraph;
-    LONGLONG lDuration, nTotalFrames;
-    pSeeking->GetDuration(&lDuration);
-    if(FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME)))
-        nTotalFrames = lDuration / left_view->m_AvgTimePerFrame;
-    else
-        pSeeking->GetDuration(&nTotalFrames);
-    printf("%ld\n", nTotalFrames);
-
-    MSG msg;
-    while (GetMessage(&msg, NULL, NULL, NULL)) {
-        DispatchMessage(&msg);
-    }
-
-    pGraph->Release();
-    CoUninitialize();
+// Avisynth functions registration
+extern "C" __declspec(dllexport) 
+const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
+	env->AddFunction("ssifSource2", "[ssif_file]s[frame_count]i[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]i[create_index]b", SSIFSource::Create, 0);
+	env->AddFunction("ssifSource3", "[filelist]s[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]i[create_index]b", SSIFSourceExt::Create, 0);
 	return 0;
 }
-
-#else
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     switch (ul_reason_for_call) {
@@ -62,5 +23,3 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     }
     return TRUE;
 }
-
-#endif

@@ -1,19 +1,19 @@
 #pragma once
 #include "graph_creation.h"
-#include <vector>
 
 class SSIFSourceExt: public IClip {
 	SSIFSource *cfile;
 	PClip cfileclip_holder;
 	int cfile_idx;
 	VideoInfo vi;
-	std::vector<std::string> files_names;
-	std::vector<int> framenum_offsets;
+	vector<string> files_names;
+	vector<int> framenum_offsets;
 	IScriptEnvironment *env;
 
-	bool bLeft, bRight, bHorizontalStack;
+	bool bLeft, bRight, bHorizontalStack, bCreateIndex;
+	int iSwapViews;
 
-	void AddFileNext(const std::string& name, int frames, bool load);
+	void AddFileNext(const string& name, int frames, bool load);
 	void ChangeCurrentFile(int new_idx);
 public:
 	static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);

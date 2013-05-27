@@ -10,7 +10,6 @@
 // Windows Header Files:
 #include <windows.h>
 
-
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
 
 #include <atlbase.h>
@@ -18,4 +17,11 @@
 
 #include <assert.h>
 
-// TODO: reference additional headers your program requires here
+// Additional references
+
+#include <limits.h>
+#include <string>
+#include <sstream>
+#include <vector>
+
+using namespace std;

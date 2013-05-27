@@ -22,6 +22,7 @@ public:
     BYTE *pData;
     int nFrame;
     REFERENCE_TIME tmLastFrame;
+	bool bComplited;
 
 public:
     CSampleGrabber(HRESULT* phr);
@@ -42,4 +43,5 @@ public:
     }
     HRESULT DecideBufferSize(IMemAllocator* pAlloc, ALLOCATOR_PROPERTIES* pProperties);
     HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
+	HRESULT EndOfStream();
 };

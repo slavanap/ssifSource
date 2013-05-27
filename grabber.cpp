@@ -39,6 +39,7 @@ CSampleGrabber::CSampleGrabber(HRESULT* phr)
     pData = NULL;
     nFrame = 0;
     tmLastFrame = 0;
+	bComplited = false;
 }
 
 CSampleGrabber::~CSampleGrabber() {
@@ -53,8 +54,6 @@ CSampleGrabber::~CSampleGrabber() {
 }
 
 void CSampleGrabber::SetEnabled(bool value) {
-    if (value == bEnabled)
-        return;
     bEnabled = value;
     if (value) {
         ResetEvent(hEventDisabled);
@@ -146,10 +145,17 @@ HRESULT CSampleGrabber::Transform(IMediaSample* pMediaSample) {
     }
 
     ++nFrame;
+	bComplited = false;
 
     return S_OK;
 Cleanup:
     return hr;
+}
+
+HRESULT CSampleGrabber::EndOfStream() {
+	bComplited = true;
+	SetEnabled(false);
+	return CTransInPlaceFilter::EndOfStream();
 }
 
 HRESULT CSampleGrabber::Pause() {
