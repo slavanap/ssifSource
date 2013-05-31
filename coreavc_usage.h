@@ -38,6 +38,7 @@ class SSIFSource2: public IClip {
 		SeekToFrame(framenumber, bMainSignal, env);
 	}
 	bool SwapViewsDetect(const string& filename);
+	int FrameCountDetect(const string& filename, IScriptEnvironment* env);
 public:
 	SSIFSource2(AVSValue& args, IScriptEnvironment* env);
     virtual ~SSIFSource2();

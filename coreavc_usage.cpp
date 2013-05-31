@@ -177,38 +177,26 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
     frame_vi = main_grabber->avisynth_vi;
     // Get total number of frames
 	printf("\n");
-    {
-        LONGLONG nTotalFrames;
-        pSeeking->GetDuration(&tmDuration);
-		if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
-			nTotalFrames = (tmDuration + main_grabber->m_AvgTimePerFrame/2) / main_grabber->m_AvgTimePerFrame;
-			if (args[1].AsInt(0) == 0) {
-				printf(FORMAT_PRINTMESSAGE("framecount directshow value is %d. Trying to get it more precisely..."), (int)nTotalFrames);
-				SeekToFrame((int)nTotalFrames, env);
-				main_grabber->nFrame = 0;
-				main_grabber->SetEnabled(true);
-				if (sub_grabber) sub_grabber->SetEnabled(false);
-				int last_cn = current_frame_number;
-				while(!main_grabber->bCompleted) {
-					pControl->Run();
-					DropFrame(main_grabber, env);
-					current_frame_number++;
-				}
-				frame_vi.num_frames = main_grabber->nFrame + last_cn + 1;
-				printf(FORMAT_PRINTMESSAGE("detected %d frames + %d additional frames = %d frames"), 
-					last_cn+1, main_grabber->nFrame, frame_vi.num_frames);
-				SeekToFrame(0, env);
-			}
-			else {
-				frame_vi.num_frames = args[1].AsInt((int)nTotalFrames);
-				printf(FORMAT_PRINTMESSAGE("frame count has been forced to %d"), frame_vi.num_frames);
-			}
+    LONGLONG nTotalFrames;
+    pSeeking->GetDuration(&tmDuration);
+	if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
+		nTotalFrames = (tmDuration + main_grabber->m_AvgTimePerFrame/2) / main_grabber->m_AvgTimePerFrame;
+		int frames = args[1].AsInt(0);
+		if (frames <= 0)
+			frames = FrameCountDetect(args[0].AsString(), env);
+		if (frames <= 0) {
+			printf(FORMAT_PRINTMESSAGE("framecount directshow value is %d"), (int)nTotalFrames);
 		}
 		else {
-			pSeeking->GetDuration(&nTotalFrames);
-			frame_vi.num_frames = (int)nTotalFrames;
+			nTotalFrames = frames;
+			printf(FORMAT_PRINTMESSAGE("frame count has been forced to %d"), frames);
 		}
-    }
+		frame_vi.num_frames = (int)nTotalFrames;
+	}
+	else {
+		pSeeking->GetDuration(&nTotalFrames);
+		frame_vi.num_frames = (int)nTotalFrames;
+	}
 
     vi = frame_vi;
     if (sub_grabber)
@@ -346,6 +334,38 @@ bool SSIFSource2::SwapViewsDetect(const string& filename) {
 	return res;;
 }
 
+int SSIFSource2::FrameCountDetect(const string& filename, IScriptEnvironment* env) {
+	size_t pos = filename.find_last_of('\\');
+	string path = filename;
+	path.erase(pos+1, string::npos);
+	string ssif_filename = filename.substr(pos+1, string::npos);
+	pos = ssif_filename.find_last_of('.');
+	if (pos != string::npos)
+		ssif_filename.erase(pos, string::npos);
+	ssif_filename = path + "..\\" + ssif_filename + (string)".M2TS";
+
+	printf(FORMAT_PRINTMESSAGE("framecount autodetect mode on. looking for '%s' file..."), ssif_filename.c_str());
+
+	if (env->FunctionExists("DSS2")) {
+		int frames = 0;
+		try	{
+			const char* arg_names[1] = {NULL};
+			AVSValue args[1] = {ssif_filename.c_str()};
+			PClip c = (env->Invoke("DSS2", AVSValue(args, sizeof(args) / sizeof(AVSValue)), arg_names)).AsClip();
+			frames = c->GetVideoInfo().num_frames;
+			c = NULL;
+		}
+		catch (AvisynthError err) {
+			printf(FORMAT_PRINTMESSAGE("Avisynth error violated during opening file with DSS2: %s"), err.msg);
+		}
+		return frames;
+	}
+	else {
+		printf(FORMAT_PRINTMESSAGE("DSS2 function does not exists. Please add DSS2 plugin (avss.dll) to Avisynth plugins to make this feature work."));
+		return 0;
+	}
+}
+
 AVSValue __cdecl SSIFSource2::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
     SSIFSource2 *obj = NULL;
     try {
@@ -400,56 +420,22 @@ void SSIFSource2::SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnviron
 	printf(FORMAT_PRINTMESSAGE("seeking to frame %d (lastframe_number = %d)"), framenumber, current_frame_number);
 
 	REFERENCE_TIME lPos = main_grabber->m_AvgTimePerFrame * framenumber;
-	int skip_frames = 0;
+	main_grabber->SetEnabled(false);
+	if (sub_grabber) sub_grabber->SetEnabled(false);
+	pControl->Pause();
+	HRESULT hr = pSeeking->SetPositions(&lPos, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
 
-	while (1) {
-		if (lPos < 0) {
-			skip_frames += (int)(lPos / main_grabber->m_AvgTimePerFrame);
-			lPos = 0;
-		}
-
-		main_grabber->SetEnabled(false);
-		if (sub_grabber) sub_grabber->SetEnabled(false);
-		pControl->Pause();
-
-		HRESULT hr = pSeeking->SetPositions(&lPos, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
-
-		main_grabber->SetEnabled(true);
-		if (sub_grabber) sub_grabber->SetEnabled(true);
-
-		bMainSignal = false;
-		pControl->Run();
-
-		HANDLE handles[2] = {main_grabber->hDataParsed, main_grabber->hEventDisabled};
-		SetEvent(main_grabber->hDataReady);
-		DWORD wait_res = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
-		if (wait_res == WAIT_OBJECT_0) {
-			// If we made it - exit loop.
-			if (lPos == 0 || main_grabber->tmLastFrame < (main_grabber->m_AvgTimePerFrame / 2))
-				break;
-			// Ok. Continuing seeking one frame back.
-			ResetEvent(main_grabber->hDataParsed);
-			lPos -= main_grabber->m_AvgTimePerFrame;
-			skip_frames++;
-		}
-		else if (wait_res == WAIT_OBJECT_0 + 1) {
-			// Seek out of the graph! Trying to seek back.
-			lPos -= FRAME_SEEKBACKFRAMECOUNT * main_grabber->m_AvgTimePerFrame;
-			skip_frames += FRAME_SEEKBACKFRAMECOUNT;
-		}
-		else
-			env->ThrowError("Error %08x occurred at WaitForSingleObject API function", wait_res);
-	}
-	if (skip_frames < 0)
-		env->ThrowError("Error occurred at seeking process");
-	current_frame_number = framenumber - skip_frames;
+	main_grabber->SetEnabled(true);
+	if (sub_grabber) sub_grabber->SetEnabled(true);
+	pControl->Run();
+	current_frame_number = framenumber;
 }
 
 PVideoFrame WINAPI SSIFSource2::GetFrame(int n, IScriptEnvironment* env) {
 	bool bMainSignal = true;
 	bool bSubSignal = true;
 
-    if (n != current_frame_number && n != current_frame_number+1) {
+    if (n != current_frame_number+1) {
         SeekToFrame(n, bMainSignal, env);
 		int skip_frames = n - current_frame_number;
 		while (skip_frames-- > 0) {
@@ -457,25 +443,18 @@ PVideoFrame WINAPI SSIFSource2::GetFrame(int n, IScriptEnvironment* env) {
 			if (sub_grabber) DropFrame(sub_grabber, env);
 			bMainSignal = true;
 		}
-		current_frame_number = n-1;
+		current_frame_number = n;
     }
+	else
+		++current_frame_number;
 
-	// Check that we really need to dump the frame
-	if (n == current_frame_number) {
-		bMainSignal = false;
-		bSubSignal = false;
-	}
-	else {
-		current_frame_number++;
-		if (main_grabber->GetEnabled())
-			pControl->Run();
-
-		// Sync running states
-		if (!main_grabber->GetEnabled() && sub_grabber) 
-			sub_grabber->SetEnabled(false);
-		if (sub_grabber && !sub_grabber->GetEnabled()) 
-			main_grabber->SetEnabled(false);
-	}
+	if (main_grabber->GetEnabled())
+		pControl->Run();
+	// Sync running states
+	if (!main_grabber->GetEnabled() && sub_grabber) 
+		sub_grabber->SetEnabled(false);
+	if (sub_grabber && !sub_grabber->GetEnabled()) 
+		main_grabber->SetEnabled(false);
 
 	// Dumping process
 	PVideoFrame frame_main, frame_sub;

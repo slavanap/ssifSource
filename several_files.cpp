@@ -66,8 +66,7 @@ void SSIFSourceExt::ChangeCurrentFile(int new_idx) {
 	AVSValue args[7] = {files_names[new_idx].c_str(), 
 		framenum_offsets[new_idx+1]-framenum_offsets[new_idx], 
 		bLeft, bRight, bHorizontalStack, iSwapViews, bCreateIndex};
-	cfile = new SSIFSource2(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
-	cfileclip_holder = cfile;
+	cfileclip_holder = cfile = new SSIFSource2(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
 	cfile_idx = new_idx;
 }
 
@@ -78,7 +77,7 @@ PVideoFrame SSIFSourceExt::GetFrame(int n, IScriptEnvironment* env) {
 	while (framenum_offsets[idx] > n)
 		--idx;
 	ChangeCurrentFile(idx);
-	return cfile->GetFrame(n-framenum_offsets[idx], env);
+	return cfileclip_holder->GetFrame(n-framenum_offsets[idx], env);
 }
 
 AVSValue __cdecl SSIFSourceExt::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
