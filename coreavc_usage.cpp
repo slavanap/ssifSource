@@ -9,16 +9,37 @@
 
 EXTERN_C const CLSID CLSID_NullRenderer;
 
-LPOLESTR lib_splitter = T2OLE(L"MPEGSplitter.dll");
-LPOLESTR lib_decoder = T2OLE(L"CoreAVCDecoder.dll");
+typedef enum {
+	SN_MPEG,
+	SN_MATROSKA
+} SplitterName;
 
-HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* avc_grabber, IBaseFilter* mvc_grabber, IGraphBuilder** ppGraph) {
+LPOLESTR lib_MpegSplitter = T2OLE(L"MPEGSplitter.dll");
+LPOLESTR lib_MatroskaSplitter = T2OLE(L"MatroskaSplitter.dll");
+LPOLESTR lib_Decoder = T2OLE(L"CoreAVCDecoder.dll");
+
+HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* avc_grabber, IBaseFilter* mvc_grabber, IGraphBuilder** ppGraph, SplitterName sn) {
     HRESULT hr = S_OK;
     IGraphBuilder *pGraph = NULL;
     CComQIPtr<IBaseFilter> pDecoder;
     CComQIPtr<IBaseFilter> pSplitter;
     CComQIPtr<IPropertyBag> prog_bag;
     CComQIPtr<IBaseFilter> pRenderer1, pRenderer2;
+	LPOLESTR lib_Splitter;
+	const CLSID *clsid_Splitter;
+
+	switch (sn) {
+		case SN_MPEG:
+			lib_Splitter = lib_MpegSplitter;
+			clsid_Splitter = &CLSID_MpegSplitter;
+			break;
+		case SN_MATROSKA:
+			lib_Splitter = lib_MatroskaSplitter;
+			clsid_Splitter = &CLSID_MatroskaSplitter;
+			break;
+		default:
+			return E_UNEXPECTED;
+	}
 
     WCHAR fullname_splitter[MAX_PATH+32];
     WCHAR fullname_decoder[MAX_PATH+32];
@@ -29,13 +50,13 @@ HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* avc_grabber, IBaseFilte
     while (len > 0 && fullname_splitter[len-1] != '\\') --len;
     fullname_splitter[len] = '\0';
     StringCchCopyW(fullname_decoder, MAX_PATH, fullname_splitter);
-    StringCchCatW(fullname_splitter, MAX_PATH+32, lib_splitter);
-    StringCchCatW(fullname_decoder, MAX_PATH+32, lib_decoder);
+    StringCchCatW(fullname_splitter, MAX_PATH+32, lib_Splitter);
+    StringCchCatW(fullname_decoder, MAX_PATH+32, lib_Decoder);
 
     // Create the Filter Graph Manager.
     hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&pGraph);
     if (FAILED(hr)) goto lerror;
-    hr = DSHelpCreateInstance(fullname_splitter, CLSID_MPC_MPEG1Splitter, NULL, IID_IBaseFilter, (void**)&pSplitter);
+    hr = DSHelpCreateInstance(fullname_splitter, *clsid_Splitter, NULL, IID_IBaseFilter, (void**)&pSplitter);
     if (FAILED(hr)) goto lerror;
     hr = DSHelpCreateInstance(fullname_decoder, CLSID_CoreAVC, NULL, IID_IBaseFilter, (void**)&pDecoder);
     if (FAILED(hr)) goto lerror;
@@ -150,8 +171,15 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
 		else {
 			main_grabber = avc_grabber;
 		}
-        LPCSTR filename = args[0].AsString();
-        hr = CreateGraph(A2W(filename), static_cast<IBaseFilter*>(avc_grabber), static_cast<IBaseFilter*>(mvc_grabber), &pGraph);
+		string filename = args[0].AsString();
+		SplitterName sn = SN_MPEG;
+		int pos = filename.find_last_of('.');
+		if (pos != string::npos) {
+			if (!stricmp(filename.substr(pos).c_str(), ".mkv")) {
+				sn = SN_MATROSKA;
+			}
+		}
+        hr = CreateGraph(A2W(filename.c_str()), static_cast<IBaseFilter*>(avc_grabber), static_cast<IBaseFilter*>(mvc_grabber), &pGraph, sn);
         if (FAILED(hr)) {
             Clear();
             CoUninitialize();
