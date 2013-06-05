@@ -175,7 +175,7 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
 		SplitterName sn = SN_MPEG;
 		int pos = filename.find_last_of('.');
 		if (pos != string::npos) {
-			if (!stricmp(filename.substr(pos).c_str(), ".mkv")) {
+			if (!_stricmp(filename.substr(pos).c_str(), ".mkv")) {
 				sn = SN_MATROSKA;
 			}
 		}
@@ -231,7 +231,7 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
         ((params & SP2_HORIZONTALSTACK) ? vi.width : vi.height) *= 2;
 
 	// Parsing swap_views parameter
-	int flag_swap_views = args[5].AsInt(-1);
+	int flag_swap_views = args[5].AsInt(0);
 	if (flag_swap_views != -1) {
 		if (flag_swap_views)
 			params |= SP2_SWAPVIEWS;
