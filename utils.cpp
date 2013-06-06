@@ -2,6 +2,7 @@
 
 #define DECLARE_VARIABLES
 #include "utils.h"
+#include <mtype.h>
 
 HRESULT DSHelpCreateInstance(LPOLESTR bstrLibName, REFCLSID rclsid, LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppv) { 
     // Load the library (bstrlibname should have the fullpath) 
@@ -31,7 +32,7 @@ HRESULT DSHelpCreateInstance(LPOLESTR bstrLibName, REFCLSID rclsid, LPUNKNOWN pU
     return pFactory->CreateInstance(pUnkOuter, riid, ppv);
 }
 
-HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin **ppPin) {
+HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin **ppPin, bool bVideo) {
     CComPtr<IEnumPins> pEnum;
     *ppPin = NULL;
 
@@ -48,7 +49,21 @@ HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin *
 
     while(S_OK == pEnum->Next(1, &pPin, &ulFound)) {
         PIN_DIRECTION pindir = (PIN_DIRECTION)3;
-        pPin->QueryDirection(&pindir);
+		pPin->QueryDirection(&pindir);
+		if (bVideo) {
+			AM_MEDIA_TYPE *pMT;
+			CComPtr<IEnumMediaTypes> pMTEnum;
+			if (FAILED(pPin->EnumMediaTypes((IEnumMediaTypes**)&pMTEnum)) || 
+				FAILED(pMTEnum->Next(1, (AM_MEDIA_TYPE**)&pMT, NULL)))
+			{
+				continue;
+			}
+			pMTEnum = NULL;
+			bool bCurVideo = ((pMT->majortype == MEDIATYPE_Video) != 0);
+			DeleteMediaType(pMT);
+			if (!bCurVideo)
+				continue;
+		}
         if(pindir == dirrequired) {
             if(iNum == 0) {
                 *ppPin = pPin;  // Return the pin's interface
@@ -100,16 +115,16 @@ HRESULT GetPinByName(IBaseFilter* pFilter, PIN_DIRECTION dirreq, LPCWSTR wszName
 // 
 //     For example:  CComPtr<IPin> pPin = GetInPin(pFilter,0);
 //
-IPin* GetInPin(IBaseFilter * pFilter, int nPin) {
+IPin* GetInPin(IBaseFilter * pFilter, int nPin, bool bVideo) {
     CComPtr<IPin> pComPin;
-    GetPin(pFilter, PINDIR_INPUT, nPin, &pComPin);
+    GetPin(pFilter, PINDIR_INPUT, nPin, &pComPin, bVideo);
     return pComPin;
 }
 
 
-IPin* GetOutPin(IBaseFilter * pFilter, int nPin) {
+IPin* GetOutPin(IBaseFilter * pFilter, int nPin, bool bVideo) {
     CComPtr<IPin> pComPin;
-    GetPin(pFilter, PINDIR_OUTPUT, nPin, &pComPin);
+    GetPin(pFilter, PINDIR_OUTPUT, nPin, &pComPin, bVideo);
     return pComPin;
 }
 

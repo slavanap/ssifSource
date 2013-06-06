@@ -21,7 +21,7 @@ DEFINE_GUID(MFVideoFormat_YUY2,      0x32595559, 0x0000, 0x0010, 0x80, 0x00, 0x0
 MYEXTERN HINSTANCE hInstance;
 
 HRESULT DSHelpCreateInstance(LPOLESTR bstrLibName, REFCLSID rclsid, LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppv);
-HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin **ppPin);
+HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin **ppPin, bool bVideo = false);
 HRESULT GetPinByName(IBaseFilter* pFilter, PIN_DIRECTION dirreq, LPCWSTR wszName, IPin **ppPin);
 
 //
@@ -32,8 +32,8 @@ HRESULT GetPinByName(IBaseFilter* pFilter, PIN_DIRECTION dirreq, LPCWSTR wszName
 // 
 //     For example:  CComPtr<IPin> pPin = GetInPin(pFilter,0);
 //
-IPin* GetInPin(IBaseFilter * pFilter, int nPin);
-IPin* GetOutPin(IBaseFilter * pFilter, int nPin);
+IPin* GetInPin(IBaseFilter * pFilter, int nPin, bool bVideo = false);
+IPin* GetOutPin(IBaseFilter * pFilter, int nPin, bool bVideo = false);
 
 HRESULT RenderOutputPins(IGraphBuilder* pGB, IBaseFilter* pFilter);
 

@@ -9,5 +9,4 @@ SP_HORIZONTAL = 4
 
 #ssifSource("00001.ssif", 1920, 1080, 465, show_params = SP_RIGHTVIEW)
 #ssifSource2("00001.ssif", 465, avc_view = true, mvc_view = true)
-ssifSource3("title01 (1)-004.mkv;0", \
-	avc_view = true, mvc_view = true, horizontal_stack = true)
+ssifSource3("title01 (1)-004.mkv;1000", avc_view = true, mvc_view = true)

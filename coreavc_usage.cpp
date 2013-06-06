@@ -78,9 +78,9 @@ HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* avc_grabber, IBaseFilte
     hr = CComQIPtr<IFileSourceFilter>(pSplitter)->Load(sFileName, NULL);
     if (FAILED(hr)) goto lerror;
 
-    hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0), GetInPin(pDecoder, 0), NULL);
+    hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0, true), GetInPin(pDecoder, 0), NULL);
     if (FAILED(hr)) goto lerror;
-    hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1), GetInPin(pDecoder, 1), NULL);
+    hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1, true), GetInPin(pDecoder, 1), NULL);
     // Ignore the error here. For 'MVC (Full)' support
 
     if (avc_grabber != NULL) {
