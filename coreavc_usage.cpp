@@ -11,11 +11,13 @@ EXTERN_C const CLSID CLSID_NullRenderer;
 
 typedef enum {
 	SN_MPEG,
-	SN_MATROSKA
+	SN_MATROSKA,
+	SN_MPEG4
 } SplitterName;
 
 LPOLESTR lib_MpegSplitter = T2OLE(L"MPEGSplitter.dll");
 LPOLESTR lib_MatroskaSplitter = T2OLE(L"MatroskaSplitter.dll");
+LPOLESTR lib_Mpeg4Splitter = T2OLE(L"MP4Splitter.dll");
 LPOLESTR lib_Decoder = T2OLE(L"CoreAVCDecoder.dll");
 
 HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* avc_grabber, IBaseFilter* mvc_grabber, IGraphBuilder** ppGraph, SplitterName sn) {
@@ -36,6 +38,10 @@ HRESULT CreateGraph(const WCHAR* sFileName, IBaseFilter* avc_grabber, IBaseFilte
 		case SN_MATROSKA:
 			lib_Splitter = lib_MatroskaSplitter;
 			clsid_Splitter = &CLSID_MatroskaSplitter;
+			break;
+		case SN_MPEG4:
+			lib_Splitter = lib_Mpeg4Splitter;
+			clsid_Splitter = &CLSID_Mpeg4Splitter;
 			break;
 		default:
 			return E_UNEXPECTED;
@@ -175,8 +181,12 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
 		SplitterName sn = SN_MPEG;
 		int pos = filename.find_last_of('.');
 		if (pos != string::npos) {
-			if (!_stricmp(filename.substr(pos).c_str(), ".mkv")) {
+			string ext = filename.substr(pos);
+			if (!_stricmp(ext.c_str(), ".mkv")) {
 				sn = SN_MATROSKA;
+			}
+			else if(!_stricmp(ext.c_str(), ".mp4")) {
+				sn = SN_MPEG4;
 			}
 		}
         hr = CreateGraph(A2W(filename.c_str()), static_cast<IBaseFilter*>(avc_grabber), static_cast<IBaseFilter*>(mvc_grabber), &pGraph, sn);
