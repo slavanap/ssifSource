@@ -11,4 +11,9 @@ SP_HORIZONTAL = 4
 #ssifSource2("00001.ssif", 465, avc_view = true, mvc_view = true)
 #ssifSource3("title01 (1)-004.mkv;1000", avc_view = true, mvc_view = true)
 
-ssifSource2("2.mp4", avc_view = true, mvc_view = true).nnedi3
+src = ssifSource3("samples\00001.ssif;450;samples\00001.ssif;450;samples\00001.ssif;450", avc_view = true, mvc_view = true)
+
+l = src.crop(0,0,src.width,src.height/2).subtitle("left")
+r = src.crop(0,src.height/2,src.width,src.height/2).subtitle("right")
+interleave(l,r)
+#return src

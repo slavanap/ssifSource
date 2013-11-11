@@ -10,7 +10,7 @@ class SSIFSourceExt: public IClip {
 	vector<int> framenum_offsets;
 	IScriptEnvironment *env;
 
-	bool bLeft, bRight, bHorizontalStack, bCreateIndex;
+	bool bLeft, bRight, bHorizontalStack;
 	int iSwapViews;
 
 	void AddFileNext(const string& name, int frames, bool load);

@@ -10,7 +10,6 @@ SSIFSourceExt::SSIFSourceExt(AVSValue& args, IScriptEnvironment* env): cfile(NUL
 	bRight = args[2].AsBool(true);
 	bHorizontalStack = args[3].AsBool(false);
 	iSwapViews = args[4].AsInt(-1);
-	bCreateIndex = args[5].AsBool(false);
 
 	framenum_offsets.push_back(0);
 	string files = args[0].AsString();
@@ -42,10 +41,10 @@ void SSIFSourceExt::AddFileNext(const string& name, int frames, bool load) {
 	files_names.push_back(name);
 	if (frames <= 0) 
 		load = true;
-	printf(FORMAT_PRINTMESSAGE("adding file %s with %d frames to sequences list. Have to load flag is %s"), 
+	fprintf(stderr, FORMAT_PRINTMESSAGE("adding file %s with %d frames to sequences list. Have to load flag is %s"), 
 		name.c_str(), frames, load ? "TRUE" : "FALSE");
 	if (load) {
-		AVSValue args[7] = {name.c_str(), frames, bLeft, bRight, bHorizontalStack, iSwapViews, bCreateIndex};
+		AVSValue args[6] = {name.c_str(), frames, bLeft, bRight, bHorizontalStack, iSwapViews};
 		SSIFSource2 *obj = new SSIFSource2(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
 		frames = obj->GetVideoInfo().num_frames;
 		if (cfile_idx < 0) {
@@ -63,9 +62,9 @@ void SSIFSourceExt::ChangeCurrentFile(int new_idx) {
 	if (cfile_idx == new_idx)
 		return;
 	cfileclip_holder = NULL;
-	AVSValue args[7] = {files_names[new_idx].c_str(), 
+	AVSValue args[6] = {files_names[new_idx].c_str(), 
 		framenum_offsets[new_idx+1]-framenum_offsets[new_idx], 
-		bLeft, bRight, bHorizontalStack, iSwapViews, bCreateIndex};
+		bLeft, bRight, bHorizontalStack, iSwapViews};
 	cfileclip_holder = cfile = new SSIFSource2(AVSValue(args, sizeof(args)/sizeof(AVSValue)), env);
 	cfile_idx = new_idx;
 }

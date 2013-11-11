@@ -4,8 +4,7 @@
 
 #define SSIFSOURCE2_PLUGIN "ssifSource2"
 #define FORMAT_PRINTMESSAGE(x) SSIFSOURCE2_PLUGIN ": " x "\n"
-#define FRAME_WAITTIMEOUT 60000 // 60 seconds
-#define FRAME_SEEKBACKFRAMECOUNT 200 // 200 frames
+#define FRAME_WAITTIMEOUT 120000 // 2 minutes
 
 EXTERN_C const CLSID CLSID_NullRenderer;
 
@@ -214,7 +213,7 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
     // copy VideoInfo
     frame_vi = main_grabber->avisynth_vi;
     // Get total number of frames
-	printf("\n");
+	fprintf(stderr, "\n");
     LONGLONG nTotalFrames;
     pSeeking->GetDuration(&tmDuration);
 	if (FAILED(pSeeking->SetTimeFormat(&TIME_FORMAT_FRAME))) {
@@ -223,11 +222,11 @@ SSIFSource2::SSIFSource2(AVSValue& args, IScriptEnvironment* env) {
 		if (frames <= 0)
 			frames = FrameCountDetect(args[0].AsString(), env);
 		if (frames <= 0) {
-			printf(FORMAT_PRINTMESSAGE("framecount directshow value is %d"), (int)nTotalFrames);
+			fprintf(stderr, FORMAT_PRINTMESSAGE("framecount directshow value is %d"), (int)nTotalFrames);
 		}
 		else {
 			nTotalFrames = frames;
-			printf(FORMAT_PRINTMESSAGE("frame count has been forced to %d"), frames);
+			fprintf(stderr, FORMAT_PRINTMESSAGE("frame count has been forced to %d"), frames);
 		}
 		frame_vi.num_frames = (int)nTotalFrames;
 	}
@@ -312,13 +311,13 @@ SSIFSource2::~SSIFSource2() {
 }
 
 bool SSIFSource2::SwapViewsDetect(const string& filename) {
-	printf(FORMAT_PRINTMESSAGE("swapviews autodetect mode on. Searching for swapviews flag in mpls files..."));
+	fprintf(stderr, FORMAT_PRINTMESSAGE("swapviews autodetect mode on. Searching for swapviews flag in mpls files..."));
 
 	size_t pos = filename.find_last_of('\\');
 	string mpls_path = filename;
 	mpls_path.erase(pos+1, string::npos);
 	mpls_path += (string)"..\\..\\PLAYLIST\\";
-	printf(FORMAT_PRINTMESSAGE("Searching for .mpls files in directory %s"), mpls_path.c_str());
+	fprintf(stderr, FORMAT_PRINTMESSAGE("Searching for .mpls files in directory %s"), mpls_path.c_str());
 
 	string ssif_filename = filename.substr(pos+1, string::npos);
 	pos = ssif_filename.find_last_of('.');
@@ -339,7 +338,7 @@ bool SSIFSource2::SwapViewsDetect(const string& filename) {
 				if (hFile != INVALID_HANDLE_VALUE) {
 					int filesize = GetFileSize(hFile, NULL);
 					if (filesize <= 0x38) {
-						printf(FORMAT_PRINTMESSAGE("warning: too small mpls file %s"), ffd.cFileName);
+						fprintf(stderr, FORMAT_PRINTMESSAGE("warning: too small mpls file %s"), ffd.cFileName);
 					}
 					else {
 						char *buffer = (char*)malloc(filesize);
@@ -353,7 +352,7 @@ bool SSIFSource2::SwapViewsDetect(const string& filename) {
 										int bSwap = (buffer[0x38] & 0x10) != 0;
 										detect_swaps += bSwap;
 										all_detects++;
-										printf(FORMAT_PRINTMESSAGE("Found file mention in %s file. Views swap value for this file is %s"), 
+										fprintf(stderr, FORMAT_PRINTMESSAGE("Found file mention in %s file. Views swap value for this file is %s"), 
 											ffd.cFileName, bSwap ? "TRUE" : "FALSE");
 									}
 								}
@@ -368,7 +367,7 @@ bool SSIFSource2::SwapViewsDetect(const string& filename) {
 		FindClose(hFind);
 	}
 	bool res = detect_swaps > (all_detects / 2 + 1);
-	printf(FORMAT_PRINTMESSAGE("Views swap guess result is %s (%d of %d)."), res ? "TRUE" : "FALSE", detect_swaps, all_detects);
+	fprintf(stderr, FORMAT_PRINTMESSAGE("Views swap guess result is %s (%d of %d)."), res ? "TRUE" : "FALSE", detect_swaps, all_detects);
 	return res;;
 }
 
@@ -382,7 +381,7 @@ int SSIFSource2::FrameCountDetect(const string& filename, IScriptEnvironment* en
 		ssif_filename.erase(pos, string::npos);
 	ssif_filename = path + "..\\" + ssif_filename + (string)".M2TS";
 
-	printf(FORMAT_PRINTMESSAGE("framecount autodetect mode on. looking for '%s' file..."), ssif_filename.c_str());
+	fprintf(stderr, FORMAT_PRINTMESSAGE("framecount autodetect mode on. looking for '%s' file..."), ssif_filename.c_str());
 
 	if (env->FunctionExists("DSS2")) {
 		int frames = 0;
@@ -394,12 +393,13 @@ int SSIFSource2::FrameCountDetect(const string& filename, IScriptEnvironment* en
 			c = NULL;
 		}
 		catch (AvisynthError err) {
-			printf(FORMAT_PRINTMESSAGE("Avisynth error violated during opening file with DSS2: %s"), err.msg);
+			fprintf(stderr, FORMAT_PRINTMESSAGE("Avisynth error violated during opening file with DSS2: %s"), err.msg);
 		}
 		return frames;
 	}
 	else {
-		printf(FORMAT_PRINTMESSAGE("DSS2 function does not exists. Please add DSS2 plugin (avss.dll) to Avisynth plugins to make this feature work."));
+		fprintf(stderr, FORMAT_PRINTMESSAGE("Notice: DSS2 function does not exists. "
+			"Please add DSS2 plugin (avss.dll) to Avisynth plugins to make this feature work more precisely."));
 		return 0;
 	}
 }
@@ -420,10 +420,10 @@ void SSIFSource2::DataToFrame(CSampleGrabber *grabber, PVideoFrame& vf, IScriptE
 	HANDLE handles[2] = {grabber->hDataParsed, grabber->hEventDisabled};
 	DWORD wait_res = WaitForMultipleObjects(2, handles, FALSE, FRAME_WAITTIMEOUT);
     if (wait_res != WAIT_OBJECT_0) {
-		printf("\n" FORMAT_PRINTMESSAGE("%s Frame #%6d duplicate added (debug: g%08x m%08x s%08x)"), 
+		fprintf(stderr, "\n" FORMAT_PRINTMESSAGE("%s Frame #%d duplicate added"), 
 			(wait_res == WAIT_TIMEOUT) ? "Decoding frame timeout reached!!!" : 
 			(wait_res == WAIT_OBJECT_0 + 1) ? "End of graph." : "Seek out of graph.",
-			current_frame_number, grabber, main_grabber, sub_grabber);
+			current_frame_number);
         main_grabber->SetEnabled(false);
 		if (sub_grabber) sub_grabber->SetEnabled(false);
     }
@@ -455,13 +455,18 @@ void SSIFSource2::ParseEvents() {
 }
 
 void SSIFSource2::SeekToFrame(int framenumber, bool& bMainSignal, IScriptEnvironment* env) {
-	printf(FORMAT_PRINTMESSAGE("seeking to frame %d (lastframe_number = %d)"), framenumber, current_frame_number);
+	fprintf(stderr, FORMAT_PRINTMESSAGE("seeking to frame %d (lastframe_number = %d)"), framenumber, current_frame_number);
+	fprintf(stderr, "Please, notice that seeking can cause views desynchronization and/or "
+		"decoding artifacts, because it is not fully supported by AVC decoder.");
 
 	REFERENCE_TIME lPos = main_grabber->m_AvgTimePerFrame * framenumber;
 	main_grabber->SetEnabled(false);
 	if (sub_grabber) sub_grabber->SetEnabled(false);
 	pControl->Pause();
-	HRESULT hr = pSeeking->SetPositions(&lPos, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
+	HRESULT hr = pSeeking->SetPositions(&lPos, AM_SEEKING_AbsolutePositioning | AM_SEEKING_SeekToKeyFrame,
+		NULL, AM_SEEKING_NoPositioning);
+
+	ParseEvents();
 
 	main_grabber->SetEnabled(true);
 	if (sub_grabber) sub_grabber->SetEnabled(true);
@@ -473,7 +478,16 @@ PVideoFrame WINAPI SSIFSource2::GetFrame(int n, IScriptEnvironment* env) {
 	bool bMainSignal = true;
 	bool bSubSignal = true;
 
-    if (n != current_frame_number+1) {
+	if (n == current_frame_number) {
+		bMainSignal = false;
+		bSubSignal = false;
+		SetEvent(main_grabber->hDataParsed);
+		if (sub_grabber)
+			SetEvent(sub_grabber->hDataParsed);
+	}
+	else if (n == current_frame_number+1)
+		++current_frame_number;
+    else {
         SeekToFrame(n, bMainSignal, env);
 		int skip_frames = n - current_frame_number;
 		while (skip_frames-- > 0) {
@@ -483,8 +497,6 @@ PVideoFrame WINAPI SSIFSource2::GetFrame(int n, IScriptEnvironment* env) {
 		}
 		current_frame_number = n;
     }
-	else
-		++current_frame_number;
 
 	if (main_grabber->GetEnabled())
 		pControl->Run();

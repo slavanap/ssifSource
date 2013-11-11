@@ -163,7 +163,7 @@ PVideoFrame SSIFSource::ReadFrame(FrameSeparator* frSep, IScriptEnvironment* env
         frSep->WaitForData();
     } else {
         if (!pipes_over_warning) {
-            printf("\nWARNING: Decoder output finished. Frame separator can't read next frames. "
+            fprintf(stderr, "\nWARNING: Decoder output finished. Frame separator can't read next frames. "
                 "Last frame will be duplicated as long as necessary (%d time(s)).\n", vi.num_frames-last_frame);
             pipes_over_warning = true;
         }

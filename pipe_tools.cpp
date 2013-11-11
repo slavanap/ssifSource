@@ -8,7 +8,7 @@ void ShowErrorA(LPSTR desc, DWORD code) {
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, code,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 		(LPSTR)&lpMsgBuf, 0, NULL);
-	printf("\n%s | 0x%.8x: %s\n", desc, code, (LPSTR)lpMsgBuf);
+	fprintf(stderr, "\n%s | 0x%.8x: %s\n", desc, code, (LPSTR)lpMsgBuf);
 	LocalFree(lpMsgBuf);
 }
 
