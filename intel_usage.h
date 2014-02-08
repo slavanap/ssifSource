@@ -30,14 +30,14 @@ private:
 	VideoInfo vi, frame_vi;
 	int last_frame;
 	STARTUPINFOA SI;
-	PROCESS_INFORMATION PI1, PI2, PI3;
+	PROCESS_INFORMATION PI1, PI2;
 	FrameSeparator *frLeft, *frRight;
-	PipeDupThread *dupThread1, *dupThread2;
+	PipeDupThread *dupThread1;
 	int unic_number;
 	bool pipes_over_warning;
 
 	void InitVariables();
-	void InitDemuxer();
+	void InitMuxer();
 	void InitDecoder();
 	void InitComplete();
     PVideoFrame ReadFrame(FrameSeparator* frSep, IScriptEnvironment* env);

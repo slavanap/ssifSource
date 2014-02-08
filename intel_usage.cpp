@@ -60,41 +60,33 @@ void SSIFSource::InitVariables() {
 	PI1.hProcess = INVALID_HANDLE_VALUE;
 	memset(&PI2, 0, sizeof(PROCESS_INFORMATION));
 	PI2.hProcess = INVALID_HANDLE_VALUE;
-	memset(&PI3, 0, sizeof(PROCESS_INFORMATION));
-	PI3.hProcess = INVALID_HANDLE_VALUE;
 
 	frLeft = NULL;
     frRight = NULL;
 	dupThread1 = NULL;
-	dupThread2 = NULL;
 	unic_number = rand();
 
 	pipes_over_warning = false;
 }
 
-void SSIFSource::InitDemuxer() {
-/*
-	data.left_264 = MakePipeName(unic_number, "left1.h264");
-	data.right_264 = MakePipeName(unic_number, "right1.h264");
+void SSIFSource::InitMuxer() {
+	data.h264muxed = MakePipeName(unic_number, "intel_input.h264");
 
 	string
-		name_demux = program_path + "eac3to.exe",
-		s_demux_left_write = MakePipeName(unic_number, "left.h264"),
-		s_demux_right_write = MakePipeName(unic_number, "right.h264"),
-		cmd_demux_left = "\"" + name_demux + "\" \"" + data.ssif_file + "\" " + IntToStr(data.left_track) + ":" + s_demux_left_write,
-		cmd_demux_right = "\"" + name_demux + "\" \"" + data.ssif_file + "\" " + IntToStr(data.right_track) + ":" + s_demux_right_write;
+		name_muxer = program_path + "..\\merge\\Release\\merge.exe",
+		s_muxer_output_write = MakePipeName(unic_number, "muxed.h264"),
+		cmd_muxer = "\"" + name_muxer + "\" "
+			"\"" + data.left_264 + "\" " +
+			"\"" + data.right_264 + "\" " +
+			"\"" + s_muxer_output_write + "\" ";
 
-	dupThread1 = new PipeDupThread(s_demux_left_write.c_str(), data.left_264.c_str());
-	dupThread2 = new PipeDupThread(s_demux_right_write.c_str(), data.right_264.c_str());
+	dupThread1 = new PipeDupThread(s_muxer_output_write.c_str(), data.h264muxed.c_str());
 	if (
-		!CreateProcessA(name_demux.c_str(), const_cast<char*>(cmd_demux_left.c_str()), NULL, NULL, false, 
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | IDLE_PRIORITY_CLASS, NULL, NULL, &SI, &PI1) ||
-		!CreateProcessA(name_demux.c_str(), const_cast<char*>(cmd_demux_right.c_str()), NULL, NULL, false, 
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | IDLE_PRIORITY_CLASS, NULL, NULL, &SI, &PI2))
+		!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
+			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | IDLE_PRIORITY_CLASS, NULL, NULL, &SI, &PI1))
 	{
-		throw (string)"Error while launching " + name_demux + "\n";
+		throw (string)"Error while launching " + name_muxer + "\n";
 	}
-*/
 }
 
 void SSIFSource::InitDecoder() {
@@ -106,6 +98,7 @@ void SSIFSource::InitDecoder() {
 		s_dec_out = MakePipeName(unic_number, "output"),
 		cmd_decoder = "\"" + name_decoder + "\" " +
 			(flag_mvc ? "mvc" : "h264") +
+			" -hw -d3d11 " +
 			" -i \"" + data.h264muxed + "\" -o " + s_dec_out;
 
 	int framesize = frame_vi.width*frame_vi.height + (frame_vi.width*frame_vi.height/2)&~1;
@@ -117,16 +110,15 @@ void SSIFSource::InitDecoder() {
 		frRight = new FrameSeparator(s_dec_right_write.c_str(), framesize);
 
 	if (!CreateProcessA(name_decoder.c_str(), const_cast<char*>(cmd_decoder.c_str()), NULL, NULL, false,
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED, NULL, NULL, &SI, &PI3))
+			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED, NULL, NULL, &SI, &PI2))
 	{
 		throw (string)"Error while launching " + name_decoder + "\n";
 	}
 }
 
 void SSIFSource::InitComplete() {
-//	ResumeThread(PI1.hThread);
-//	ResumeThread(PI2.hThread);
-	ResumeThread(PI3.hThread);
+	ResumeThread(PI1.hThread);
+	ResumeThread(PI2.hThread);
 	last_frame = FRAME_START;
 }
 
@@ -134,8 +126,7 @@ SSIFSource::SSIFSource(IScriptEnvironment* env, const SSIFSourceParams& data): d
 	InitVariables();
 
 	try {
-//		if (!data.ssif_file.empty())
-//			InitDemuxer();
+		InitMuxer();
 		InitDecoder();
 		InitComplete();
 	}
@@ -145,16 +136,12 @@ SSIFSource::SSIFSource(IScriptEnvironment* env, const SSIFSourceParams& data): d
 }
 
 SSIFSource::~SSIFSource() {
-	if (PI3.hProcess != INVALID_HANDLE_VALUE)
-		TerminateProcess(PI3.hProcess, 0);
-//	if (PI2.hProcess != INVALID_HANDLE_VALUE)
-//		TerminateProcess(PI2.hProcess, 0);
-//	if (PI1.hProcess != INVALID_HANDLE_VALUE)
-//		TerminateProcess(PI1.hProcess, 0);
+	if (PI2.hProcess != INVALID_HANDLE_VALUE)
+		TerminateProcess(PI2.hProcess, 0);
+	if (PI1.hProcess != INVALID_HANDLE_VALUE)
+		TerminateProcess(PI1.hProcess, 0);
 	if (dupThread1 != NULL) 
 		delete dupThread1;
-	if (dupThread2 != NULL) 
-		delete dupThread2;
 	if (frLeft != NULL) 
 		delete frLeft;
 	if (frRight != NULL)
@@ -225,6 +212,10 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 
 AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnvironment* env) {
 	SSIFSourceParams data;
+
+	data.left_264 = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\mpc.base.h264";
+	data.right_264 = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\mpc.dept.h264";
+
 	data.h264muxed = args[0].AsString();
 	data.frame_count = args[1].AsInt();
 	data.dim_width = 1920;

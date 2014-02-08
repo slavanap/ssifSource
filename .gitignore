@@ -1,1 +1,13 @@
 /samples
+*.ncb
+*.suo
+*.user
+/Debug
+/Release
+/CoreAVCWrapper/Debug
+/CoreAVCWrapper/Release
+/baseclasses/Debug
+/baseclasses/Release
+/baseclasses/x64
+/merge/Debug
+/merge/Release
