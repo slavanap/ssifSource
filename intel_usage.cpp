@@ -143,20 +143,16 @@ void SSIFSource::ParseEvents() {
 
 void SSIFSource::InitVariables() {
 	// VideoType
-    frame_vi.width = data.dim_width;
-    frame_vi.height = data.dim_height;
+	frame_vi.width = data.dim_width;
+	frame_vi.height = data.dim_height;
 	frame_vi.fps_numerator = 24000;
 	frame_vi.fps_denominator = 1001;
 	frame_vi.pixel_type = VideoInfo::CS_I420;
 	frame_vi.num_frames = data.frame_count;
-    frame_vi.audio_samples_per_second = 0;
-
-    vi = frame_vi;
-	if ((data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
-		((data.show_params & SP_HORIZONTAL) ? vi.width : vi.height) *= 2;
+	frame_vi.audio_samples_per_second = 0;
 	
 	last_frame = FRAME_BLACK;
-	
+
 //#ifdef _DEBUG
 	AllocConsole();
 //#endif
@@ -205,8 +201,31 @@ void SSIFSource::InitDemuxer() {
 
 	res = CComQIPtr<IMediaControl>(pGraph)->Run();
 	if (FAILED(res))
-		throw(string)"Can't start the graph";
+		throw (string)"Can't start the graph";
 	ParseEvents();
+
+	// Retrieve width & height
+	CComPtr<IPin> pPin = GetOutPin(pSplitter, 0);
+	CComPtr<IEnumMediaTypes> pEnum;
+	AM_MEDIA_TYPE *pmt = NULL;
+	res = pPin->EnumMediaTypes((IEnumMediaTypes**)&pEnum);
+	if (SUCCEEDED(res)) {
+		while (res = pEnum->Next(1, &pmt, NULL), res == S_OK) {
+			if (pmt->majortype == MEDIATYPE_Video) {
+				if (pmt->formattype == FORMAT_MPEG2_VIDEO) {
+					// Found a match
+					int *vih = (int*)pmt->pbFormat;
+					frame_vi.width = data.dim_width = vih[19];
+					frame_vi.height = data.dim_height = vih[20];
+					DeleteMediaType(pmt);
+					break;
+				}
+			}
+			DeleteMediaType(pmt);
+		}
+		pEnum = NULL;
+		pPin = NULL;
+	}
 }
 
 void SSIFSource::InitMuxer() {
@@ -242,7 +261,7 @@ void SSIFSource::InitDecoder() {
 		s_dec_out = MakePipeName(unic_number, "output"),
 		cmd_decoder = "\"" + name_decoder + "\" " +
 			(flag_mvc ? "mvc" : "h264") +
-			" -hw -d3d11 " +
+			" " + data.inteldecoder_params +
 			" -i \"" + data.h264muxed + "\" -o " + s_dec_out;
 
 	int framesize = frame_vi.width*frame_vi.height + (frame_vi.width*frame_vi.height/2)&~1;
@@ -261,6 +280,10 @@ void SSIFSource::InitDecoder() {
 }
 
 void SSIFSource::InitComplete() {
+	vi = frame_vi;
+	if ((data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW)) == (SP_LEFTVIEW | SP_RIGHTVIEW))
+		((data.show_params & SP_HORIZONTAL) ? vi.width : vi.height) *= 2;
+
 	ResumeThread(PI1.hThread);
 	ResumeThread(PI2.hThread);
 	last_frame = FRAME_START;
@@ -380,6 +403,7 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
 		(args[3].AsBool(true) ? SP_RIGHTVIEW : 0) |
 		(args[4].AsBool(false) ? SP_HORIZONTAL : 0) |
 		(args[5].AsBool(false) ? SP_SWAPVIEWS : 0);
+	data.inteldecoder_params = args[6].AsString("");
 	if (!(data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW))) {
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }

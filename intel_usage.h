@@ -19,6 +19,7 @@ struct SSIFSourceParams {
 	int dim_height;
 	int frame_count;
     int show_params;
+	string inteldecoder_params;
 
 	SSIFSourceParams(): dim_width(0), dim_height(0), frame_count(0), show_params(SP_LEFTVIEW|SP_RIGHTVIEW)
 	{
