@@ -1,19 +1,10 @@
-Debug = 0
-SSIFFile = "samples\indoor.MTS"
+Debug = 1
 
 LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\" + ((Debug == 1) ? "Debug" : "Release") + "\ssifSource2.dll")
+src = ssifSource("c:\Users\Vyacheslav\Projects\Utils\test\mux.result.h264", 465)
 
-SP_LEFTVIEW = 1
-SP_RIGHTVIEW = 2
-SP_HORIZONTAL = 4
+#l = src.crop(0,0,src.width,src.height/2).subtitle("left")
+#r = src.crop(0,src.height/2,src.width,src.height/2).subtitle("right")
+#interleave(l,r)
 
-#ssifSource("00001.ssif", 1920, 1080, 465, show_params = SP_RIGHTVIEW)
-#ssifSource2("00001.ssif", 465, avc_view = true, mvc_view = true)
-#ssifSource3("title01 (1)-004.mkv;1000", avc_view = true, mvc_view = true)
-
-src = ssifSource3("samples\00001.ssif;450;samples\00001.ssif;450;samples\00001.ssif;450", avc_view = true, mvc_view = true)
-
-l = src.crop(0,0,src.width,src.height/2).subtitle("left")
-r = src.crop(0,src.height/2,src.width,src.height/2).subtitle("right")
-interleave(l,r)
-#return src
+return src

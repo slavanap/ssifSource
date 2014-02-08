@@ -1,8 +1,0 @@
-LIBRARY "CoreAVCWrapper"
-
-EXPORTS
-	DllGetClassObject       PRIVATE
-	DllCanUnloadNow         PRIVATE
-	DllRegisterServer		PRIVATE
-	DllUnregisterServer		PRIVATE
-	Configure				PRIVATE
