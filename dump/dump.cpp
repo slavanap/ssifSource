@@ -523,8 +523,8 @@ STDMETHODIMP CDump::SetFileName(LPCOLESTR pszFileName,const AM_MEDIA_TYPE *pmt)
 
     // Create the file then close it
 
-    hr = OpenFile();
     CloseFile();
+    hr = OpenFile();
 
     return hr;
 

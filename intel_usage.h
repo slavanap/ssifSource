@@ -11,6 +11,7 @@ enum ShowParameters {
 };
 
 struct SSIFSourceParams {
+	string ssif_file;
 	string h264muxed;
 	string left_264;
 	string right_264;
@@ -32,11 +33,14 @@ private:
 	STARTUPINFOA SI;
 	PROCESS_INFORMATION PI1, PI2;
 	FrameSeparator *frLeft, *frRight;
-	PipeDupThread *dupThread1;
+	PipeDupThread *dupThread1, *dupThread2, *dupThread3;
 	int unic_number;
 	bool pipes_over_warning;
+	CComPtr<IGraphBuilder> pGraph;
+	CComPtr<IBaseFilter> pSplitter;
 
 	void InitVariables();
+	void InitDemuxer();
 	void InitMuxer();
 	void InitDecoder();
 	void InitComplete();
@@ -44,6 +48,9 @@ private:
     void DropFrame(FrameSeparator* frSep);
 
 	static string MakePipeName(int id, const string& name);
+	static HRESULT CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, const WCHAR* fnDept,
+		CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter);
+	void ParseEvents();
 	SSIFSource(const SSIFSource& obj) {}
 public:
 	SSIFSource(IScriptEnvironment* env, const SSIFSourceParams& data);

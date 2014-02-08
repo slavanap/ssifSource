@@ -14,10 +14,6 @@ std::string IntToStr(int a) {
 	return buffer;
 }
 
-string SSIFSource::MakePipeName(int id, const string& name) {
-	return (string)"\\\\.\\pipe\\bluray" + IntToStr(id) + "\\" + name;
-}
-
 PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal) {
 	const char* arg_names[2] = {NULL, NULL};
 	AVSValue args[2] = {a, b};
@@ -26,6 +22,98 @@ PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal) {
 
 PVideoFrame FrameStack(IScriptEnvironment* env, VideoInfo& vi, PVideoFrame a, PVideoFrame b, bool horizontal) {
 	return ClipStack(env, new FrameHolder(vi, a), new FrameHolder(vi, b), horizontal)->GetFrame(0, env);
+}
+
+
+
+
+string SSIFSource::MakePipeName(int id, const string& name) {
+	return (string)"\\\\.\\pipe\\bluray" + IntToStr(id) + "\\" + name;
+}
+
+HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, const WCHAR* fnDept,
+					CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter)
+{
+	HRESULT hr = S_OK;
+	IGraphBuilder *pGraph = NULL;
+	CComQIPtr<IBaseFilter> pSplitter;
+	CComQIPtr<IBaseFilter> pDumper1, pDumper2;
+	LPOLESTR lib_Splitter = T2OLE(L"..\\bin\\" L"MpegSplitter_mod.ax");
+	const CLSID *clsid_Splitter = &CLSID_MpegSplitter;
+
+	WCHAR fullname_splitter[MAX_PATH+64];
+	size_t len;
+	if (GetModuleFileNameW(hInstance, fullname_splitter, MAX_PATH) == 0)
+		return E_UNEXPECTED;
+	StringCchLengthW(fullname_splitter, MAX_PATH, &len);
+	while (len > 0 && fullname_splitter[len-1] != '\\') --len;
+	fullname_splitter[len] = '\0';
+	StringCchCatW(fullname_splitter, MAX_PATH+64, lib_Splitter);
+
+	// Create the Filter Graph Manager.
+	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&pGraph);
+	if (FAILED(hr)) goto lerror;
+	hr = DSHelpCreateInstance(fullname_splitter, *clsid_Splitter, NULL, IID_IBaseFilter, (void**)&pSplitter);
+	if (FAILED(hr)) goto lerror;
+	hr = CoCreateInstance(CLSID_DumpFilter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&pDumper1);
+	if (FAILED(hr)) goto lerror;
+	if (fnDept) {
+		hr = CoCreateInstance(CLSID_DumpFilter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&pDumper2);
+		if (FAILED(hr)) goto lerror;
+	}
+
+	hr = pGraph->AddFilter(pSplitter, L"VSplitter");
+	if (FAILED(hr)) goto lerror;
+	hr = CComQIPtr<IFileSourceFilter>(pSplitter)->Load(fnSource, NULL);
+	if (FAILED(hr)) goto lerror;
+
+	hr = pGraph->AddFilter(pDumper1, L"VDumper1");
+	if (FAILED(hr)) goto lerror;
+	hr = CComQIPtr<IFileSinkFilter>(pDumper1)->SetFileName(fnBase, NULL);
+	if (FAILED(hr)) goto lerror;
+
+	if (pDumper2) {
+		hr = pGraph->AddFilter(pDumper2, L"VDumper2");
+		if (FAILED(hr)) goto lerror;
+		hr = CComQIPtr<IFileSinkFilter>(pDumper2)->SetFileName(fnDept, NULL);
+		if (FAILED(hr)) goto lerror;
+	}
+
+	hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0, true), GetInPin(pDumper1, 0), NULL);
+	if (FAILED(hr)) goto lerror;
+	if (pDumper2) {
+		hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1, true), GetInPin(pDumper2, 0), NULL);
+		if (FAILED(hr)) goto lerror;
+	}
+
+	poGraph = pGraph;
+	poSplitter = pSplitter;
+	return S_OK;
+lerror:
+	return E_FAIL;
+}
+
+void SSIFSource::ParseEvents() {
+	if (!pGraph)
+		return;
+
+	CComQIPtr<IMediaEventEx> pEvent = pGraph;
+	long evCode = 0;
+	LONG_PTR param1 = 0, param2 = 0;
+	HRESULT hr = S_OK;
+	while (SUCCEEDED(pEvent->GetEvent(&evCode, &param1, &param2, 0))) {
+		// Invoke the callback.
+		if (evCode == EC_COMPLETE) {
+			CComQIPtr<IMediaControl>(pGraph)->Stop();
+			pSplitter = NULL;
+			pGraph = NULL;
+		}
+
+		// Free the event data.
+		hr = pEvent->FreeEventParams(evCode, param1, param2);
+		if (FAILED(hr))
+			break;
+	}
 }
 
 void SSIFSource::InitVariables() {
@@ -67,6 +155,33 @@ void SSIFSource::InitVariables() {
 	unic_number = rand();
 
 	pipes_over_warning = false;
+}
+
+void SSIFSource::InitDemuxer() {
+	USES_CONVERSION;
+	string
+		fnBase = MakePipeName(unic_number, "base.h264"),
+		fnDept = MakePipeName(unic_number, "dept.h264");
+	data.left_264 = MakePipeName(unic_number, "base_merge.h264");
+	data.right_264 = MakePipeName(unic_number, "dept_merge.h264");
+
+	dupThread2 = new PipeDupThread(fnBase.c_str(), data.left_264.c_str());
+	if (data.show_params & SP_RIGHTVIEW)
+		dupThread3 = new PipeDupThread(fnDept.c_str(), data.right_264.c_str());
+
+	CoInitialize(NULL);
+	HRESULT res = CreateGraph(
+		A2W(data.ssif_file.c_str()),
+		A2W(fnBase.c_str()),
+		(data.show_params & SP_RIGHTVIEW) ? A2W(fnDept.c_str()): NULL,
+		pGraph, pSplitter);
+	if (FAILED(res))
+		throw (string)"Error creating graph. Code: " + IntToStr(res);
+
+	res = CComQIPtr<IMediaControl>(pGraph)->Run();
+	if (FAILED(res))
+		throw(string)"Can't start the graph";
+	ParseEvents();
 }
 
 void SSIFSource::InitMuxer() {
@@ -126,6 +241,7 @@ SSIFSource::SSIFSource(IScriptEnvironment* env, const SSIFSourceParams& data): d
 	InitVariables();
 
 	try {
+		InitDemuxer();
 		InitMuxer();
 		InitDecoder();
 		InitComplete();
@@ -140,12 +256,19 @@ SSIFSource::~SSIFSource() {
 		TerminateProcess(PI2.hProcess, 0);
 	if (PI1.hProcess != INVALID_HANDLE_VALUE)
 		TerminateProcess(PI1.hProcess, 0);
-	if (dupThread1 != NULL) 
+	if (dupThread1 != NULL)
 		delete dupThread1;
+	if (dupThread2 != NULL)
+		delete dupThread2;
+	if (dupThread3 != NULL)
+		delete dupThread3;
 	if (frLeft != NULL) 
 		delete frLeft;
 	if (frRight != NULL)
 		delete frRight;
+	pSplitter = NULL;
+	pGraph = NULL;
+	CoUninitialize();
 }
 
 PVideoFrame SSIFSource::ReadFrame(FrameSeparator* frSep, IScriptEnvironment* env) {
@@ -171,6 +294,8 @@ void SSIFSource::DropFrame(FrameSeparator* frSep) {
 }
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
+	ParseEvents();
+
 	if (last_frame+1 != n || n >= vi.num_frames) {
 		string str = "ERROR:\\n"
 			"Can't retrieve frame #" + IntToStr(n) + " !\\n";
@@ -213,6 +338,7 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnvironment* env) {
 	SSIFSourceParams data;
 
+	data.ssif_file = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\00001.ssif";
 	data.left_264 = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\mpc.base.h264";
 	data.right_264 = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\mpc.dept.h264";
 
