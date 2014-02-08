@@ -157,9 +157,9 @@ void SSIFSource::InitVariables() {
 	
 	last_frame = FRAME_BLACK;
 	
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	AllocConsole();
-#endif
+//#endif
 	memset(&SI, 0, sizeof(STARTUPINFO));
 	SI.cb = sizeof(SI);
 	SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;
@@ -210,6 +210,11 @@ void SSIFSource::InitDemuxer() {
 }
 
 void SSIFSource::InitMuxer() {
+	if (!(data.show_params & SP_RIGHTVIEW)) {
+		data.h264muxed = data.left_264;
+		return;
+	}
+
 	data.h264muxed = MakePipeName(unic_number, "intel_input.h264");
 
 	string
@@ -261,18 +266,22 @@ void SSIFSource::InitComplete() {
 	last_frame = FRAME_START;
 }
 
-SSIFSource::SSIFSource(IScriptEnvironment* env, const SSIFSourceParams& data): data(data) {
-	InitVariables();
+SSIFSource* SSIFSource::Create(IScriptEnvironment* env, const SSIFSourceParams& data) {
+	SSIFSource *res = new SSIFSource();
+	res->data = data;
+	res->InitVariables();
 
 	try {
-		InitDemuxer();
-		InitMuxer();
-		InitDecoder();
-		InitComplete();
+		res->InitDemuxer();
+		res->InitMuxer();
+		res->InitDecoder();
+		res->InitComplete();
 	}
 	catch(const string& obj) {
-		env->ThrowError(string(FILTER_NAME ": " + obj).c_str());
+		delete res;
+		env->ThrowError((FILTER_NAME ": " + obj).c_str());
 	}
+	return res;
 }
 
 SSIFSource::~SSIFSource() {
@@ -374,5 +383,5 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
 	if (!(data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW))) {
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }
-	return new SSIFSource(env, data);
+	return SSIFSource::Create(env, data);
 }

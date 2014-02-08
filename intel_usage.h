@@ -51,9 +51,10 @@ private:
 	static HRESULT CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, const WCHAR* fnDept,
 		CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter);
 	void ParseEvents();
+	SSIFSource() {}
 	SSIFSource(const SSIFSource& obj) {}
 public:
-	SSIFSource(IScriptEnvironment* env, const SSIFSourceParams& data);
+	static SSIFSource* Create(IScriptEnvironment* env, const SSIFSourceParams& data);
 	virtual ~SSIFSource();
 
 	// Avisynth virtual functions
