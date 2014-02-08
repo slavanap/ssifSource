@@ -11,3 +11,5 @@
 /baseclasses/x64
 /merge/Debug
 /merge/Release
+/dump/Debug
+/dump/Release
