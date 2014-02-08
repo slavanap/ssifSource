@@ -17,6 +17,11 @@
 
 #include <assert.h>
 
+// DirectShow references
+#include <commdlg.h>
+#include <streams.h>
+#include <strsafe.h>
+
 // Additional references
 
 #include <limits.h>

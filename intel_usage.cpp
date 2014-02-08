@@ -1,6 +1,20 @@
 #include "stdafx.h"
 #include "utils.h"
+#include "dump_filter.h"
 #include "intel_usage.h"
+
+
+// paths for binaries for debugging
+#ifdef _DEBUG
+#define PATH_MERGE "..\\merge\\Release\\"
+#define PATH_DECODER "..\\bin\\"
+#define PATH_SPLITTER L"..\\bin\\"
+#else
+#define PATH_MERGE
+#define PATH_DECODER
+#define PATH_SPLITTER
+#endif
+
 
 extern string program_path;
 
@@ -31,6 +45,17 @@ string SSIFSource::MakePipeName(int id, const string& name) {
 	return (string)"\\\\.\\pipe\\bluray" + IntToStr(id) + "\\" + name;
 }
 
+HRESULT CreateDumpFilter(const IID& riid, LPVOID *pFilter) {
+//  for debugging with installed filter
+//	return CoCreateInstance(CLSID_DumpFilter, NULL, CLSCTX_INPROC_SERVER, riid, pFilter);
+
+	HRESULT hr = S_OK;
+	CUnknown *filter = CDump::CreateInstance(NULL, &hr);
+	if (SUCCEEDED(hr))
+		return filter->NonDelegatingQueryInterface(riid, pFilter);
+	return hr;
+}
+
 HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, const WCHAR* fnDept,
 					CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter)
 {
@@ -38,7 +63,7 @@ HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, cons
 	IGraphBuilder *pGraph = NULL;
 	CComQIPtr<IBaseFilter> pSplitter;
 	CComQIPtr<IBaseFilter> pDumper1, pDumper2;
-	LPOLESTR lib_Splitter = T2OLE(L"..\\bin\\" L"MpegSplitter_mod.ax");
+	LPOLESTR lib_Splitter = T2OLE(PATH_SPLITTER L"MpegSplitter_mod.ax");
 	const CLSID *clsid_Splitter = &CLSID_MpegSplitter;
 
 	WCHAR fullname_splitter[MAX_PATH+64];
@@ -55,10 +80,10 @@ HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, cons
 	if (FAILED(hr)) goto lerror;
 	hr = DSHelpCreateInstance(fullname_splitter, *clsid_Splitter, NULL, IID_IBaseFilter, (void**)&pSplitter);
 	if (FAILED(hr)) goto lerror;
-	hr = CoCreateInstance(CLSID_DumpFilter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&pDumper1);
+	hr = CreateDumpFilter(IID_IBaseFilter, (void**)&pDumper1);
 	if (FAILED(hr)) goto lerror;
 	if (fnDept) {
-		hr = CoCreateInstance(CLSID_DumpFilter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&pDumper2);
+		hr = CreateDumpFilter(IID_IBaseFilter, (void**)&pDumper2);
 		if (FAILED(hr)) goto lerror;
 	}
 
@@ -188,7 +213,7 @@ void SSIFSource::InitMuxer() {
 	data.h264muxed = MakePipeName(unic_number, "intel_input.h264");
 
 	string
-		name_muxer = program_path + "..\\merge\\Release\\merge.exe",
+		name_muxer = program_path + PATH_MERGE "merge.exe",
 		s_muxer_output_write = MakePipeName(unic_number, "muxed.h264"),
 		cmd_muxer = "\"" + name_muxer + "\" "
 			"\"" + data.left_264 + "\" " +
@@ -196,9 +221,8 @@ void SSIFSource::InitMuxer() {
 			"\"" + s_muxer_output_write + "\" ";
 
 	dupThread1 = new PipeDupThread(s_muxer_output_write.c_str(), data.h264muxed.c_str());
-	if (
-		!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | IDLE_PRIORITY_CLASS, NULL, NULL, &SI, &PI1))
+	if (!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
+			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED, NULL, NULL, &SI, &PI1))
 	{
 		throw (string)"Error while launching " + name_muxer + "\n";
 	}
@@ -207,7 +231,7 @@ void SSIFSource::InitMuxer() {
 void SSIFSource::InitDecoder() {
 	bool flag_mvc = (data.show_params & SP_RIGHTVIEW) != 0;
     string
-		name_decoder = program_path + "..\\bin\\sample_decode.exe",
+		name_decoder = program_path + PATH_DECODER "sample_decode.exe",
 		s_dec_left_write = MakePipeName(unic_number, "output_0.yuv"),
 		s_dec_right_write = MakePipeName(unic_number, "output_1.yuv"),
 		s_dec_out = MakePipeName(unic_number, "output"),
@@ -338,11 +362,7 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnvironment* env) {
 	SSIFSourceParams data;
 
-	data.ssif_file = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\00001.ssif";
-	data.left_264 = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\mpc.base.h264";
-	data.right_264 = "c:\\Users\\Vyacheslav\\Projects\\Utils\\test\\mpc.dept.h264";
-
-	data.h264muxed = args[0].AsString();
+	data.ssif_file = args[0].AsString();
 	data.frame_count = args[1].AsInt();
 	data.dim_width = 1920;
 	data.dim_height = 1080;

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 //------------------------------------------------------------------------------
 // File: Dump.cpp
 //
@@ -69,14 +71,8 @@
 //
 //
 
-#include <windows.h>
-#include <commdlg.h>
-#include <streams.h>
-#include <initguid.h>
-#include <strsafe.h>
-
-#include "dumpuids.h"
-#include "dump.h"
+#include "dump_filter.h"
+#include "utils.h"
 
 
 // Setup data
@@ -102,7 +98,7 @@ const AMOVIESETUP_PIN sudPins =
 
 const AMOVIESETUP_FILTER sudDump =
 {
-    &CLSID_Dump,                // Filter CLSID
+    &CLSID_DumpFilter,          // Filter CLSID
     L"Dump",                    // String name
     MERIT_DO_NOT_USE,           // Filter merit
     1,                          // Number pins
@@ -114,7 +110,7 @@ const AMOVIESETUP_FILTER sudDump =
 //  Object creation stuff
 //
 CFactoryTemplate g_Templates[]= {
-    L"Dump", &CLSID_Dump, CDump::CreateInstance, NULL, &sudDump
+    L"Dump", &CLSID_DumpFilter, CDump::CreateInstance, NULL, &sudDump
 };
 int g_cTemplates = 1;
 
@@ -125,7 +121,7 @@ CDumpFilter::CDumpFilter(CDump *pDump,
                          LPUNKNOWN pUnk,
                          CCritSec *pLock,
                          HRESULT *phr) :
-    CBaseFilter(NAME("CDumpFilter"), pUnk, pLock, CLSID_Dump),
+    CBaseFilter(NAME("CDumpFilter"), pUnk, pLock, CLSID_DumpFilter),
     m_pDump(pDump)
 {
 }
@@ -812,6 +808,7 @@ void CDump::WriteString(TCHAR *pString)
 } // WriteString
 
 
+#if 0
 ////////////////////////////////////////////////////////////////////////
 //
 // Exported entry points for registration and unregistration 
@@ -853,3 +850,4 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 	return DllEntryPoint((HINSTANCE)(hModule), dwReason, lpReserved);
 }
 
+#endif

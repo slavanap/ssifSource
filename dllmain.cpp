@@ -19,8 +19,10 @@ bool DLLInit() {
 	return true;
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-    switch (ul_reason_for_call) {
+extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
+    switch (dwReason) {
         case DLL_PROCESS_ATTACH:
             hInstance = hModule;
 			if (!DLLInit())
@@ -31,7 +33,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         case DLL_PROCESS_DETACH:
             break;
     }
-    return TRUE;
+	return DllEntryPoint((HINSTANCE)(hModule), dwReason, lpReserved);
 }
 
 // AviSynth functions registration

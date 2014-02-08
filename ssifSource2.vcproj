@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dump_filter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\intel_usage.cpp"
 				>
 			</File>
@@ -217,6 +221,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\dump_filter.h"
+				>
+			</File>
 			<File
 				RelativePath=".\intel_usage.h"
 				>
