@@ -237,12 +237,12 @@ void SSIFSource::InitMuxer() {
 	data.h264muxed = MakePipeName(unic_number, "intel_input.h264");
 
 	string
-		name_muxer = program_path + PATH_MERGE "merge.exe",
+		name_muxer = program_path + PATH_DECODER "mvccombine.exe", // PATH_MERGE "merge.exe",
 		s_muxer_output_write = MakePipeName(unic_number, "muxed.h264"),
 		cmd_muxer = "\"" + name_muxer + "\" "
-			"\"" + data.left_264 + "\" " +
-			"\"" + data.right_264 + "\" " +
-			"\"" + s_muxer_output_write + "\" ";
+			"-l \"" + data.left_264 + "\" " +
+			"-r \"" + data.right_264 + "\" " +
+			"-o \"" + s_muxer_output_write + "\" ";
 
 	dupThread1 = new PipeDupThread(s_muxer_output_write.c_str(), data.h264muxed.c_str());
 	if (!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
