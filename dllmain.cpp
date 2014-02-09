@@ -39,6 +39,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 // AviSynth functions registration
 extern "C" __declspec(dllexport) 
 const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
-	env->AddFunction("ssifSource", "[ssif_file]s[frame_count]i[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s", Create_SSIFSource, 0);
+	env->AddFunction("ssifSource", 
+		"[ssif_file]s[frame_count]i[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b",
+		Create_SSIFSource, 0);
 	return 0;
 }

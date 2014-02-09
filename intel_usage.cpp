@@ -153,17 +153,16 @@ void SSIFSource::InitVariables() {
 	
 	last_frame = FRAME_BLACK;
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	AllocConsole();
-//#endif
+#endif
 	memset(&SI, 0, sizeof(STARTUPINFO));
 	SI.cb = sizeof(SI);
 	SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;
-#ifdef _DEBUG
-	SI.wShowWindow = SW_SHOWNORMAL;
-#else
-	SI.wShowWindow = SW_HIDE;
-#endif
+	if (data.flag_debug)
+		SI.wShowWindow = SW_SHOWNORMAL;
+	else
+		SI.wShowWindow = SW_HIDE;
 
 	memset(&PI1, 0, sizeof(PROCESS_INFORMATION));
 	PI1.hProcess = INVALID_HANDLE_VALUE;
@@ -246,7 +245,8 @@ void SSIFSource::InitMuxer() {
 
 	dupThread1 = new PipeDupThread(s_muxer_output_write.c_str(), data.h264muxed.c_str());
 	if (!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED, NULL, NULL, &SI, &PI1))
+			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+			NULL, NULL, &SI, &PI1))
 	{
 		throw (string)"Error while launching " + name_muxer + "\n";
 	}
@@ -273,7 +273,8 @@ void SSIFSource::InitDecoder() {
 		frRight = new FrameSeparator(s_dec_right_write.c_str(), framesize);
 
 	if (!CreateProcessA(name_decoder.c_str(), const_cast<char*>(cmd_decoder.c_str()), NULL, NULL, false,
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED, NULL, NULL, &SI, &PI2))
+			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+			NULL, NULL, &SI, &PI2))
 	{
 		throw (string)"Error while launching " + name_decoder + "\n";
 	}
@@ -404,6 +405,7 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
 		(args[4].AsBool(false) ? SP_HORIZONTAL : 0) |
 		(args[5].AsBool(false) ? SP_SWAPVIEWS : 0);
 	data.inteldecoder_params = args[6].AsString("");
+	data.flag_debug = args[7].AsBool(false);
 	if (!(data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW))) {
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }
