@@ -6,13 +6,15 @@
 
 // paths for binaries for debugging
 #ifdef _DEBUG
-#define PATH_MERGE "..\\merge\\Release\\"
-#define PATH_DECODER "..\\bin\\"
 #define PATH_SPLITTER L"..\\bin\\"
+#define PATH_MUXER "..\\bin\\"
+#define PATH_DECODER "..\\bin\\"
+#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED)
 #else
-#define PATH_MERGE
-#define PATH_DECODER
 #define PATH_SPLITTER
+#define PATH_MUXER
+#define PATH_DECODER
+#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP)
 #endif
 
 
@@ -264,15 +266,14 @@ void SSIFSource::InitMuxer() {
 	}
 
 	string
-		name_muxer = program_path + PATH_DECODER "mvccombine.exe",
+		name_muxer = program_path + PATH_MUXER "mvccombine.exe",
 		cmd_muxer = "\"" + name_muxer + "\" "
 			"-l \"" + data.left_264 + "\" " +
 			"-r \"" + data.right_264 + "\" " +
 			"-o \"" + fiMuxed + "\" ";
 
 	if (!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
-			NULL, NULL, &SI, &PI1))
+			CREATE_PROCESS_FLAGS, NULL, NULL, &SI, &PI1))
 	{
 		throw (string)"Error while launching " + name_muxer + "\n";
 	}
@@ -280,7 +281,22 @@ void SSIFSource::InitMuxer() {
 
 void SSIFSource::InitDecoder() {
 	bool flag_mvc = (data.show_params & SP_RIGHTVIEW) != 0;
-    string
+	string name_decoder, s_dec_left_write, s_dec_right_write, s_dec_out, cmd_decoder;
+
+	if (data.flag_use_ldecod) {
+		name_decoder = program_path + PATH_DECODER "ldecod.exe";
+		s_dec_left_write = MakePipeName(unic_number, "1_ViewId0000.yuv");
+		s_dec_right_write = MakePipeName(unic_number, "1_ViewId0001.yuv");
+		s_dec_out = MakePipeName(unic_number, "1.yuv");
+
+		cmd_decoder = "\"" + name_decoder + "\" -p InputFile=\"" + data.h264muxed + "\" "
+			"-p OutputFile=\"" + s_dec_out + "\" "
+			"-p WriteUV=1 -p FileFormat=0 -p RefOffset=0 -p POCScale=2"
+			"-p DisplayDecParams=1 -p ConcealMode=0 -p RefPOCGap=2 -p POCGap=2 -p Silent=0 -p IntraProfileDeblocking=1 -p DecFrmNum=0 "
+			"-p DecodeAllLayers=1";
+		flag_mvc = true;
+	}
+	else {
 		name_decoder = program_path + PATH_DECODER "sample_decode.exe",
 		s_dec_left_write = MakePipeName(unic_number, "output_0.yuv"),
 		s_dec_right_write = MakePipeName(unic_number, "output_1.yuv"),
@@ -289,6 +305,7 @@ void SSIFSource::InitDecoder() {
 			(flag_mvc ? "mvc" : "h264") +
 			" " + data.inteldecoder_params +
 			" -i \"" + data.h264muxed + "\" -o " + s_dec_out;
+	}
 
 	int framesize = frame_vi.width*frame_vi.height + (frame_vi.width*frame_vi.height/2)&~1;
 	if (!flag_mvc)
@@ -299,8 +316,7 @@ void SSIFSource::InitDecoder() {
 		frRight = new FrameSeparator(s_dec_right_write.c_str(), framesize);
 
 	if (!CreateProcessA(name_decoder.c_str(), const_cast<char*>(cmd_decoder.c_str()), NULL, NULL, false,
-			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
-			NULL, NULL, &SI, &PI2))
+			CREATE_PROCESS_FLAGS, NULL, NULL, &SI, &PI2))
 	{
 		throw (string)"Error while launching " + name_decoder + "\n";
 	}
@@ -382,9 +398,11 @@ PVideoFrame SSIFSource::ReadFrame(FrameSeparator* frSep, IScriptEnvironment* env
 }
 
 void SSIFSource::DropFrame(FrameSeparator* frSep) {
-    if (!frSep->error)
-        frSep->WaitForData();
-    frSep->DataParsed();
+	if (frSep != NULL) {
+		if (!frSep->error)
+	        frSep->WaitForData();
+		frSep->DataParsed();
+	}
 }
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
@@ -416,6 +434,8 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
         DropFrame(frLeft);
     if (data.show_params & SP_RIGHTVIEW) 
         right = ReadFrame(frRight, env);
+	else
+		DropFrame(frRight);
 
 	if ((data.show_params & (SP_LEFTVIEW|SP_RIGHTVIEW)) == (SP_LEFTVIEW|SP_RIGHTVIEW)) {
 		if (!(data.show_params & SP_SWAPVIEWS))
@@ -450,5 +470,6 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }
 	data.stop_after = args[13].AsInt(SA_DECODER);
+	data.flag_use_ldecod = args[14].AsBool(false);
 	return SSIFSource::Create(env, data);
 }

@@ -28,6 +28,7 @@ struct SSIFSourceParams {
 	string inteldecoder_params;
 	bool flag_debug;
 	int stop_after;
+	bool flag_use_ldecod;
 
 	SSIFSourceParams(): dim_width(0), dim_height(0), frame_count(0), show_params(SP_LEFTVIEW|SP_RIGHTVIEW)
 	{

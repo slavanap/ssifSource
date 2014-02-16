@@ -267,7 +267,7 @@ FrameSeparator::FrameSeparator(const char* name, int size):
 	stop_event(false), error(false), hThread(NULL), size(size) 
 {
 	hRead = CreateNamedPipeA(name, PIPE_ACCESS_INBOUND | PIPE_ACCESS_OUTBOUND,
-		PIPE_TYPE_BYTE | PIPE_WAIT, 1, 0, 0, NMPWAIT_USE_DEFAULT_WAIT, NULL);
+		PIPE_TYPE_BYTE | PIPE_WAIT, 1, size*10, size*10, NMPWAIT_USE_DEFAULT_WAIT, NULL);
 	heDataReady = CreateEvent(NULL, false, false, NULL);
 	heDataParsed = CreateEvent(NULL, false, true, NULL);
 	buffer = new char[size];

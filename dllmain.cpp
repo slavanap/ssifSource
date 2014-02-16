@@ -41,7 +41,7 @@ extern "C" __declspec(dllexport)
 const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("ssifSource", 
 		"[ssif_file]s[frame_count]i[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b"
-		"[avc264]s[mvc264]s[muxed264]s[width]i[height]i[stop_after]i",
+		"[avc264]s[mvc264]s[muxed264]s[width]i[height]i[stop_after]i[use_ldecod]b",
 		Create_SSIFSource, 0);
 	return 0;
 }
