@@ -56,7 +56,7 @@ PipeDupThread::PipeDupThread(const char* name_read, const char* name_write):
 		PIPE_TYPE_BYTE | PIPE_WAIT, 1, 0, CLONEPIPE_BUFFER_SIZE, NMPWAIT_USE_DEFAULT_WAIT, NULL);
 	hWrite = CreateNamedPipeA(name_write, PIPE_ACCESS_OUTBOUND,
 		PIPE_TYPE_BYTE | PIPE_WAIT, 1, 0, 0, NMPWAIT_USE_DEFAULT_WAIT, NULL);
-	if (hRead == NULL || hWrite == NULL) {
+	if (hRead == INVALID_HANDLE_VALUE || hWrite == INVALID_HANDLE_VALUE) {
 		error = true;
 		return;
 	}
@@ -82,6 +82,7 @@ DWORD WINAPI PipeCloneThread::ThreadProc(LPVOID param) {
 	PipeCloneThread *object = (PipeCloneThread*)param;
 	ConnectNamedPipe(object->hRead, NULL);
 	ConnectNamedPipe(object->hWrite1, NULL);
+	ConnectNamedPipe(object->hWrite2, NULL);
 	int flag1, flag2;
 	char buffer[BUFFER_SIZE];
 	while (!object->stop_event) {
@@ -160,7 +161,9 @@ PipeCloneThread::PipeCloneThread(const char* name_read, const char* name_write1,
 		PIPE_TYPE_BYTE | PIPE_WAIT, 1, CLONEPIPE_BUFFER_SIZE, 0, NMPWAIT_USE_DEFAULT_WAIT, NULL);
 	hWrite2 = CreateNamedPipeA(name_write2, PIPE_ACCESS_OUTBOUND,
 		PIPE_TYPE_BYTE | PIPE_WAIT, 1, CLONEPIPE_BUFFER_SIZE, 0, NMPWAIT_USE_DEFAULT_WAIT, NULL);
-	if (hRead == NULL || hWrite1 == NULL || hWrite2 == NULL) {
+	if (hWrite2 == INVALID_HANDLE_VALUE)
+		hWrite2 = CreateFileA(name_write2, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hRead == INVALID_HANDLE_VALUE || hWrite1 == INVALID_HANDLE_VALUE || hWrite2 == INVALID_HANDLE_VALUE) {
 		error = true;
 		return;
 	}
@@ -208,7 +211,7 @@ NullPipeThread::NullPipeThread(const char* name_read):
 {
 	hRead = CreateNamedPipeA(name_read, PIPE_ACCESS_INBOUND,
 		PIPE_TYPE_BYTE | PIPE_WAIT, 1, 0, 0, NMPWAIT_USE_DEFAULT_WAIT, NULL);
-	if (hRead == NULL) {
+	if (hRead == INVALID_HANDLE_VALUE) {
 		error = true;
 		return;
 	}
@@ -268,7 +271,7 @@ FrameSeparator::FrameSeparator(const char* name, int size):
 	heDataReady = CreateEvent(NULL, false, false, NULL);
 	heDataParsed = CreateEvent(NULL, false, true, NULL);
 	buffer = new char[size];
-	if (hRead == NULL || heDataReady == NULL || heDataParsed == NULL || buffer == NULL) {
+	if (hRead == INVALID_HANDLE_VALUE || heDataReady == NULL || heDataParsed == NULL || buffer == NULL) {
 		error = true;
 		return;
 	}

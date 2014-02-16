@@ -10,6 +10,12 @@ enum ShowParameters {
     SP_MASK       = 0x0F
 };
 
+enum StopAfterParam {
+	SA_DEMUXER = 0,
+	SA_MUXER   = 1,
+	SA_DECODER = 2
+};
+
 struct SSIFSourceParams {
 	string ssif_file;
 	string h264muxed;
@@ -21,6 +27,7 @@ struct SSIFSourceParams {
     int show_params;
 	string inteldecoder_params;
 	bool flag_debug;
+	int stop_after;
 
 	SSIFSourceParams(): dim_width(0), dim_height(0), frame_count(0), show_params(SP_LEFTVIEW|SP_RIGHTVIEW)
 	{
@@ -35,7 +42,7 @@ private:
 	STARTUPINFOA SI;
 	PROCESS_INFORMATION PI1, PI2;
 	FrameSeparator *frLeft, *frRight;
-	PipeDupThread *dupThread1, *dupThread2, *dupThread3;
+	PipeThread *dupThread1, *dupThread2, *dupThread3;
 	int unic_number;
 	bool pipes_over_warning;
 	CComPtr<IGraphBuilder> pGraph;

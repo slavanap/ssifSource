@@ -7,7 +7,12 @@
 
 // Pipes' classes
 
-class PipeDupThread {
+class PipeThread {
+public:
+	virtual ~PipeThread() {}
+};
+
+class PipeDupThread: public PipeThread {
 	volatile bool stop_event;
 	static DWORD WINAPI ThreadProc(LPVOID param);
 public:
@@ -18,7 +23,7 @@ public:
 	~PipeDupThread();
 };
 
-class PipeCloneThread {
+class PipeCloneThread: public PipeThread {
 	volatile bool stop_event;
 	static DWORD WINAPI ThreadProc(LPVOID param);
 public:
@@ -29,7 +34,7 @@ public:
 	~PipeCloneThread();
 };
 
-class NullPipeThread {
+class NullPipeThread: public PipeThread {
 	volatile bool stop_event;
 	static DWORD WINAPI ThreadProc(LPVOID param);
 public:
@@ -40,7 +45,7 @@ public:
 	~NullPipeThread();
 };
 
-class FrameSeparator {
+class FrameSeparator: public PipeThread {
 	HANDLE heDataReady; 
 	HANDLE heDataParsed;
 	volatile bool stop_event;

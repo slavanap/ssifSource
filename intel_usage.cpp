@@ -169,9 +169,8 @@ void SSIFSource::InitVariables() {
 	memset(&PI2, 0, sizeof(PROCESS_INFORMATION));
 	PI2.hProcess = INVALID_HANDLE_VALUE;
 
-	frLeft = NULL;
-    frRight = NULL;
-	dupThread1 = NULL;
+	frLeft = frRight = NULL;
+	dupThread1 = dupThread2 = dupThread3 = NULL;
 	unic_number = rand();
 
 	pipes_over_warning = false;
@@ -180,20 +179,36 @@ void SSIFSource::InitVariables() {
 void SSIFSource::InitDemuxer() {
 	USES_CONVERSION;
 	string
-		fnBase = MakePipeName(unic_number, "base.h264"),
-		fnDept = MakePipeName(unic_number, "dept.h264");
-	data.left_264 = MakePipeName(unic_number, "base_merge.h264");
-	data.right_264 = MakePipeName(unic_number, "dept_merge.h264");
+		fiBase = MakePipeName(unic_number, "base.h264"),
+		fiDept = MakePipeName(unic_number, "dept.h264"),
+		foBase = MakePipeName(unic_number, "base_merge.h264"),
+		foDept = MakePipeName(unic_number, "dept_merge.h264");
 
-	dupThread2 = new PipeDupThread(fnBase.c_str(), data.left_264.c_str());
-	if (data.show_params & SP_RIGHTVIEW)
-		dupThread3 = new PipeDupThread(fnDept.c_str(), data.right_264.c_str());
+	if (data.stop_after == SA_DEMUXER) {
+		fiBase = data.left_264;
+		fiDept = data.right_264;
+	}
+	else {
+		if (data.left_264 == "")
+			dupThread2 = new PipeDupThread(fiBase.c_str(), foBase.c_str());
+		else
+			dupThread2 = new PipeCloneThread(fiBase.c_str(), foBase.c_str(), data.left_264.c_str());
+		data.left_264 = foBase;
+
+		if (data.show_params & SP_RIGHTVIEW) {
+			if (data.right_264 == "")
+				dupThread3 = new PipeDupThread(fiDept.c_str(), foDept.c_str());
+			else
+				dupThread3 = new PipeCloneThread(fiDept.c_str(), foDept.c_str(), data.right_264.c_str());
+		}
+		data.right_264 = foDept;
+	}
 
 	CoInitialize(NULL);
 	HRESULT res = CreateGraph(
 		A2W(data.ssif_file.c_str()),
-		A2W(fnBase.c_str()),
-		(data.show_params & SP_RIGHTVIEW) ? A2W(fnDept.c_str()): NULL,
+		A2W(fiBase.c_str()),
+		(data.show_params & SP_RIGHTVIEW) ? A2W(fiDept.c_str()): NULL,
 		pGraph, pSplitter);
 	if (FAILED(res))
 		throw (string)"Error creating graph. Code: " + IntToStr(res);
@@ -233,17 +248,28 @@ void SSIFSource::InitMuxer() {
 		return;
 	}
 
-	data.h264muxed = MakePipeName(unic_number, "intel_input.h264");
+	string
+		fiMuxed = MakePipeName(unic_number, "muxed.h264"),
+		foMuxed = MakePipeName(unic_number, "intel_input.h264");
+
+	if (data.stop_after == SA_MUXER) {
+		fiMuxed = data.h264muxed;
+	}
+	else {
+		if (data.h264muxed == "")
+			dupThread1 = new PipeDupThread(fiMuxed.c_str(), foMuxed.c_str());
+		else
+			dupThread1 = new PipeCloneThread(fiMuxed.c_str(), foMuxed.c_str(), data.h264muxed.c_str());
+		data.h264muxed = foMuxed;
+	}
 
 	string
-		name_muxer = program_path + PATH_DECODER "mvccombine.exe", // PATH_MERGE "merge.exe",
-		s_muxer_output_write = MakePipeName(unic_number, "muxed.h264"),
+		name_muxer = program_path + PATH_DECODER "mvccombine.exe",
 		cmd_muxer = "\"" + name_muxer + "\" "
 			"-l \"" + data.left_264 + "\" " +
 			"-r \"" + data.right_264 + "\" " +
-			"-o \"" + s_muxer_output_write + "\" ";
+			"-o \"" + fiMuxed + "\" ";
 
-	dupThread1 = new PipeDupThread(s_muxer_output_write.c_str(), data.h264muxed.c_str());
 	if (!CreateProcessA(name_muxer.c_str(), const_cast<char*>(cmd_muxer.c_str()), NULL, NULL, false, 
 			CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
 			NULL, NULL, &SI, &PI1))
@@ -287,18 +313,29 @@ void SSIFSource::InitComplete() {
 
 	ResumeThread(PI1.hThread);
 	ResumeThread(PI2.hThread);
-	last_frame = FRAME_START;
+	if (data.stop_after == SA_DECODER)
+		last_frame = FRAME_START;
 }
 
 SSIFSource* SSIFSource::Create(IScriptEnvironment* env, const SSIFSourceParams& data) {
 	SSIFSource *res = new SSIFSource();
 	res->data = data;
+	SSIFSourceParams *cdata = &res->data;
 	res->InitVariables();
 
 	try {
-		res->InitDemuxer();
-		res->InitMuxer();
-		res->InitDecoder();
+		if (cdata->ssif_file != "")
+			res->InitDemuxer();
+		if (cdata->stop_after != SA_DEMUXER) {
+			if (cdata->left_264 != "" && cdata->right_264 != "")
+				res->InitMuxer();
+			if (cdata->stop_after != SA_MUXER) {
+				if (cdata->h264muxed != "")
+					res->InitDecoder();
+				else
+					throw (string)"Can't decode nothing";
+			}
+		}
 		res->InitComplete();
 	}
 	catch(const string& obj) {
@@ -395,10 +432,13 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnvironment* env) {
 	SSIFSourceParams data;
 
-	data.ssif_file = args[0].AsString();
+	data.ssif_file = args[0].AsString("");
+	data.left_264 = args[8].AsString("");
+	data.right_264 = args[9].AsString("");
+	data.h264muxed = args[10].AsString("");
 	data.frame_count = args[1].AsInt();
-	data.dim_width = 1920;
-	data.dim_height = 1080;
+	data.dim_width = args[11].AsInt(1920);
+	data.dim_height = args[12].AsInt(1080);
 	data.show_params = 
 		(args[2].AsBool(true) ? SP_LEFTVIEW : 0) |
 		(args[3].AsBool(true) ? SP_RIGHTVIEW : 0) |
@@ -409,5 +449,6 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
 	if (!(data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW))) {
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }
+	data.stop_after = args[13].AsInt(SA_DECODER);
 	return SSIFSource::Create(env, data);
 }
