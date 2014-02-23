@@ -5,7 +5,7 @@ SA_DECODER = 2
 # function proto:
 
 # ssifSource(
-#   string ssif_file,                                  # path to ssif file
+#   string ssif_file,                                   # path to ssif file
 #   int frame_count,                                    # precise framecount
 #   bool avc_view = true,                               # whether to show base view
 #   bool mvc_view = true,                               # whether to show dependent view. If 'false' then muxer stage skipped (MVCCombine is not used)
