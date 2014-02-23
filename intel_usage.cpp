@@ -416,7 +416,7 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 				REFERENCE_TIME tmDuration, tmPosition;
 				pSeeking->GetDuration(&tmDuration);
 				pSeeking->GetCurrentPosition(&tmPosition);
-				int value = (double)tmPosition / tmDuration * 100.0;
+				int value = (int)((double)tmPosition / tmDuration * 100.0);
 				str = "Demuxing process: " + IntToStr(value) + "% completed.";
 			}
 			else {
@@ -450,8 +450,6 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
         DropFrame(frLeft);
     if (data.show_params & SP_RIGHTVIEW) 
         right = ReadFrame(frRight, env);
-	else
-		DropFrame(frRight);
 
 	if ((data.show_params & (SP_LEFTVIEW|SP_RIGHTVIEW)) == (SP_LEFTVIEW|SP_RIGHTVIEW)) {
 		if (!(data.show_params & SP_SWAPVIEWS))
@@ -468,13 +466,11 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnvironment* env) {
 	SSIFSourceParams data;
 
+	// necessary params
 	data.ssif_file = args[0].AsString("");
-	data.left_264 = args[8].AsString("");
-	data.right_264 = args[9].AsString("");
-	data.h264muxed = args[10].AsString("");
 	data.frame_count = args[1].AsInt();
-	data.dim_width = args[11].AsInt(1920);
-	data.dim_height = args[12].AsInt(1080);
+
+	// common group
 	data.show_params = 
 		(args[2].AsBool(true) ? SP_LEFTVIEW : 0) |
 		(args[3].AsBool(true) ? SP_RIGHTVIEW : 0) |
@@ -485,7 +481,15 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
 	if (!(data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW))) {
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }
-	data.stop_after = args[13].AsInt(SA_DECODER);
-	data.flag_use_ldecod = args[14].AsBool(false);
+	data.flag_use_ldecod = args[8].AsBool(false);
+
+	// dump group
+	data.left_264 = args[9].AsString("");
+	data.right_264 = args[10].AsString("");
+	data.h264muxed = args[11].AsString("");
+	data.dim_width = args[12].AsInt(1920);
+	data.dim_height = args[13].AsInt(1080);
+	data.stop_after = args[14].AsInt(SA_DECODER);
+
 	return SSIFSource::Create(env, data);
 }

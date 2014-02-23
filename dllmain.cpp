@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "utils.h"
 #include "intel_usage.h"
+#include "mpls_source.h"
 
 #define PATH_BUFFER_LENGTH 1024
 string program_path;
@@ -40,8 +41,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 extern "C" __declspec(dllexport) 
 const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("ssifSource", 
-		"[ssif_file]s[frame_count]i[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b"
-		"[avc264]s[mvc264]s[muxed264]s[width]i[height]i[stop_after]i[use_ldecod]b",
+		"[ssif_file]s[frame_count]i[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b[use_ldecod]b"
+		"[avc264]s[mvc264]s[muxed264]s[width]i[height]i[stop_after]i",
 		Create_SSIFSource, 0);
+	env->AddFunction("mplsSource", 
+		"[mpls_file]s[ssif_path]s[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b[use_ldecod]b",
+		Create_MPLSSource, 0);
 	return 0;
 }

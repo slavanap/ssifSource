@@ -17,18 +17,6 @@
 #include <stdint.h>
 #endif
 
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef _SYSLIMITS_H_
-#include <syslimits.h>
-#endif
-#ifdef _SYS_SYSLIMITS_H_
-#include <sys/syslimits.h>
-#endif
 
 #ifdef	__cplusplus
 extern "C" {
@@ -287,6 +275,10 @@ parse_chapter();
 void
 parse_mpls(char* path);
 
+
+// printing functions 
+void print_stream_clips_header(playlist_t* playlist);
+void print_stream_clips(playlist_t* playlist);
 
 
 #ifdef	__cplusplus

@@ -188,6 +188,30 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mpls_parse.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\mpls_source.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pipe_tools.cpp"
 				>
 			</File>
@@ -227,6 +251,14 @@
 			</File>
 			<File
 				RelativePath=".\intel_usage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mpls_parse.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mpls_source.h"
 				>
 			</File>
 			<File

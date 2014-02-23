@@ -5,8 +5,23 @@
  * Created on January 21, 2013, 2:43 PM
  */
 
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "parse_mpls.h"
+#ifdef _SYSLIMITS_H_
+#include <syslimits.h>
+#endif
+#ifdef _SYS_SYSLIMITS_H_
+#include <sys/syslimits.h>
+#endif
+
+#include "mpls_parse.h"
+
+#define _CRT_SECURE_NO_WARNINGS
+
 
 #ifdef _MSC_VER
 
@@ -929,6 +944,7 @@ parse_mpls(char* path)
 /*
  * 
  */
+#if 0
 int main(int argc, char** argv) {
     if (argc < 2)
     {
@@ -944,3 +960,4 @@ int main(int argc, char** argv) {
     return (EXIT_SUCCESS);
 }
 
+#endif
