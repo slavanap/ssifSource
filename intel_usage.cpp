@@ -301,10 +301,10 @@ void SSIFSource::InitDecoder() {
 		s_dec_left_write = MakePipeName(unic_number, "output_0.yuv"),
 		s_dec_right_write = MakePipeName(unic_number, "output_1.yuv"),
 		s_dec_out = MakePipeName(unic_number, "output"),
-		cmd_decoder = "\"" + name_decoder + "\" " +
-			(flag_mvc ? "mvc" : "h264") +
-			" " + data.inteldecoder_params +
-			" -i \"" + data.h264muxed + "\" -o " + s_dec_out;
+		cmd_decoder = "\"" + name_decoder + "\" ";
+		if (!(!data.inteldecoder_params.empty() && data.inteldecoder_params[0] != '-'))
+			cmd_decoder += (flag_mvc ? "mvc" : "h264");
+		cmd_decoder += " " + data.inteldecoder_params +	" -i \"" + data.h264muxed + "\" -o " + s_dec_out;
 	}
 
 	int framesize = frame_vi.width*frame_vi.height + (frame_vi.width*frame_vi.height/2)&~1;
@@ -409,13 +409,29 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 	ParseEvents();
 
 	if (last_frame+1 != n || n >= vi.num_frames) {
-		string str = "ERROR:\\n"
-			"Can't retrieve frame #" + IntToStr(n) + " !\\n";
-		if (last_frame >= vi.num_frames-1)
-			str += "Video sequence is over. Reload the script.\\n";
-		else
-			str += "Frame #" + IntToStr(last_frame+1) + " should be the next frame.\\n";
-		str += "Note: " FILTER_NAME " filter supports only sequential frame rendering.";
+		string str;
+		if ((last_frame == FRAME_BLACK) && (data.stop_after != SA_DECODER)) {
+			if (pGraph != NULL) {
+				CComQIPtr<IMediaSeeking> pSeeking = pGraph;
+				REFERENCE_TIME tmDuration, tmPosition;
+				pSeeking->GetDuration(&tmDuration);
+				pSeeking->GetCurrentPosition(&tmPosition);
+				int value = (double)tmPosition / tmDuration * 100.0;
+				str = "Demuxing process: " + IntToStr(value) + "% completed.";
+			}
+			else {
+				str = "Demuxing process completed.";
+			}
+		}
+		else {
+			str = "ERROR:\\n"
+				  "Can't retrieve frame #" + IntToStr(n) + " !\\n";
+			if (last_frame >= vi.num_frames-1)
+				str += "Video sequence is over. Reload the script.\\n";
+			else
+				str += "Frame #" + IntToStr(last_frame+1) + " should be the next frame.\\n";
+			str += "Note: " FILTER_NAME " filter supports only sequential frame rendering.";
+		}
 		const char* arg_names1[2] = {0, "color_yuv"};
 		AVSValue args1[2] = {this, 0};
 		PClip resultClip1 = (env->Invoke("BlankClip", AVSValue(args1,2), arg_names1)).AsClip();

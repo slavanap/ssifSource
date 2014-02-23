@@ -21,11 +21,11 @@ SA_DECODER = 2
 #	int use_ldecod = false
 # );
 
-Debug = 0
+Debug = 1
 
-LoadPlugin("bin\ssifSource2.dll")
-#LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\" + ((Debug == 1) ? "Debug" : "Release") + "\ssifSource2.dll")
-src = ssifSource("samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 100+465, intel_params = "-hw -d3d", debug = true, use_ldecod = true)
+#LoadPlugin("bin\ssifSource2.dll")
+LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\" + ((Debug == 1) ? "Debug" : "Release") + "\ssifSource2.dll")
+src = ssifSource("samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 100+465, intel_params = "-hw -d3d", debug = true, use_ldecod = false, muxed264="mux.h264", stop_after=SA_MUXER)
 
 #l = src.crop(0,0,src.width,src.height/2).subtitle("left")
 #r = src.crop(0,src.height/2,src.width,src.height/2).subtitle("right")
