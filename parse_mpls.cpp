@@ -8,6 +8,88 @@
 
 #include "parse_mpls.h"
 
+#ifdef _MSC_VER
+
+#include <assert.h>
+#include <Windows.h>
+#define MAXPATHLEN MAX_PATH
+/*---------------------------------------------------------------------------*/
+static
+char *dirname(char *path)
+{
+	static char buffer[260];
+	size_t len;
+	if (path==NULL) {
+		strcpy(buffer, ".");
+		return buffer;
+	}
+	len = strlen(path);
+	assert(len<sizeof(buffer));
+	if (len!=0 && (path[len-1]=='/' || path[len-1]=='\\')) {
+		--len;
+	}
+	while (len!=0 && path[len-1]!='/' && path[len-1]!='\\') {
+		--len;
+	}
+	if (len==0) {
+		strcpy(buffer, ".");
+	} else if (len==1) {
+		if (path[0]=='/' || path[0]=='\\') {
+			strcpy(buffer, "/");
+		} else {
+			strcpy(buffer, ".");
+		}
+	} else {
+		memcpy(buffer, path, len-1);
+	}
+	return buffer;
+}
+/*---------------------------------------------------------------------------*/
+static
+char *basename(char *path)
+{
+	static char buffer[260];
+	size_t len_start, len;
+	if (path==NULL) {
+		strcpy(buffer, ".");
+		return buffer;
+	}
+	len = strlen(path);
+	assert(len<sizeof(buffer));
+	if (len!=0 && (path[len-1]=='/' || path[len-1]=='\\')) {
+		if (len==1) {
+			strcpy(buffer, "/");
+			return buffer;
+		}
+		--len;
+	}
+	len_start = len;
+	while (len!=0 && path[len-1]!='/' && path[len-1]!='\\') {
+		--len;
+	}
+	if (len==0) {
+		strcpy(buffer, ".");
+	} else {
+		memcpy(buffer, path + len, len_start - len);
+	}
+
+	return buffer;
+}
+/*---------------------------------------------------------------------------*/
+static
+char *realpath(const char *path, char *resolved_path)
+{
+	char *pszFilePart;
+	if (resolved_path == NULL)
+		resolved_path = (char*)malloc(MAX_PATH);
+	if (GetFullPathNameA(path, MAXPATHLEN, resolved_path, &pszFilePart)==0)
+		return NULL;
+	return resolved_path;
+}
+/*---------------------------------------------------------------------------*/
+
+#endif
+
 
 /*
  * Utility functions
@@ -360,7 +442,7 @@ init_mpls(char* path)
         DIE("Unable to get the file name (basename) of \"%s\".", path);
     }
     
-    mpls_file.file = fopen(mpls_file.path, "r");
+    mpls_file.file = fopen(mpls_file.path, "rb");
     if (mpls_file.file == NULL)
     {
         DIE("Unable to open \"%s\" for reading.", mpls_file.path);
@@ -473,6 +555,10 @@ parse_stream_clips(mpls_file_t* mpls_file, playlist_t* playlist)
         int32_t outTime = get_int32_cursor(data, pos_ptr);
         if (outTime < 0) outTime &= 0x7FFFFFFF;
         double timeOut = timecode_to_sec(outTime);
+
+//		printf("duration: %u\n", outTime - inTime);
+		streamClip->raw_duration = outTime - inTime;
+
 
         streamClip->time_in_sec = timeIn;
         streamClip->time_out_sec = timeOut;
@@ -671,6 +757,13 @@ parse_chapters(mpls_file_t* mpls_file, playlist_t* playlist)
 
             stream_clip_t* streamClip = get_stream_clip_at(&playlist->chapter_stream_clip_list, streamFileIndex);
 
+			if (streamClip == NULL) {
+#ifdef _DEBUG
+				printf("ignore bad chapter\n");
+#endif
+				continue;
+			}
+
             double chapterSeconds = timecode_to_sec(chapterTime);
 
             double relativeSeconds =
@@ -704,7 +797,7 @@ parse_chapters(mpls_file_t* mpls_file, playlist_t* playlist)
 void
 print_playlist_header(mpls_file_t* mpls_file, playlist_t* playlist)
 {
-    int i;
+    size_t i;
     size_t len = strlen(mpls_file->path);
     printf("%s\n", mpls_file->path);
     for (i = 0; i < len; i++)
@@ -774,7 +867,7 @@ print_stream_clips(playlist_t* playlist)
     while (clip != NULL)
     {
         format_duration_to(clip->duration_sec, duration_human);
-        printf("\t %3i:   %s   %s\n", clip->index + 1, clip->filename, duration_human);
+        printf("\t %3i:   %s   %s %d\n", clip->index + 1, clip->filename, duration_human, clip->raw_duration);
         clip = clip->next;
     }
     printf("\n");
@@ -797,7 +890,7 @@ print_chapters_header(playlist_t* playlist)
 void
 print_chapters(playlist_t* playlist)
 {
-    int i;
+    size_t i;
     printf("\t idx    start time  \n");
     printf("\t ---    ------------\n");
     for(i = 0; i < playlist->chapter_count; i++)
@@ -817,16 +910,16 @@ parse_mpls(char* path)
     playlist_t playlist = create_playlist_t();
 
     parse_stream_clips(&mpls_file, &playlist);
-    parse_chapters(&mpls_file, &playlist);
+//    parse_chapters(&mpls_file, &playlist);
     
-    print_playlist_header(&mpls_file, &playlist);
-    print_playlist_details(&playlist);
-    print_tracks_header(&playlist);
-    print_tracks(&playlist);
+//    print_playlist_header(&mpls_file, &playlist);
+//    print_playlist_details(&playlist);
+//    print_tracks_header(&playlist);
+//    print_tracks(&playlist);
     print_stream_clips_header(&playlist);
     print_stream_clips(&playlist);
-    print_chapters_header(&playlist);
-    print_chapters(&playlist);
+//    print_chapters_header(&playlist);
+//    print_chapters(&playlist);
 
     free_playlist_members(&playlist);
     free_mpls_file_members(&mpls_file);
@@ -847,7 +940,7 @@ int main(int argc, char** argv) {
     {
         parse_mpls(argv[i]);
     }
-    
+    system("pause");
     return (EXIT_SUCCESS);
 }
 

@@ -8,11 +8,17 @@
 #ifndef PARSE_MPLS_H
 #define	PARSE_MPLS_H
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#include "stdint.h"
+#else
 #include <libgen.h>
-#include <math.h>
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
+#endif
+
+#include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +97,7 @@ typedef struct stream_clip_s {
     int pip_count; /* Picture-in-Picture (PiP) */
     int index;
     struct stream_clip_s* next;
+	int32_t raw_duration;
 } stream_clip_t; /* parsed data from .m2ts + .cpli files */
 
 typedef struct {
