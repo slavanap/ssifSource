@@ -476,12 +476,12 @@ AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnviro
 		(args[3].AsBool(true) ? SP_RIGHTVIEW : 0) |
 		(args[4].AsBool(false) ? SP_HORIZONTAL : 0) |
 		(args[5].AsBool(false) ? SP_SWAPVIEWS : 0);
-	data.inteldecoder_params = args[6].AsString("");
+	data.inteldecoder_params = args[6].AsString("-d3d");
 	data.flag_debug = args[7].AsBool(false);
 	if (!(data.show_params & (SP_LEFTVIEW | SP_RIGHTVIEW))) {
         env->ThrowError(FILTER_NAME ": can't show nothing");
     }
-	data.flag_use_ldecod = args[8].AsBool(false);
+	data.flag_use_ldecod = args[8].AsBool(true);
 
 	// dump group
 	data.left_264 = args[9].AsString("");

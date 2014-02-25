@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="ssifSource2"
+	Name="ssifSource4"
 	ProjectGUID="{52AD1AFC-8BFF-49C7-AE1F-35FCE6284183}"
-	RootNamespace="ssifSource2"
+	RootNamespace="ssifSource"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\baseclasses"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SSIFSOURCE2_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -118,7 +118,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".\baseclasses"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SSIFSOURCE2_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -266,6 +266,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
@@ -283,6 +287,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\ssifSource.rc"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

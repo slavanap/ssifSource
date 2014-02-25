@@ -9,6 +9,7 @@ class MPLSSource: public IClip {
 	PClip current_clip;
 	string ssif_path;
 	bool flag_mvc;
+	bool flag_swapviews;
 
 	AVSValue plugin_params;
 	VideoInfo vi;

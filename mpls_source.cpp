@@ -6,7 +6,7 @@ void MPLSSource::ChangeCurrentFile(int new_idx, IScriptEnvironment* env) {
 	if (current_index == new_idx)
 		return;
 	current_clip = NULL;
-	fprintf(stderr, "Changing current sequence %s to %s\n",
+	printf("\nChanging current sequence %s to %s\n",
 		(current_index < 0) ? "NULL" : files_names[current_index].c_str(),
 		files_names[new_idx].c_str());
 
@@ -17,6 +17,8 @@ void MPLSSource::ChangeCurrentFile(int new_idx, IScriptEnvironment* env) {
 	AVSValue args[9] = {ssif_filename.c_str(), frame_offsets[new_idx+1]-frame_offsets[new_idx]};
 	for(int i=2; i<9; ++i)
 		args[i] = plugin_params[i];
+	if (!args[5].Defined())
+		args[5] = flag_swapviews;
 	current_clip = (env->Invoke("ssifSource", AVSValue(args,9))).AsClip();
 	current_index = new_idx;
 }
@@ -58,6 +60,10 @@ MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 		ssif_path += "SSIF\\";
 
 	mpls_file_t mpls_file = init_mpls(const_cast<char*>(mpls_filename.c_str()));
+	// swap views auto-detection
+	flag_swapviews = (mpls_file.data[0x38] & 0x10) != 0;
+	printf("Swap views flag value is %s\n", flag_swapviews ? "true" : "false");
+	// parse playlist
 	playlist_t playlist_base = create_playlist_t();
 	parse_stream_clips(&mpls_file, &playlist_base);
 	print_stream_clips_header(&playlist_base);
@@ -69,7 +75,7 @@ MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 	vi.num_frames = 0;
 	while (clip != NULL) {
 		int currect_framecount = (int)((double)clip->raw_duration * 24 / (45 * 1001) + 0.5);
-		fprintf(stderr, "MPLSSource: adding file %s with %d frames to sequences list.", clip->filename, currect_framecount);
+		printf("MPLSSource: adding file %s with %d frames to sequences list.\n", clip->filename, currect_framecount);
 		files_names.push_back(clip->filename);
 		frame_offsets.push_back(vi.num_frames);
 		vi.num_frames += currect_framecount;
