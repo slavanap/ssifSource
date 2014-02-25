@@ -930,23 +930,34 @@ int decode_one_frame(DecoderParams *pDecoder)
   init_picture_decoding(p_Vid);
 
   {
-    for(iSliceNo=0; iSliceNo<p_Vid->iSliceNumOfCurrPic; iSliceNo++)
-    {
-      currSlice = ppSliceList[iSliceNo];
-      current_header = currSlice->current_header;
-      //p_Vid->currentSlice = currSlice;
+	  for(iSliceNo=0; iSliceNo<p_Vid->iSliceNumOfCurrPic; iSliceNo++)
+	  {
+		  currSlice = ppSliceList[iSliceNo];
+		  current_header = currSlice->current_header;
+		  //p_Vid->currentSlice = currSlice;
 
-      assert(current_header != EOS);
-      assert(currSlice->current_slice_nr == iSliceNo);
+		  assert(current_header != EOS);
+		  assert(currSlice->current_slice_nr == iSliceNo);
 
-      init_slice(p_Vid, currSlice);
-      decode_slice(currSlice, current_header);
+		  init_slice(p_Vid, currSlice);
 
-      p_Vid->iNumOfSlicesDecoded++;
-      p_Vid->num_dec_mb += currSlice->num_dec_mb;
-      p_Vid->erc_mvperMB += currSlice->erc_mvperMB;
-    }
+		  p_Vid->iNumOfSlicesDecoded++;
+	  }
+#pragma omp parallel for schedule(dynamic)
+	  for(iSliceNo=0; iSliceNo<p_Vid->iSliceNumOfCurrPic; iSliceNo++)
+	  {
+		  Slice *currSlice = ppSliceList[iSliceNo];
+		  decode_slice(currSlice, currSlice->current_header);
+	  }
+	  for(iSliceNo=0; iSliceNo<p_Vid->iSliceNumOfCurrPic; iSliceNo++)
+	  {
+		  currSlice = ppSliceList[iSliceNo];
+		  current_header = currSlice->current_header;
+		  p_Vid->num_dec_mb += currSlice->num_dec_mb;
+		  p_Vid->erc_mvperMB += currSlice->erc_mvperMB;
+	  }
   }
+
 #if MVC_EXTENSION_ENABLE
   p_Vid->last_dec_view_id = p_Vid->dec_picture->view_id;
 #endif

@@ -99,16 +99,19 @@ void init_frext(VideoParameters *p_Vid);
  */
 void error(char *text, int code)
 {
-  fprintf(stderr, "%s\n", text);
-  if (p_Dec)
-  {
-    flush_dpb(p_Dec->p_Vid->p_Dpb_layer[0]);
+	static char error_happened = FALSE;
+	if (!error_happened) {
+		error_happened = TRUE;
+		fprintf(stderr, "%s\n", text);
+		if (p_Dec)
+		{
+			flush_dpb(p_Dec->p_Vid->p_Dpb_layer[0]);
 #if (MVC_EXTENSION_ENABLE)
-    flush_dpb(p_Dec->p_Vid->p_Dpb_layer[1]);
+			flush_dpb(p_Dec->p_Vid->p_Dpb_layer[1]);
 #endif
-  }
-
-  exit(code);
+		}
+	}
+	exit(code);
 }
 
 static void reset_dpb( VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb )

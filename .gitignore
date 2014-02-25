@@ -13,3 +13,9 @@
 /merge/Release
 /bin/_releases
 /ssifSource.aps
+/baseclasses/JM/jm18.6/ldecod/Debug_x64_vc9
+/baseclasses/JM/jm18.6/ldecod/Release_Win32_vc9
+/baseclasses/JM/jm18.6/ldecod/Release_x64_vc9
+/baseclasses/JM/jm18.6/bin/test_dec_ViewId0000.yuv.ref
+/baseclasses/JM/jm18.6/bin/test_dec_ViewId0001.yuv.ref
+/baseclasses/JM/jm18.6/bin/test.264

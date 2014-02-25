@@ -37,4 +37,4 @@ DecFrmNum              = 0                # Number of frames to be decoded (-n)
 ##########################################################################################
 # MVC decoding parameters
 ##########################################################################################
-DecodeAllLayers        = 1                 # Decode all views (-mpr)
+DecodeAllLayers        = 0                 # Decode all views (-mpr)

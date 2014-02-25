@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ldecod"
 	ProjectGUID="{5499B067-CF32-4141-A757-E0A29866994A}"
 	RootNamespace="ldecod"
@@ -268,7 +268,7 @@
 				OutputFile="./bin/ldecod.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				ProgramDatabaseFile=".\ldecod\$(ConfigurationName)_$(PlatformName)_vc9/ldecod.pdb"
 				GenerateMapFile="true"
 				SubSystem="1"
@@ -366,7 +366,7 @@
 				OutputFile="./bin/ldecod.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				ProgramDatabaseFile=".\ldecod\$(ConfigurationName)_$(PlatformName)_vc9/ldecod.pdb"
 				GenerateMapFile="true"
 				SubSystem="1"
