@@ -45,5 +45,5 @@ SA_DECODER = 2
 
 
 LoadPlugin("ssifSource4.dll")
-ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465, intel_params = "-d3d", debug = true)
-#mplsSource("c:\Users\Vyacheslav\Downloads\Oz.the.Great.and.Powerful.(2013).Blu-Ray.2D\BDMV\PLAYLIST\00800.mpls", mvc_view = false, intel_params="-d3d", debug = true, use_ldecod = true)
+ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
+#mplsSource("d:\BDMV\PLAYLIST\00800.mpls", mvc_view = false)

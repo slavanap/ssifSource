@@ -1,7 +1,6 @@
 /samples
 *.ncb
 *.suo
-*.user
 /Debug
 /Release
 /CoreAVCWrapper/Debug
