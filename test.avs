@@ -8,6 +8,10 @@ Debug = 1
 #LoadPlugin("bin\ssifSource4.dll")
 LoadPlugin(((Debug == 1) ? "Debug" : "Release") + "\ssifSource4.dll")
 
-src = mplsSource("c:\Users\Vyacheslav\Downloads\Oz.the.Great.and.Powerful.(2013).Blu-Ray.2D\BDMV\PLAYLIST\00800.mpls", mvc_view = false)
+#src = mplsSource("c:\Users\Vyacheslav\Downloads\Oz.the.Great.and.Powerful.(2013).Blu-Ray.2D\BDMV\PLAYLIST\00800.mpls", mvc_view = false)
+#ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
+#mplsSource("d:\BDMV\PLAYLIST\00800.mpls", mvc_view = false)
 
-return src
+ssifSource("d:\BDMV\STREAM\SSIF\00501.ssif", 108155, debug = true, stop_after=SA_MUXER, muxed264="c:\Users\Vyacheslav\Projects\Utils\test\000\dump.h264" )
+
+#return src

@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 /* 
  * File:   parse_mpls.c
  * Author: Andrew C. Dvorak <andy@andydvorak.net>
@@ -20,7 +22,6 @@
 
 #include "mpls_parse.h"
 
-#define _CRT_SECURE_NO_WARNINGS
 
 
 #ifdef _MSC_VER
@@ -877,12 +878,13 @@ print_stream_clips(playlist_t* playlist)
 {
     stream_clip_t* clip = playlist->stream_clip_list.first;
     char duration_human[15];
-    printf("\t idx    filename     duration    \n");
-    printf("\t ---    ----------   ------------\n");
+    printf("\t idx    filename     duration       frame_count\n");
+    printf("\t ---    ----------   ------------   -----------\n");
     while (clip != NULL)
     {
         format_duration_to(clip->duration_sec, duration_human);
-        printf("\t %3i:   %s   %s %d\n", clip->index + 1, clip->filename, duration_human, clip->raw_duration);
+		int currect_framecount = (int)((double)clip->raw_duration * 24 / (45 * 1001) + 0.5);
+        printf("\t %3i:   %s   %s      %8d\n", clip->index + 1, clip->filename, duration_human, currect_framecount);
         clip = clip->next;
     }
     printf("\n");
@@ -921,30 +923,28 @@ print_chapters(playlist_t* playlist)
 void
 parse_mpls(char* path)
 {
-    mpls_file_t mpls_file = init_mpls(path);
-    playlist_t playlist = create_playlist_t();
+	mpls_file_t mpls_file = init_mpls(path);
+	playlist_t playlist = create_playlist_t();
 
-    parse_stream_clips(&mpls_file, &playlist);
-//    parse_chapters(&mpls_file, &playlist);
-    
-//    print_playlist_header(&mpls_file, &playlist);
-//    print_playlist_details(&playlist);
-//    print_tracks_header(&playlist);
-//    print_tracks(&playlist);
-    print_stream_clips_header(&playlist);
-    print_stream_clips(&playlist);
-//    print_chapters_header(&playlist);
-//    print_chapters(&playlist);
+	parse_stream_clips(&mpls_file, &playlist);
+	parse_chapters(&mpls_file, &playlist);
 
-    free_playlist_members(&playlist);
-    free_mpls_file_members(&mpls_file);
+	print_playlist_header(&mpls_file, &playlist);
+	print_playlist_details(&playlist);
+	print_tracks_header(&playlist);
+	print_tracks(&playlist);
+	print_stream_clips_header(&playlist);
+	print_stream_clips(&playlist);
+	print_chapters_header(&playlist);
+	print_chapters(&playlist);
+
+	free_playlist_members(&playlist);
+	free_mpls_file_members(&mpls_file);
 }
 
 
-/*
- * 
- */
-#if 0
+
+#if _CONSOLE
 int main(int argc, char** argv) {
     if (argc < 2)
     {
@@ -959,5 +959,4 @@ int main(int argc, char** argv) {
     system("pause");
     return (EXIT_SUCCESS);
 }
-
 #endif

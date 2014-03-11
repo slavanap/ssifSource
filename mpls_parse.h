@@ -9,7 +9,6 @@
 #define	PARSE_MPLS_H
 
 #ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
 #include "stdint.h"
 #else
 #include <libgen.h>

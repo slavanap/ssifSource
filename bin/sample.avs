@@ -45,5 +45,7 @@ SA_DECODER = 2
 
 
 LoadPlugin("ssifSource4.dll")
-ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
+#ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
 #mplsSource("d:\BDMV\PLAYLIST\00800.mpls", mvc_view = false)
+
+ssifSource("d:\BDMV\PLAYLIST\00800.mpls", 108155, debug = true)
