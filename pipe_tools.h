@@ -3,7 +3,7 @@
 
 #define BUFFER_SIZE 0x80000
 #define CLONEPIPE_BUFFER_SIZE (BUFFER_SIZE*5)
-#define WAIT_TIME 2000
+#define WAIT_TIME 60000
 
 // Pipes' classes
 

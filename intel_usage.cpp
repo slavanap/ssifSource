@@ -30,6 +30,31 @@ std::string IntToStr(int a) {
 	return buffer;
 }
 
+std::string format(char* fmt, int size, ...) {
+	va_list al;
+	va_start(al, size);
+	string res;
+	res.resize(size);
+	vsprintf_s(const_cast<char*>(res.c_str()), size, fmt, al);
+	res.resize(strlen(res.c_str()));
+	va_end(al);
+	return res;
+}
+
+std::string GetErrorMessage(DWORD code) {
+	LPSTR lpMsgBuf;
+	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, code,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+		(LPSTR)&lpMsgBuf, 0, NULL);
+	size_t len = strlen(lpMsgBuf);
+	if (lpMsgBuf[len-2] == 13 && lpMsgBuf[len-1] == 10)
+		lpMsgBuf[len-2] = 0;
+	string res = lpMsgBuf;
+	LocalFree(lpMsgBuf);
+	return res;
+}
+
+
 PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal) {
 	const char* arg_names[2] = {NULL, NULL};
 	AVSValue args[2] = {a, b};
@@ -44,7 +69,7 @@ PVideoFrame FrameStack(IScriptEnvironment* env, VideoInfo& vi, PVideoFrame a, PV
 
 
 string SSIFSource::MakePipeName(int id, const string& name) {
-	return (string)"\\\\.\\pipe\\bluray" + IntToStr(id) + "\\" + name;
+	return format("\\\\.\\pipe\\bluray%04d\\%s", 128, id, name.c_str());
 }
 
 HRESULT CreateDumpFilter(const IID& riid, LPVOID *pFilter) {
@@ -117,7 +142,7 @@ HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, cons
 	poSplitter = pSplitter;
 	return S_OK;
 lerror:
-	return E_FAIL;
+	return hr;
 }
 
 void SSIFSource::ParseEvents() {
@@ -213,11 +238,11 @@ void SSIFSource::InitDemuxer() {
 		(data.show_params & SP_RIGHTVIEW) ? A2W(fiDept.c_str()): NULL,
 		pGraph, pSplitter);
 	if (FAILED(res))
-		throw (string)"Error creating graph. Code: " + IntToStr(res);
+		throw format("Can't create graph. Error: %s (0x%08x)", 1024, GetErrorMessage(res).c_str(), res);
 
 	res = CComQIPtr<IMediaControl>(pGraph)->Run();
 	if (FAILED(res))
-		throw (string)"Can't start the graph";
+		throw format("Can't start the graph. Error: %s (0x%08x)", 1024, GetErrorMessage(res).c_str(), res);
 	ParseEvents();
 
 	// Retrieve width & height

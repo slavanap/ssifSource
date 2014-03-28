@@ -6,15 +6,11 @@ void MPLSSource::ChangeCurrentFile(int new_idx, IScriptEnvironment* env) {
 	if (current_index == new_idx)
 		return;
 	current_clip = NULL;
-	printf("\nChanging current sequence %s to %s\n",
-		(current_index < 0) ? "NULL" : files_names[current_index].c_str(),
+	printf("\nChanging current sequence from %s to %s\n",
+		(current_index < 0) ? "none" : files_names[current_index].c_str(),
 		files_names[new_idx].c_str());
 
-	string ssif_filename = files_names[new_idx];
-	ssif_filename.erase(ssif_filename.length()-4);
-	ssif_filename = ssif_path + ssif_filename + (flag_mvc ? "SSIF" : "M2TS");
-
-	AVSValue args[9] = {ssif_filename.c_str(), frame_offsets[new_idx+1]-frame_offsets[new_idx]};
+	AVSValue args[9] = {files_names[new_idx].c_str(), frame_offsets[new_idx+1]-frame_offsets[new_idx]};
 	for(int i=2; i<9; ++i)
 		args[i] = plugin_params[i];
 	if (!args[5].Defined())
@@ -41,6 +37,12 @@ string extract_path(string filename) {
 	return filename;
 }
 
+BOOL DirectoryExists(LPCSTR szPath){
+	DWORD dwAttrib = GetFileAttributesA(szPath);
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+		(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
 MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 	// copy plug-in arguments for later usage
 	AVSValue *values = new AVSValue[args.ArraySize()];
@@ -51,13 +53,15 @@ MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 	// currently loaded file is undefined
 	current_index = -1;
 
-	flag_mvc = args[3].AsBool(true);
+	flag_mvc = false;
 
 	string mpls_filename = args[0].AsString();
 	string mpls_path = extract_path(mpls_filename);
 	ssif_path = args[1].Defined() ? args[1].AsString() : mpls_path + "..\\STREAM\\";
-	if (flag_mvc)
+	if (DirectoryExists((ssif_path + "SSIF").c_str())) {
+		flag_mvc = true;
 		ssif_path += "SSIF\\";
+	}
 
 	mpls_file_t mpls_file = init_mpls(const_cast<char*>(mpls_filename.c_str()));
 	// swap views auto-detection
@@ -76,7 +80,12 @@ MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 	while (clip != NULL) {
 		int currect_framecount = (int)((double)clip->raw_duration * 24 / (45 * 1001) + 0.5);
 		printf("MPLSSource: adding file %s with %d frames to sequences list.\n", clip->filename, currect_framecount);
-		files_names.push_back(clip->filename);
+
+		string filename = clip->filename;
+		filename.erase(filename.length()-4);
+		filename = ssif_path + filename + (flag_mvc ? "SSIF" : "M2TS");
+		files_names.push_back(filename);
+
 		frame_offsets.push_back(vi.num_frames);
 		vi.num_frames += currect_framecount;
 		clip = clip->next;
