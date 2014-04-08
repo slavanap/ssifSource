@@ -9,7 +9,8 @@
 #define PATH_SPLITTER L"..\\bin\\"
 #define PATH_MUXER "..\\bin\\"
 #define PATH_DECODER "..\\bin\\"
-#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED)
+//#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED)
+#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP)
 #else
 #define PATH_SPLITTER
 #define PATH_MUXER
@@ -103,6 +104,7 @@ HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, cons
 	StringCchCatW(fullname_splitter, MAX_PATH+64, lib_Splitter);
 
 	// Create the Filter Graph Manager.
+	printf("ssifSource4: Create graph items ... ");
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&pGraph);
 	if (FAILED(hr)) goto lerror;
 	hr = DSHelpCreateInstance(fullname_splitter, *clsid_Splitter, NULL, IID_IBaseFilter, (void**)&pSplitter);
@@ -113,12 +115,16 @@ HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, cons
 		hr = CreateDumpFilter(IID_IBaseFilter, (void**)&pDumper2);
 		if (FAILED(hr)) goto lerror;
 	}
+	printf("OK\n");
 
+	printf("ssifSource4: Load source ... ");
 	hr = pGraph->AddFilter(pSplitter, L"VSplitter");
 	if (FAILED(hr)) goto lerror;
 	hr = CComQIPtr<IFileSourceFilter>(pSplitter)->Load(fnSource, NULL);
 	if (FAILED(hr)) goto lerror;
+	printf("OK\n");
 
+	printf("ssifSource4: Add Dumpers ... ");
 	hr = pGraph->AddFilter(pDumper1, L"VDumper1");
 	if (FAILED(hr)) goto lerror;
 	hr = CComQIPtr<IFileSinkFilter>(pDumper1)->SetFileName(fnBase, NULL);
@@ -130,13 +136,16 @@ HRESULT SSIFSource::CreateGraph(const WCHAR* fnSource, const WCHAR* fnBase, cons
 		hr = CComQIPtr<IFileSinkFilter>(pDumper2)->SetFileName(fnDept, NULL);
 		if (FAILED(hr)) goto lerror;
 	}
+	printf("OK\n");
 
+	printf("ssifSource4: Graph connection ... ");
 	hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0, true), GetInPin(pDumper1, 0), NULL);
 	if (FAILED(hr)) goto lerror;
 	if (pDumper2) {
 		hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 1, true), GetInPin(pDumper2, 0), NULL);
 		if (FAILED(hr)) goto lerror;
 	}
+	printf("OK\n");
 
 	poGraph = pGraph;
 	poSplitter = pSplitter;
@@ -158,7 +167,6 @@ void SSIFSource::ParseEvents() {
 		if (evCode == EC_COMPLETE) {
 			CComQIPtr<IMediaControl>(pGraph)->Stop();
 			pSplitter = NULL;
-			pGraph = NULL;
 		}
 
 		// Free the event data.
@@ -180,9 +188,11 @@ void SSIFSource::InitVariables() {
 	
 	last_frame = FRAME_BLACK;
 
-#ifdef _DEBUG
-	AllocConsole();
-#endif
+	if (data.flag_debug) {
+		AllocConsole();
+		freopen("CONOUT$", "wb", stdout);
+	}
+
 	memset(&SI, 0, sizeof(STARTUPINFO));
 	SI.cb = sizeof(SI);
 	SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;
@@ -198,7 +208,20 @@ void SSIFSource::InitVariables() {
 
 	frLeft = frRight = NULL;
 	dupThread1 = dupThread2 = dupThread3 = NULL;
-	unic_number = rand();
+
+	unic_number = 0;
+	while (true) {
+		unic_number++; //= rand();
+		hUniqueSemaphore = CreateSemaphoreA(NULL, 0, 1, format("Global\\ssifSource4_%d", 128, unic_number).c_str());
+		DWORD err = GetLastError();
+		if (hUniqueSemaphore == NULL)
+			throw format("Error checking for other ssifSource4 instances: 0x%08x - %s", 1024, err, GetErrorMessage(err).c_str());
+		if (err == NOERROR)
+			break;
+		CloseHandle(hUniqueSemaphore);
+		if (err != ERROR_ALREADY_EXISTS)
+			throw format("Unexpected error during semaphore creation: 0x%08x - %s", err, GetErrorMessage(err).c_str());
+	}
 
 	pipes_over_warning = false;
 }
@@ -402,7 +425,13 @@ SSIFSource::~SSIFSource() {
 	if (frRight != NULL)
 		delete frRight;
 	pSplitter = NULL;
+	if (pGraph != NULL) {
+		// very dirty HACK!!!
+		((IUnknown*)(pGraph))->AddRef();
+		while (((IUnknown*)(pGraph))->Release() > 1);
+	}
 	pGraph = NULL;
+	CloseHandle(hUniqueSemaphore);
 	CoUninitialize();
 }
 

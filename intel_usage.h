@@ -48,6 +48,7 @@ private:
 	bool pipes_over_warning;
 	CComPtr<IGraphBuilder> pGraph;
 	CComPtr<IBaseFilter> pSplitter;
+	HANDLE hUniqueSemaphore;
 
 	void InitVariables();
 	void InitDemuxer();

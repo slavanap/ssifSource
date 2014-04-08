@@ -13,4 +13,4 @@ LoadPlugin(((Debug == 1) ? "Debug" : "Release") + "\ssifSource4.dll")
 #mplsSource("d:\BDMV\PLAYLIST\00800.mpls", mvc_view = false)
 #ssifSource("d:\BDMV\STREAM\SSIF\00501.ssif", 108155, debug = true, stop_after=SA_MUXER, muxed264="c:\Users\Vyacheslav\Projects\Utils\test\000\dump.h264" )
 
-mplsSource("samples\ISO\BDMV\PLAYLIST\00001.mpls", mvc_view = false)
+mplsSource("samples\ISO\BDMV\PLAYLIST\00001.mpls", mvc_view = false, debug=false)

@@ -12,6 +12,7 @@ class MPLSSource: public IClip {
 	bool flag_swapviews;
 
 	AVSValue plugin_params;
+	AVSValue *plugin_param_values;
 	VideoInfo vi;
 
 	void ChangeCurrentFile(int new_idx, IScriptEnvironment* env);

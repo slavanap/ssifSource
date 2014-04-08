@@ -65,7 +65,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,1,0
+ FILEVERSION 4,4,3,0
  PRODUCTVERSION 4,4,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
@@ -83,7 +83,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Vyacheslav N."
             VALUE "FileDescription", "ssifSource AviSynth plugin for ssif & mpls files decoding"
-            VALUE "FileVersion", "4, 4, 1, 0"
+            VALUE "FileVersion", "4, 4, 3, 0"
             VALUE "InternalName", "ssifSource4"
             VALUE "LegalCopyright", "Copyright (C) Vyacheslav N. 2014"
             VALUE "OriginalFilename", "ssifSource4.dll"

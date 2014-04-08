@@ -45,10 +45,10 @@ BOOL DirectoryExists(LPCSTR szPath){
 
 MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 	// copy plug-in arguments for later usage
-	AVSValue *values = new AVSValue[args.ArraySize()];
+	plugin_param_values = new AVSValue[args.ArraySize()];
 	for(int i=0; i<args.ArraySize(); ++i)
-		values[i] = args[i];
-	plugin_params = AVSValue(values, args.ArraySize());
+		plugin_param_values[i] = args[i];
+	plugin_params = AVSValue(plugin_param_values, args.ArraySize());
 
 	// currently loaded file is undefined
 	current_index = -1;
@@ -57,7 +57,7 @@ MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 
 	string mpls_filename = args[0].AsString();
 	string mpls_path = extract_path(mpls_filename);
-	ssif_path = args[1].Defined() ? args[1].AsString() : mpls_path + "..\\STREAM\\";
+	ssif_path = args[1].Defined() ? args[1].AsString() : (mpls_path + "..\\STREAM\\");
 	if (DirectoryExists((ssif_path + "SSIF").c_str())) {
 		flag_mvc = true;
 		ssif_path += "SSIF\\";
@@ -100,8 +100,8 @@ MPLSSource::MPLSSource(IScriptEnvironment* env, AVSValue args) {
 }
 
 MPLSSource::~MPLSSource() {
-	delete &plugin_params[0];
 	current_clip = NULL;
+	delete[] plugin_param_values;
 }
 
 AVSValue __cdecl Create_MPLSSource(AVSValue args, void* user_data, IScriptEnvironment* env) {
