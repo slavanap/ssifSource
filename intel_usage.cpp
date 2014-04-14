@@ -214,13 +214,14 @@ void SSIFSource::InitVariables() {
 		unic_number++; //= rand();
 		hUniqueSemaphore = CreateSemaphoreA(NULL, 0, 1, format("Global\\ssifSource4_%d", 128, unic_number).c_str());
 		DWORD err = GetLastError();
-		if (hUniqueSemaphore == NULL)
-			throw format("Error checking for other ssifSource4 instances: 0x%08x - %s", 1024, err, GetErrorMessage(err).c_str());
+//		if (hUniqueSemaphore == NULL)
+//			throw format("Error checking for other ssifSource4 instances: 0x%08x - %s", 1024, err, GetErrorMessage(err).c_str());
 		if (err == NOERROR)
 			break;
-		CloseHandle(hUniqueSemaphore);
-		if (err != ERROR_ALREADY_EXISTS)
-			throw format("Unexpected error during semaphore creation: 0x%08x - %s", err, GetErrorMessage(err).c_str());
+		if (hUniqueSemaphore != NULL)
+			CloseHandle(hUniqueSemaphore);
+//		if (err != ERROR_ALREADY_EXISTS)
+//			throw format("Unexpected error during semaphore creation: 0x%08x - %s", err, GetErrorMessage(err).c_str());
 	}
 
 	pipes_over_warning = false;
@@ -385,9 +386,9 @@ SSIFSource* SSIFSource::Create(IScriptEnvironment* env, const SSIFSourceParams& 
 	SSIFSource *res = new SSIFSource();
 	res->data = data;
 	SSIFSourceParams *cdata = &res->data;
-	res->InitVariables();
 
 	try {
+		res->InitVariables();
 		if (cdata->ssif_file != "")
 			res->InitDemuxer();
 		if (cdata->stop_after != SA_DEMUXER) {

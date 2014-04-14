@@ -173,5 +173,5 @@ int main(int argc, TCHAR* argv[]) {
 
 	LeaveCriticalSection(&cs);
 	DeleteCriticalSection(&cs);
-	return 0;
+	return error_count;
 }
