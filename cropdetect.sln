@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cropdetect", "cropdetect\cropdetect.vcproj", "{8EED49C7-1313-46B8-AC95-1B61012B7AB0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "autocropper", "autocropper\autocropper.vcproj", "{A1D4246B-E41E-4514-B537-C262AFAFF7AA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8EED49C7-1313-46B8-AC95-1B61012B7AB0} = {8EED49C7-1313-46B8-AC95-1B61012B7AB0}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8EED49C7-1313-46B8-AC95-1B61012B7AB0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8EED49C7-1313-46B8-AC95-1B61012B7AB0}.Debug|Win32.Build.0 = Debug|Win32
+		{8EED49C7-1313-46B8-AC95-1B61012B7AB0}.Release|Win32.ActiveCfg = Release|Win32
+		{8EED49C7-1313-46B8-AC95-1B61012B7AB0}.Release|Win32.Build.0 = Release|Win32
+		{A1D4246B-E41E-4514-B537-C262AFAFF7AA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A1D4246B-E41E-4514-B537-C262AFAFF7AA}.Debug|Win32.Build.0 = Debug|Win32
+		{A1D4246B-E41E-4514-B537-C262AFAFF7AA}.Release|Win32.ActiveCfg = Release|Win32
+		{A1D4246B-E41E-4514-B537-C262AFAFF7AA}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
