@@ -214,6 +214,7 @@ void SSIFSource::InitVariables() {
 		unic_number++; //= rand();
 		hUniqueSemaphore = CreateSemaphoreA(NULL, 0, 1, format("Global\\ssifSource4_%d", 128, unic_number).c_str());
 		DWORD err = GetLastError();
+// these IFs don't work with launches from several users accounts simultaneously
 //		if (hUniqueSemaphore == NULL)
 //			throw format("Error checking for other ssifSource4 instances: 0x%08x - %s", 1024, err, GetErrorMessage(err).c_str());
 		if (err == NOERROR)
@@ -225,6 +226,14 @@ void SSIFSource::InitVariables() {
 	}
 
 	pipes_over_warning = false;
+
+	// WARNING: keep in mind this swapping!
+	if ( ((data.show_params & SP_SWAPVIEWS) != 0) && 
+		 ((data.show_params & (SP_LEFTVIEW|SP_RIGHTVIEW)) != (SP_LEFTVIEW|SP_RIGHTVIEW))
+	   )
+	{
+		data.show_params ^= SP_LEFTVIEW|SP_RIGHTVIEW;
+	}
 }
 
 void SSIFSource::InitDemuxer() {
