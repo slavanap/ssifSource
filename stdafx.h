@@ -26,11 +26,15 @@
 // Additional references
 
 #include <limits.h>
+#include <tchar.h>
+#include <ctime>
+
+#pragma warning(push)
+#pragma warning(disable:4995)
 #include <string>
 #include <sstream>
 #include <vector>
-#include <tchar.h>
 #include <iostream>
-#include <ctime>
+#pragma warning(pop)
 
 using namespace std;

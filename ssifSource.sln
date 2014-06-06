@@ -12,7 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "filmtester", "components\fi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreAVCWrapper", "components\CoreAVCWrapper\CoreAVCWrapper.vcproj", "{5DE781B0-54E8-445F-85B8-E320D0D57D67}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mpls_tool", "components\mpls_tool\mpls.vcproj", "{3E6904F4-40FF-42E3-9FF8-3F91EAF9AE11}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mpls_tool", "components\mpls_tool\mpls_tool.vcproj", "{3E6904F4-40FF-42E3-9FF8-3F91EAF9AE11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
