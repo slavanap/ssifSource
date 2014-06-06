@@ -29,6 +29,9 @@ BOOL CtrlHandler(DWORD fdwCtrlType) {
 }
 
 int main(int argc, TCHAR* argv[]) {
+//	SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+	SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+
 	printf("Usage: filmtester <avs filename> [duplicates_maxlength=2]\n");
 	printf("The program plays the AVS file and tests for frame duplicates\n\n");
 

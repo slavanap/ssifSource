@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="mpls"
+	Name="mpls_tool"
 	ProjectGUID="{3E6904F4-40FF-42E3-9FF8-3F91EAF9AE11}"
 	RootNamespace="mpls"
 	Keyword="Win32Proj"
