@@ -445,19 +445,22 @@ SSIFSource::~SSIFSource() {
 	CoUninitialize();
 }
 
-PVideoFrame SSIFSource::ReadFrame(FrameSeparator* frSep, IScriptEnvironment* env) {
+PVideoFrame SSIFSource::ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep, bool bWait) {
     PVideoFrame res = env->NewVideoFrame(frame_vi);
-    if (!frSep->error) {
-        frSep->WaitForData();
-    } else {
-        if (!pipes_over_warning) {
-            fprintf(stderr, "\nWARNING: Decoder output finished. Frame separator can't read next frames. "
-                "Last frame will be duplicated as long as necessary (%d time(s)).\n", vi.num_frames-last_frame);
-            pipes_over_warning = true;
-        }
+	if (frSep->error) {
+		if (!pipes_over_warning) {
+			fprintf(stderr, "\nWARNING: Decoder output finished. Frame separator can't read next frames. "
+				"Last frame will be duplicated as long as necessary (%d time(s)).\n", vi.num_frames-last_frame);
+			pipes_over_warning = true;
+		}
+	}
+	else if (bWait) {
+		frSep->WaitForData();
     }
     memcpy(res->GetWritePtr(), (char*)frSep->buffer, frSep->size);
-    frSep->DataParsed();
+	if (bWait) {
+		frSep->DataParsed();
+	}
     return res;
 }
 
@@ -471,6 +474,8 @@ void SSIFSource::DropFrame(FrameSeparator* frSep) {
 
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 	ParseEvents();
+
+	bool flag_wait = true;
 
 	if (last_frame+1 != n || n >= vi.num_frames) {
 		string str;
@@ -505,15 +510,18 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 		PClip resultClip2 = (env->Invoke("Subtitle", AVSValue(args2,6), arg_names2)).AsClip();
 		return resultClip2->GetFrame(n, env);
 	}
+	else if (last_frame == n) {
+		flag_wait = false;
+	}
 	last_frame = n;
     
     PVideoFrame left, right;
     if (data.show_params & SP_LEFTVIEW) 
-        left = ReadFrame(frLeft, env);
-    else
+        left = ReadFrame(env, frLeft, flag_wait);
+    else if (flag_wait)
         DropFrame(frLeft);
     if (data.show_params & SP_RIGHTVIEW) 
-        right = ReadFrame(frRight, env);
+        right = ReadFrame(env, frRight, flag_wait);
 
 	if ((data.show_params & (SP_LEFTVIEW|SP_RIGHTVIEW)) == (SP_LEFTVIEW|SP_RIGHTVIEW)) {
 		if (!(data.show_params & SP_SWAPVIEWS))

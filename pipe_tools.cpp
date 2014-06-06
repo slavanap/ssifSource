@@ -293,11 +293,11 @@ FrameSeparator::~FrameSeparator() {
 
 void FrameSeparator::WaitForData() {
 	if (error) return;
+	SetEvent(heDataParsed);
 	WaitForSingleObject(heDataReady, INFINITE);
 	ResetEvent(heDataReady);
 }
 
 void FrameSeparator::DataParsed() {
 	if (error) return;
-	SetEvent(heDataParsed);
 }

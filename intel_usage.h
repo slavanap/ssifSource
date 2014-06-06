@@ -55,7 +55,7 @@ private:
 	void InitMuxer();
 	void InitDecoder();
 	void InitComplete();
-    PVideoFrame ReadFrame(FrameSeparator* frSep, IScriptEnvironment* env);
+    PVideoFrame ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep, bool bWait = true);
     void DropFrame(FrameSeparator* frSep);
 
 	static string MakePipeName(int id, const string& name);
