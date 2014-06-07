@@ -45,7 +45,7 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 		"[avc264]s[mvc264]s[muxed264]s[width]i[height]i[stop_after]i",
 		Create_SSIFSource, 0);
 	env->AddFunction("mplsSource", 
-		"[mpls_file]s[ssif_path]s[avc_view]b[mvc_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b[use_ldecod]b",
+		"[mpls_file]s[ssif_path]s[left_view]b[right_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b[use_ldecod]b",
 		Create_MPLSSource, 0);
 	return 0;
 }

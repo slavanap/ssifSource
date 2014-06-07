@@ -139,7 +139,6 @@
 				AdditionalDependencies="avisynth.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)\thirdparty\AviSynth"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
