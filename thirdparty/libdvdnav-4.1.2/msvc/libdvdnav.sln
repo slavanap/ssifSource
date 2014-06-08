@@ -31,6 +31,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "examples", "..\examples\exa
 		{32A33DC8-AE17-421A-B58C-FFDF94C6E96A} = {32A33DC8-AE17-421A-B58C-FFDF94C6E96A}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dvdfopen", "..\dvdfopen\dvdfopen.vcproj", "{3147A95D-3734-4A81-99A1-81A555B367C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10F14794-C11A-43D0-9745-3E22FF34505B} = {10F14794-C11A-43D0-9745-3E22FF34505B}
+		{32A33DC8-AE17-421A-B58C-FFDF94C6E96A} = {32A33DC8-AE17-421A-B58C-FFDF94C6E96A}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -49,6 +55,10 @@ Global
 		{47BA091C-CA3B-45AE-BD39-7F8833F41070}.Debug|Win32.Build.0 = Debug|Win32
 		{47BA091C-CA3B-45AE-BD39-7F8833F41070}.Release|Win32.ActiveCfg = Release|Win32
 		{47BA091C-CA3B-45AE-BD39-7F8833F41070}.Release|Win32.Build.0 = Release|Win32
+		{3147A95D-3734-4A81-99A1-81A555B367C8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3147A95D-3734-4A81-99A1-81A555B367C8}.Debug|Win32.Build.0 = Debug|Win32
+		{3147A95D-3734-4A81-99A1-81A555B367C8}.Release|Win32.ActiveCfg = Release|Win32
+		{3147A95D-3734-4A81-99A1-81A555B367C8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

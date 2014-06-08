@@ -102,7 +102,7 @@ struct dvd_file_s {
     /* Information required for an image file. */
     //uint32_t lb_start;
 	UDF_FILE udf_file;
-    uint32_t seek_pos;
+    uint64_t seek_pos;
 
     /* Information required for a directory path drive. */
     size_t title_sizes[ 9 ];
@@ -1532,7 +1532,17 @@ ssize_t DVDReadBlocks( dvd_file_t *dvd_file, int offset,
     return (ssize_t)ret;
 }
 
-int32_t DVDFileSeek( dvd_file_t *dvd_file, int32_t offset )
+uint64_t DVDGetFileSize( dvd_file_t *dvd_file )
+{
+	return dvd_file->filebytes;
+}
+
+uint64_t DVDGetFilePos( dvd_file_t *dvd_file )
+{
+	return dvd_file->seek_pos;
+}
+
+int64_t DVDFileSeek( dvd_file_t *dvd_file, int64_t offset )
 {
     /* Check arguments. */
     if( dvd_file == NULL || offset < 0 )
@@ -1541,7 +1551,7 @@ int32_t DVDFileSeek( dvd_file_t *dvd_file, int32_t offset )
     if( offset > dvd_file->filesize * DVD_VIDEO_LB_LEN ) {
        return -1;
     }
-    dvd_file->seek_pos = (uint32_t) offset;
+    dvd_file->seek_pos = (uint64_t) offset;
     return offset;
 }
 

@@ -255,7 +255,10 @@ ssize_t DVDReadBlocks( dvd_file_t *, int, size_t, unsigned char * );
  *
  * offset_set = DVDFileSeek(dvd_file, seek_offset);
  */
-int32_t DVDFileSeek( dvd_file_t *, int32_t );
+int64_t DVDFileSeek( dvd_file_t *, int64_t );
+
+uint64_t DVDGetFileSize( dvd_file_t * );
+uint64_t DVDGetFilePos( dvd_file_t * );
 
 /**
  * Reads the given number of bytes from the file.  This call can only be used
