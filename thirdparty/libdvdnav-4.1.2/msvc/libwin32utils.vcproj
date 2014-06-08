@@ -44,9 +44,9 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include,contrib/dirent,include/pthreads"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_LIB;LIBWIN32UTILS_EXPORTS;__CLEANUP_C"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_LIB;LIBWIN32UTILS_EXPORTS;__CLEANUP_C"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\Release/libwin32utils/libwin32utils.pch"
 				AssemblerListingLocation=".\Release/libwin32utils/"
@@ -68,6 +68,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="Winmm.lib"
 				OutputFile="libwin32utils.lib"
 			/>
 			<Tool
@@ -117,10 +118,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include/pthreads,include,contrib/dirent"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;LIBWIN32UTILS_EXPORTS;__CLEANUP_C"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;_LIB;LIBWIN32UTILS_EXPORTS;__CLEANUP_C"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/libwin32utils/libwin32utils.pch"
 				AssemblerListingLocation=".\Debug/libwin32utils/"
 				ObjectFile=".\Debug/libwin32utils/"
@@ -142,6 +143,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="Winmm.lib"
 				OutputFile="libwin32utils.lib"
 			/>
 			<Tool

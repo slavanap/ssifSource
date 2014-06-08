@@ -20,19 +20,22 @@
  * $Id: menus.c,v 1.2 2008/10/01 09:52:25 lundman Exp $
  *
  */
+#include "stdafx.h"
 
 #include <stdio.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <inttypes.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "dvd_types.h"
-#include "dvd_reader.h"
-#include "nav_types.h"
-#include "ifo_types.h" /* For vm_cmd_t */
-#include "dvdnav.h"
-#include "dvdnav_events.h"
+extern "C" {
+	#include "dvd_types.h"
+	#include "dvd_reader.h"
+	#include "nav_types.h"
+	#include "ifo_types.h" /* For vm_cmd_t */
+	#include "dvdnav.h"
+	#include "dvdnav_events.h"
+};
 
 /* shall we use libdvdnav's read ahead cache? */
 #define DVD_READ_CACHE 1
@@ -41,15 +44,38 @@
 #define DVD_LANGUAGE "en"
 
 #ifdef WIN32
+#define S_IRWXU 0
 #define S_IRWXG 0
 #endif
 
-int main(int argc, char **argv) {
+void f() {
+	FILE* f2 = fopen("dump.bin", "wb");
+
+	char *buffer = new char[1024*1024];
+	dvd_reader_t *dvd = DVDOpen("JRNY_CNTR_EARTH_3D_BLUEBIRD.iso"); 
+	dvd_file_t *file = DVDOpenFilename(dvd, "BDMV/STREAM/SSIF/00002.ssif");
+	int64_t size = 0;
+	ssize_t res2;
+	do {
+		res2 = DVDReadBytes(file, buffer, 1024*1024);
+		size += res2;
+		printf("current size: %d MB\r", (int)(size/(1024*1024)));
+		fwrite(buffer, 1, res2, f2);
+	} while (res2 == 1024*1024);
+	fclose(f2);
+	DVDCloseFile(file);
+	DVDClose(dvd);
+}
+
+int _tmain(int argc, _TCHAR* argv[]) {
   dvdnav_t *dvdnav;
   uint8_t mem[DVD_VIDEO_LB_LEN];
   int finished = 0;
   int output_fd = 0;
   int dump = 0, tt_dump = 0;
+
+  f();
+  return 0;
   
   /* open dvdnav handle */
   printf("Opening DVD...\n");
@@ -180,7 +206,7 @@ int main(int argc, char **argv) {
 	char input = '\0';
 	
 	dvdnav_current_title_info(dvdnav, &tt, &ptt);
-	dvdnav_get_position(dvdnav, &pos, &len);
+	dvdnav_get_position(dvdnav, (uint32_t*)&pos, (uint32_t*)&len);
 	printf("Cell change: Title %d, Chapter %d\n", tt, ptt);
 	printf("At position %.0f%% inside the feature\n", 100 * (double)pos / (double)len);
 

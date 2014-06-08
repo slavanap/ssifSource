@@ -48,7 +48,7 @@ int gettimeofday( struct timeval *tp, struct timezone *tzp )
 
 	timeGetSystemTime( &mmtime, sizeof( mmtime ) );      
 
-	tp->tv_sec	= ( mmtime.u.ms / 1000 ) + startseconds;
+	tp->tv_sec	= ( mmtime.u.ms / 1000 ) + (long)startseconds;
 	tp->tv_usec	= ( mmtime.u.ms % 1000 ) * 1000;
 
 	return 0;

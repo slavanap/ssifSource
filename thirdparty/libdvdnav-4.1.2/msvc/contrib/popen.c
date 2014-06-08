@@ -65,11 +65,11 @@ FILE *safe_popen (const char *cm, const char *md) /* program name, pipe mode */
 
   if (szComSpec == NULL)
   {
-    szComSpec = strdup("cmd.exe");
+    szComSpec = _strdup("cmd.exe");
     if (szComSpec == NULL)
       return NULL;
   } else {
-	  szComSpec = strdup(szComSpec); // getenv is not for free()
+	  szComSpec = _strdup(szComSpec); // getenv is not for free()
   }
 
   s = max(strrchr(szComSpec, '\\'), strrchr(szComSpec, '/'));
@@ -137,7 +137,7 @@ FILE *safe_popen (const char *cm, const char *md) /* program name, pipe mode */
   if ( *md == 'r' )
       {
           int fd;
-          fd = _open_osfhandle(hReadPipe,  O_RDONLY|O_BINARY);
+          fd = _open_osfhandle(hReadPipe, O_RDONLY|O_BINARY);
           pf = _fdopen(fd, "rb");
           CloseHandle(hWritePipe);
       }

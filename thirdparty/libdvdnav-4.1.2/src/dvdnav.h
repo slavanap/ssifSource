@@ -37,9 +37,9 @@ extern "C" {
 
 #ifndef DVDNAV_COMPILE
 #  include <dvd_types.h>
-#  include <dvdread/dvd_reader.h>
-#  include <dvdread/nav_types.h>
-#  include <dvdread/ifo_types.h> /* For vm_cmd_t */
+#  include <dvd_reader.h>
+#  include <nav_types.h>
+#  include <ifo_types.h> /* For vm_cmd_t */
 #  include <dvdnav_events.h>
 #endif
 
@@ -290,7 +290,7 @@ dvdnav_status_t dvdnav_part_play(dvdnav_t *self, int32_t title, int32_t part);
  * The number of entries in *times is the result of the function.
  * On error *times is NULL and the output is 0
  */
-uint32_t dvdnav_describe_title_chapters(dvdnav_t *this, int32_t title, uint64_t **times, uint64_t *duration);
+uint32_t dvdnav_describe_title_chapters(dvdnav_t *this_, int32_t title, uint64_t **times, uint64_t *duration);
 
 /*
  * Play the specified amount of parts of the specified title of
