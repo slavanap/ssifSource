@@ -52,7 +52,7 @@ SA_DECODER = 2
 #   You can also try to set 'use_ldecod' parameter a different value if decoding fails.
 
 
-LoadPlugin("ssifSource4.dll")
+LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\bin\ssifSource4.dll")
 #ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
 mplsSource("..\samples\ISO\BDMV\PLAYLIST\00001.mpls", right_view = false)
 

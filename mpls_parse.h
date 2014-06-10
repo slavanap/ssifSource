@@ -52,10 +52,12 @@ extern "C" {
  * Structs - BD-ROM
  */
 
+class common_file_reader;
+
 typedef struct {
     char* path;
     char* name;
-    FILE* file;
+    common_file_reader* file;
     long size;
     char* data;
     char header[9];              /* "MPLS0100" or "MPLS0200" */

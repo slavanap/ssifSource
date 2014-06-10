@@ -20,6 +20,8 @@
 #include <sys/syslimits.h>
 #endif
 
+#include "stdint.h"
+#include <libdvdnav-4.1.2\dvdfopen\dvdfopen.h>
 #include "mpls_parse.h"
 
 
@@ -187,26 +189,6 @@ get_stream_clip_at(stream_clip_list_t* list, int index)
  */
 
 
-/**
- * Get the size of a file (in bytes).
- * @param file
- * @return Size of the file in bytes.
- */
-long
-file_get_length(FILE* file)
-{
-    // Beginning to End of file
-    fseek(file, 0, SEEK_END);
-    
-    // Get file size
-    long fSize = ftell(file);
-    
-    // Reset cursor to beginning of file
-    rewind(file);
-    
-    return fSize;
-}
-
 int16_t
 get_int16(char* bytes)
 {
@@ -248,17 +230,17 @@ get_int32_cursor(char* bytes, int* cursor)
 }
 
 char*
-file_read_string(FILE* file, int offset, int length)
+file_read_string(common_file_reader* file, int offset, int length)
 {
     // Allocate an empty string initialized to all NULL chars
     char* chars = (char*) calloc(length + 1, sizeof(char));
     
     // Jump to the requested position (byte offset) in the file
-    fseek(file, offset, SEEK_SET);
+    file->seek(offset, -1);
     
     // Read 4 bytes of data into a char array
     // e.g., fread(chars, 1, 8) = first eight chars
-    int br = fread(chars, 1, length, file);
+    int br = (int)file->read(chars, length);
     
     if(br != length)
     {
@@ -266,17 +248,9 @@ file_read_string(FILE* file, int offset, int length)
     }
     
     // Reset cursor to beginning of file
-    rewind(file);
+    file->seek(0, -1);
 
     return chars;
-}
-
-char*
-file_read_string_cursor(FILE* file, int* offset, int length)
-{
-    char* str = file_read_string(file, *offset, length);
-    *offset += length;
-    return str;
 }
 
 char*
@@ -458,13 +432,13 @@ init_mpls(char* path)
         DIE("Unable to get the file name (basename) of \"%s\".", path);
     }
     
-    mpls_file.file = fopen(mpls_file.path, "rb");
+    mpls_file.file = universal_fopen(mpls_file.path);
     if (mpls_file.file == NULL)
     {
         DIE("Unable to open \"%s\" for reading.", mpls_file.path);
     }
 
-    mpls_file.size = file_get_length(mpls_file.file);
+    mpls_file.size = (long)mpls_file.file->filesize();
     if (mpls_file.size < 90)
     {
         DIE("Invalid MPLS file (too small): \"%s\".", mpls_file.path);

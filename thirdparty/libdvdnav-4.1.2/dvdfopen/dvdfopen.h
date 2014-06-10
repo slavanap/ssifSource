@@ -13,11 +13,8 @@ public:
 	virtual uint64_t getpos() = 0;
 	virtual uint64_t filesize() = 0;
 	virtual bool iserror() = 0;
+	virtual void free();
 };
 
 DVDFOPEN_API common_file_reader* universal_fopen(const wchar_t *filename);
 DVDFOPEN_API common_file_reader* universal_fopen(const char *filename);
-
-extern DVDFOPEN_API int ndvdfopen;
-
-DVDFOPEN_API int fndvdfopen(void);

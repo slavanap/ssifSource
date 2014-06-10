@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SolutionDir)\components\baseclasses;$(SolutionDir)\thirdparty\AviSynth"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)\components\baseclasses&quot;;&quot;$(SolutionDir)\thirdparty\AviSynth&quot;;&quot;$(SolutionDir)\thirdparty&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="strmiids.lib mfuuid.lib winmm.lib"
+				AdditionalDependencies="strmiids.lib mfuuid.lib winmm.lib $(SolutionDir)\thirdparty\libdvdnav-4.1.2\msvc\$(ConfigurationName)\dvdfopen.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(SolutionDir)\components\baseclasses;$(SolutionDir)\thirdparty\AviSynth"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)\components\baseclasses&quot;;&quot;$(SolutionDir)\thirdparty\AviSynth&quot;;&quot;$(SolutionDir)\thirdparty&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="strmiids.lib mfuuid.lib winmm.lib"
+				AdditionalDependencies="strmiids.lib mfuuid.lib winmm.lib $(SolutionDir)\thirdparty\libdvdnav-4.1.2\msvc\$(ConfigurationName)\dvdfopen.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
 				SubSystem="2"
