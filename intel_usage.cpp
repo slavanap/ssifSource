@@ -477,7 +477,10 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 
 	bool flag_wait = true;
 
-	if (last_frame+1 != n || n >= vi.num_frames) {
+	if (last_frame == n) {
+		flag_wait = false;
+	}
+	else if (last_frame+1 != n || n >= vi.num_frames) {
 		string str;
 		if ((last_frame == FRAME_BLACK) && (data.stop_after != SA_DECODER)) {
 			if (pGraph != NULL) {
@@ -509,9 +512,6 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 		AVSValue args2[6] = {resultClip1, AVSValue(str.c_str()), 10, 50, 0xFFFFFF, 0x000000};
 		PClip resultClip2 = (env->Invoke("Subtitle", AVSValue(args2,6), arg_names2)).AsClip();
 		return resultClip2->GetFrame(n, env);
-	}
-	else if (last_frame == n) {
-		flag_wait = false;
 	}
 	last_frame = n;
     
