@@ -34,12 +34,14 @@
 //#define DEBUG
 
 /* The function pointers that is the exported interface of this file. */
+#if 0
 THREAD_SAFE dvd_input_t (*dvdinput_open)  (const char *) = NULL;
 THREAD_SAFE int         (*dvdinput_close) (dvd_input_t)  = NULL;
 THREAD_SAFE int         (*dvdinput_seek)  (dvd_input_t, int) = NULL;
 THREAD_SAFE int         (*dvdinput_title) (dvd_input_t, int) = NULL;
 THREAD_SAFE int         (*dvdinput_read)  (dvd_input_t, void *, int, int) = NULL;
 THREAD_SAFE char *      (*dvdinput_error) (dvd_input_t) = NULL;
+#endif
 THREAD_SAFE char *      dvdinput_unrar_cmd  = NULL;
 THREAD_SAFE char *      dvdinput_unrar_file = NULL;
 THREAD_SAFE int         dvdinput_firstrun = 1;
@@ -175,7 +177,7 @@ static int css_close(dvd_input_t dev)
 /**
  * initialize and open a DVD device or file.
  */
-static dvd_input_t file_open(const char *target)
+dvd_input_t file_open(const char *target)
 {
   dvd_input_t dev;
 
@@ -204,7 +206,7 @@ static dvd_input_t file_open(const char *target)
 /**
  * return the last error message
  */
-static char *file_error(dvd_input_t dev)
+char *file_error(dvd_input_t dev)
 {
   /* use strerror(errno)? */
   return (char *)"unknown error";
@@ -213,7 +215,7 @@ static char *file_error(dvd_input_t dev)
 /**
  * seek into the device.
  */
-static int file_seek(dvd_input_t dev, int blocks)
+int file_seek(dvd_input_t dev, int blocks)
 {
   off_t pos;
 
@@ -228,7 +230,7 @@ static int file_seek(dvd_input_t dev, int blocks)
 /**
  * set the block for the begining of a new title (key).
  */
-static int file_title(dvd_input_t dev, int block)
+int file_title(dvd_input_t dev, int block)
 {
   return -1;
 }
@@ -236,7 +238,7 @@ static int file_title(dvd_input_t dev, int block)
 /**
  * read data from the device.
  */
-static int file_read(dvd_input_t dev, void *buffer, int blocks, int flags)
+int file_read(dvd_input_t dev, void *buffer, int blocks, int flags)
 {
   size_t len;
   ssize_t ret;
@@ -273,7 +275,7 @@ static int file_read(dvd_input_t dev, void *buffer, int blocks, int flags)
 /**
  * close the DVD device and clean up.
  */
-static int file_close(dvd_input_t dev)
+int file_close(dvd_input_t dev)
 {
   int ret;
 
@@ -655,8 +657,9 @@ int dvdinput_setupRAR(const char *unrar_path, const char *rarfile)
 
 
 
+int dvdinput_setup(void) {return 0;}
 
-
+#if 0
 /**
  * Setup read functions with either libdvdcss or minimal DVD access.
  */
@@ -769,3 +772,4 @@ int dvdinput_setup(void)
   }
 }
 
+#endif

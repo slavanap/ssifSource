@@ -3,12 +3,12 @@ SA_MUXER   = 1
 SA_DECODER = 2
 
 
-Debug = 1
+Debug = 0
 
 LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\" + ((Debug == 1) ? "Debug" : "Release") + "\ssifSource4.dll")
 
 #mplsSource("samples\ISO\BDMV\PLAYLIST\00001.mpls", mvc_view = false, debug=false)
-#mplsSource("x:\JRNY_CNTR_EARTH_3D_BLUEBIRD.iso|BDMV\PLAYLIST\00004.mpls", right_view = false, debug=false)
+return mplsSource("x:\JRNY_CNTR_EARTH_3D_BLUEBIRD.iso|BDMV\PLAYLIST\00004.mpls", right_view = false, debug=false)
 #ssifSource("d:\BDMV\STREAM\SSIF\00009.ssif", 100000, debug = true, stop_after=SA_MUXER, muxed264="c:\Users\Vyacheslav\Projects\Utils\test\000\dump.h264" )
 
 

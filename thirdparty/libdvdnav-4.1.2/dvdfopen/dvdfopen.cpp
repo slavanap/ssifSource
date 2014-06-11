@@ -11,7 +11,7 @@ public:
 	fsfile(const wchar_t* filename) {
 		file = CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	}
-	void free() {
+	void destroy() {
 		CloseHandle(file);
 		delete this;
 	}
@@ -102,7 +102,7 @@ public:
 		}
 		cs.unlock();
 	}
-	void free() {
+	void destroy() {
 		cs.lock();
 		if (file) DVDCloseFile(file);
 		if (dvd) DVDClose(dvd);
@@ -160,7 +160,7 @@ common_file_reader* universal_fopen(const wchar_t *filename) {
 	USES_CONVERSION;
 	common_file_reader *res = new fsfile(filename);
 	if (res->iserror()) {
-		delete res;
+		res->destroy();
 		res = NULL;
 
 		std::wstring cpy(filename);
@@ -180,7 +180,7 @@ common_file_reader* universal_fopen(const wchar_t *filename) {
 			}
 			res = new dvdfile(W2A(dvd_filename.c_str()), W2A(internal_filename.c_str()));
 			if (res->iserror()) {
-				delete res;
+				res->destroy();
 				res = NULL;
 			}
 		}
@@ -193,6 +193,7 @@ common_file_reader* universal_fopen(const char *filename) {
 	return universal_fopen(A2W(filename));
 }
 
+#ifdef _DEBUG
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	switch (ul_reason_for_call) {
 		case DLL_PROCESS_ATTACH:
@@ -203,3 +204,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	}
 	return TRUE;
 }
+#endif

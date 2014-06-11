@@ -54,6 +54,7 @@ SA_DECODER = 2
 
 LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\bin\ssifSource4.dll")
 #ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
-mplsSource("..\samples\ISO\BDMV\PLAYLIST\00001.mpls", right_view = false)
+#mplsSource("..\samples\ISO\BDMV\PLAYLIST\00001.mpls", right_view = false)
 
 #ssifSource("d:\BDMV\PLAYLIST\00800.mpls", 108155, debug = true)
+mplsSource("x:\JRNY_CNTR_EARTH_3D_BLUEBIRD.iso|BDMV\PLAYLIST\00004.mpls")

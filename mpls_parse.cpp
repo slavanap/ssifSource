@@ -445,7 +445,8 @@ init_mpls(char* path)
     }
     
     mpls_file.data = file_read_string(mpls_file.file, 0, mpls_file.size);
-    
+    mpls_file.file->destroy();
+
     char* data = mpls_file.data;
     int* pos_ptr = &(mpls_file.pos);
     
