@@ -445,7 +445,7 @@ SSIFSource::~SSIFSource() {
 	CoUninitialize();
 }
 
-PVideoFrame SSIFSource::ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep, bool bWait) {
+PVideoFrame SSIFSource::ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep) {
     PVideoFrame res = env->NewVideoFrame(frame_vi);
 	if (frSep->error) {
 		if (!pipes_over_warning) {
@@ -454,13 +454,10 @@ PVideoFrame SSIFSource::ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep
 			pipes_over_warning = true;
 		}
 	}
-	else if (bWait) {
+	else
 		frSep->WaitForData();
-    }
     memcpy(res->GetWritePtr(), (char*)frSep->buffer, frSep->size);
-	if (bWait) {
-		frSep->DataParsed();
-	}
+	frSep->DataParsed();
     return res;
 }
 
@@ -475,10 +472,8 @@ void SSIFSource::DropFrame(FrameSeparator* frSep) {
 PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 	ParseEvents();
 
-	bool flag_wait = true;
-
 	if (last_frame == n) {
-		flag_wait = false;
+		// nothing to do.
 	}
 	else if (last_frame+1 != n || n >= vi.num_frames) {
 		string str;
@@ -513,26 +508,28 @@ PVideoFrame WINAPI SSIFSource::GetFrame(int n, IScriptEnvironment* env) {
 		PClip resultClip2 = (env->Invoke("Subtitle", AVSValue(args2,6), arg_names2)).AsClip();
 		return resultClip2->GetFrame(n, env);
 	}
-	last_frame = n;
-    
-    PVideoFrame left, right;
-    if (data.show_params & SP_LEFTVIEW) 
-        left = ReadFrame(env, frLeft, flag_wait);
-    else if (flag_wait)
-        DropFrame(frLeft);
-    if (data.show_params & SP_RIGHTVIEW) 
-        right = ReadFrame(env, frRight, flag_wait);
+	else {
+		last_frame = n;
+		if (data.show_params & SP_LEFTVIEW) 
+	        vfLeft = ReadFrame(env, frLeft);
+		else if (frLeft)
+	        DropFrame(frLeft);
+		if (data.show_params & SP_RIGHTVIEW) 
+	        vfRight = ReadFrame(env, frRight);
+		else if (frRight)
+			DropFrame(frRight);
+	}
 
 	if ((data.show_params & (SP_LEFTVIEW|SP_RIGHTVIEW)) == (SP_LEFTVIEW|SP_RIGHTVIEW)) {
 		if (!(data.show_params & SP_SWAPVIEWS))
-			return FrameStack(env, frame_vi, left, right, (data.show_params & SP_HORIZONTAL) != 0);
+			return FrameStack(env, frame_vi, vfLeft, vfRight, (data.show_params & SP_HORIZONTAL) != 0);
 		else
-			return FrameStack(env, frame_vi, right, left, (data.show_params & SP_HORIZONTAL) != 0);
+			return FrameStack(env, frame_vi, vfRight, vfLeft, (data.show_params & SP_HORIZONTAL) != 0);
 	}
     else if (data.show_params & SP_LEFTVIEW)
-        return left;
+        return vfLeft;
     else
-        return right;
+        return vfRight;
 }
 
 AVSValue __cdecl Create_SSIFSource(AVSValue args, void* user_data, IScriptEnvironment* env) {

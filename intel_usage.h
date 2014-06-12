@@ -49,13 +49,14 @@ private:
 	CComPtr<IGraphBuilder> pGraph;
 	CComPtr<IBaseFilter> pSplitter;
 	HANDLE hUniqueSemaphore;
+	PVideoFrame vfLeft, vfRight;
 
 	void InitVariables();
 	void InitDemuxer();
 	void InitMuxer();
 	void InitDecoder();
 	void InitComplete();
-    PVideoFrame ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep, bool bWait = true);
+    PVideoFrame ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep);
     void DropFrame(FrameSeparator* frSep);
 
 	static string MakePipeName(int id, const string& name);
