@@ -1554,7 +1554,7 @@ void get_max_dec_frame_buf_size(seq_parameter_set_rbsp_t *sps)
     size = 12582912;
     break;
   case 41:
-    size = 12582912;
+    size = 12582912 + 12582912/2;
     break;
   case 42:
     size = 13369344;
