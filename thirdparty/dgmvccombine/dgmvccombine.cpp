@@ -27,8 +27,6 @@ int get_next_au(unsigned char *buf, FILE *fp)
 	size_t read;
 
 	read = fread(buf, 1, BUF_SIZE, fp);
-	if (read < BUF_SIZE)
-		hit_eof = 1;
 	p = &buf[3];
 	while (1)
 	{
@@ -43,6 +41,8 @@ int get_next_au(unsigned char *buf, FILE *fp)
 	while (1)
 	{
 		p++;
+		if (p >= buf + read)
+			hit_eof = 1;
 		if (p[-4] == 0 && p[-3] == 0 && p[-2] == 1 && (p[-1] & 0x1f) == (buf == base_buffer ? 9 : 24))
 			break;
 	}
@@ -54,7 +54,7 @@ int get_next_au(unsigned char *buf, FILE *fp)
 	{
 		dependent_au_size = (int) (p - dependent_au - (hit_eof ? 0 : 4));
 	}
-	_fseeki64(fp, -(buf + BUF_SIZE - p + (hit_eof ? 0 : 4)), SEEK_CUR);
+	_fseeki64(fp, -(buf + read - p + (hit_eof ? 0 : 4)), SEEK_CUR);
 	return (hit_eof ? 1 : 0);
 }
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
 	if (argc < 4)
 	{
-		printf("DGMVCCombine 1.0.0 by Donald A. Graft, Copyright (C) 2014, All Rights Reserved\n");
+		printf("DGMVCCombine 1.0.1 by Donald A. Graft, Copyright (C) 2014, All Rights Reserved\n");
 		printf("usage: dgmvccombine base dependent combined\n");
 		return 1;
 	}
@@ -162,7 +162,8 @@ int main(int argc, char **argv)
 		status = get_next_au(base_buffer, base_fp);
 		status |= get_next_au(dependent_buffer, dependent_fp);
 		count++;
-		if (!(count % 100)) printf("%d frames processed\r", count);
+//		if (!(count % 100)) printf("%d frames processed\r", count);
+		printf("%d frames processed\n", count);
 		write_all(base_buffer, 9);
 		if (base_has_7)
 			write_all(base_buffer, 7);
