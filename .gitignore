@@ -3,3 +3,6 @@
 /*.opensdf
 /Debug
 /Release
+/*.user
+/sample.crop
+/sample.mkv*
