@@ -25,7 +25,7 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 }
 
 AVSValue CropDetect::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
-	return new CropDetect(env, args[0].AsClip(), args[1].AsString(), args[2].AsInt(40 - 16), args[3].AsInt(20));
+	return new CropDetect(env, args[0].AsClip(), args[1].AsString(), args[2].AsInt(24), args[3].AsInt(20));
 }
 
 PClip CheckForRGB32(IScriptEnvironment* env, PClip src) {
@@ -40,7 +40,7 @@ CropDetect::CropDetect(IScriptEnvironment* env, PClip clip, const char *outfile,
 	: GenericVideoFilter(CheckForRGB32(env, clip))
 {
 	FILE *f;
-	if (!fopen_s(&f, outfile, "w"))
+	if (fopen_s(&f, outfile, "w"))
 		env->ThrowError("Error to open output file");
 
 	RECT rect  = {MAXINT,MAXINT,MININT,MININT};
