@@ -24,7 +24,8 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 }
 
 AVSValue CropDetect::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
-	return new CropDetect(env, args[0].AsClip(), args[1].AsString(), args[2].AsInt(24), args[3].AsInt(20));
+	PClip temp_clip = new CropDetect(env, args[0].AsClip(), args[1].AsString(), args[2].AsInt(24), args[3].AsInt(20));
+	return AVSValue();
 }
 
 PClip CheckForRGB32(IScriptEnvironment* env, PClip src) {
