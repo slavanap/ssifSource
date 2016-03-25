@@ -36,12 +36,13 @@ PClip CheckForRGB32(IScriptEnvironment* env, PClip src) {
 }
 
 CropDetect::CropDetect(IScriptEnvironment* env, PClip clip, const char *outfile, int threshold, int detectFrames)
-	: GenericVideoFilter(CheckForRGB32(env, clip)), m_threshold(threshold)
+	: GenericVideoFilter(clip), m_threshold(threshold)
 {
 	FILE *f;
 	if (fopen_s(&f, outfile, "w") || f == nullptr)
 		env->ThrowError("Error to open output file");
 
+	clip = CheckForRGB32(env, clip);
 	RECT rect = { MAXINT, MAXINT, MININT, MININT };
 	for (int idx = 0; idx < detectFrames; ++idx) {
 		int n = (vi.num_frames - 1) * idx / (detectFrames - 1);
