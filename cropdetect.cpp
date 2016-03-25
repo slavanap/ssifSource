@@ -9,7 +9,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 class CropDetect : public GenericVideoFilter {
 private:
-	FILE *outfile;
 	int m_threshold;
 	CropDetect(IScriptEnvironment* env, PClip clip, const char *outfile, int threshold, int detectFrames);
 protected:
@@ -40,12 +39,12 @@ CropDetect::CropDetect(IScriptEnvironment* env, PClip clip, const char *outfile,
 	: GenericVideoFilter(CheckForRGB32(env, clip)), m_threshold(threshold)
 {
 	FILE *f;
-	if (fopen_s(&f, outfile, "w"))
+	if (fopen_s(&f, outfile, "w") || f == nullptr)
 		env->ThrowError("Error to open output file");
 
-	RECT rect  = {MAXINT,MAXINT,MININT,MININT};
-	for(int idx = 0; idx < detectFrames; ++idx) {
-		int n = (vi.num_frames-1) * idx / (detectFrames-1);
+	RECT rect = { MAXINT, MAXINT, MININT, MININT };
+	for (int idx = 0; idx < detectFrames; ++idx) {
+		int n = (vi.num_frames - 1) * idx / (detectFrames - 1);
 		DetectForFrame(clip->GetFrame(n, env), &rect);
 	}
 
