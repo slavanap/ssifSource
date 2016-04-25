@@ -46,7 +46,7 @@ CropDetect::CropDetect(IScriptEnvironment* env, PClip clip, const char *outfile,
 	clip = CheckForRGB32(env, clip);
 	RECT rect = { MAXINT, MAXINT, MININT, MININT };
 	for (int idx = 0; idx < detectFrames; ++idx) {
-		int n = (vi.num_frames - 1) * idx / (detectFrames - 1);
+		int n = (int)((INT64)(vi.num_frames - 1) * idx / (detectFrames - 1));
 		DetectForFrame(clip->GetFrame(n, env), &rect);
 	}
 
