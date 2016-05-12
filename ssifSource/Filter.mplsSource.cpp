@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Filter.mplsSource.hpp"
-#include "Filter.ssifSource.hpp"
 #include "Tools.WinApi.hpp"
 #include "mplsReader.h"
 
@@ -24,7 +23,7 @@ namespace Filter {
 
 		std::string mplsFilename = args[0].AsString();
 		std::string mplsPath = ExtractFilePath(mplsFilename);
-		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsPath + "..\\STREAM\\");
+		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsPath + "\\..\\STREAM\\");
 		if (IsDirectoryExists((ssifPath + "SSIF").c_str())) {
 			flagMVC = true;
 			ssifPath += "SSIF\\";
@@ -77,12 +76,14 @@ namespace Filter {
 		}
 
 		std::string metaFilename = GetTempFilename();
-		std::ofstream metafile(metaFilename.c_str());
-		metafile << "MUXOPT --no-pcr-on-video-pid --new-audio-pes --demux --vbr --vbv-len=500" << std::endl;
-		if (leftView)
-			metafile << "V_MPEG4/ISO/AVC, " << optionFileListPart.str() << ", track=4113" << std::endl;
-		if (rightView)
-			metafile << "V_MPEG4/ISO/MVC, " << optionFileListPart.str() << ", track=4114" << std::endl;
+		{
+			std::ofstream metafile(metaFilename.c_str());
+			metafile << "MUXOPT --no-pcr-on-video-pid --new-audio-pes --demux --vbr --vbv-len=500" << std::endl;
+			if (leftView)
+				metafile << "V_MPEG4/ISO/AVC, " << optionFileListPart.str() << ", track=4113" << std::endl;
+			if (rightView)
+				metafile << "V_MPEG4/ISO/MVC, " << optionFileListPart.str() << ", track=4114" << std::endl;
+		}
 
 		printf("\n%s: creating demuxer process ... ", FILTER_NAME);
 
@@ -97,14 +98,11 @@ namespace Filter {
 		if (rightView)
 			proxyRight = std::make_unique<ProxyThread>(rightWriter.c_str(), rightReader.c_str());
 
-		std::string
-			name_demuxer = BinPath + "tsMuxeR.exe",
-			cmd_demuxer = format("\"%s\" \"%s\" \"%s\"", 1024,
-				name_demuxer.c_str(),
-				metaFilename.c_str(),
-				uniqueId.GetPipePath().c_str()
-			);
-		process = std::make_unique<ProcessHolder>(name_demuxer, cmd_demuxer, args[7].AsBool(false));
+		process = std::make_unique<ProcessHolder>(
+			"tsMuxeR.exe",
+			"\"" + metaFilename + "\" \"" + uniqueId.GetPipePath() + "\"",
+			args[7].AsBool(false)
+		);
 
 		printf("OK\n");
 		printf("%s: calling ssifSource function ...\n", FILTER_NAME);

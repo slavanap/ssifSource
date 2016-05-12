@@ -35,6 +35,7 @@ namespace Tools {
 
 		class ProcessHolder {
 		public:
+			static std::string BinPath;
 			ProcessHolder(const std::string& exe_name, const std::string& exe_args, bool flag_debug);
 			~ProcessHolder();
 			void Resume();

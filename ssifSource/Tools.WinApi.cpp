@@ -121,7 +121,8 @@ namespace Tools {
 			std::string path(MAX_PATH, 0);
 			path.resize(GetTempPathA(path.length(), &path[0]));
 			std::string filename(MAX_PATH, 0);
-			filename.resize(GetTempFileNameA(path.c_str(), "sstmp", 0, &filename[0]));
+			GetTempFileNameA(path.c_str(), "sstmp", 0, &filename[0]);
+			filename.resize(strlen(filename.c_str())); 
 			if (filename.empty())
 				throw std::runtime_error("Can't create temp file");
 			return filename;
@@ -161,6 +162,12 @@ namespace Tools {
 
 		// class ProcessHolder
 
+#if 0 //def _DEBUG
+		std::string ProcessHolder::BinPath = "..\\..\\bin\\";
+#else
+		std::string ProcessHolder::BinPath;
+#endif
+
 		ProcessHolder::ProcessHolder(const std::string& exe_name, const std::string& exe_args, bool flag_debug) {
 			memset(&SI, 0, sizeof(STARTUPINFO));
 			SI.cb = sizeof(SI);
@@ -170,11 +177,12 @@ namespace Tools {
 			memset(&PI, 0, sizeof(PROCESS_INFORMATION));
 			PI.hProcess = INVALID_HANDLE_VALUE;
 
-			if (!CreateProcessA(exe_name.c_str(), const_cast<LPSTR>(exe_args.c_str()), nullptr, nullptr, false,
+			std::string cmd = "\"" + exe_name + "\" " + exe_args;
+			if (!CreateProcessA((BinPath + exe_name).c_str(), const_cast<LPSTR>(cmd.c_str()), nullptr, nullptr, false,
 				CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
 				nullptr, nullptr, &SI, &PI))
 			{
-				throw std::runtime_error("Error while launching %s" + exe_name);
+				throw std::runtime_error("Error while launching " + exe_name);
 			}
 		}
 

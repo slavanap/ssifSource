@@ -8,8 +8,6 @@ namespace Filter {
 	using namespace Tools::Pipe;
 	using namespace Tools::WinApi;
 
-	extern std::string BinPath;
-	
 	class ssifSource : public Tools::AviSynth::SourceFilterStub {
 	public:
 

@@ -12,13 +12,6 @@ using namespace Tools::WinApi;
 
 namespace Filter {
 
-	// paths for binaries for debugging
-#ifdef _DEBUG
-	std::string BinPath = "..\\..\\bin\\";
-#else
-	std::string BinPath;
-#endif
-
 	enum FrameSpecial {
 		FRAME_START = -1,
 		FRAME_BLACK = -2,
@@ -170,11 +163,12 @@ namespace Filter {
 			params.h264MuxedFilename = foMuxed;
 		}
 
-		std::string
-			name_muxer = BinPath + "mvccombine.exe",
-			cmd_muxer = format("\"%s\" -l \"%s\" -r \"%s\" -o \"%s\" ", 1024,
-				name_muxer.c_str(), params.left264Filename.c_str(), params.right264Filename.c_str(), fiMuxed.c_str());
-		processMuxer = std::make_unique<ProcessHolder>(name_muxer, cmd_muxer, params.flagDebug);
+		processMuxer = std::make_unique<ProcessHolder>(
+			"mvccombine.exe",
+			format("-l \"%s\" -r \"%s\" -o \"%s\"", 1024,
+				params.left264Filename.c_str(), params.right264Filename.c_str(), fiMuxed.c_str()),
+			params.flagDebug
+		);
 	}
 
 	void ssifSource::InitDecoder() {
@@ -182,12 +176,12 @@ namespace Filter {
 		std::string name_decoder, s_dec_left_write, s_dec_right_write, s_dec_out, cmd_decoder;
 
 		if (params.flagUseLdecod) {
-			name_decoder = BinPath + "ldecod.exe";
+			name_decoder = "ldecod.exe";
 			s_dec_left_write = uniqueId.MakePipeName("1_ViewId0000.yuv");
 			s_dec_right_write = uniqueId.MakePipeName("1_ViewId0001.yuv");
 			s_dec_out = uniqueId.MakePipeName("1.yuv");
 
-			cmd_decoder = "\"" + name_decoder + "\" -p InputFile=\"" + params.h264MuxedFilename + "\" "
+			cmd_decoder = "-p InputFile=\"" + params.h264MuxedFilename + "\" "
 				"-p OutputFile=\"" + s_dec_out + "\" "
 				"-p WriteUV=1 -p FileFormat=0 -p RefOffset=0 -p POCScale=2"
 				"-p DisplayDecParams=1 -p ConcealMode=0 -p RefPOCGap=2 -p POCGap=2 -p Silent=0 -p IntraProfileDeblocking=1 -p DecFrmNum=0 "
@@ -195,11 +189,10 @@ namespace Filter {
 			flag_mvc = true;
 		}
 		else {
-			name_decoder = BinPath + "sample_decode.exe",
+			name_decoder = "sample_decode.exe",
 				s_dec_left_write = uniqueId.MakePipeName("output_0.yuv"),
 				s_dec_right_write = uniqueId.MakePipeName("output_1.yuv"),
-				s_dec_out = uniqueId.MakePipeName("output"),
-				cmd_decoder = "\"" + name_decoder + "\" ";
+				s_dec_out = uniqueId.MakePipeName("output");
 			if (!(!params.intelDecoderParam.empty() && params.intelDecoderParam[0] != '-'))
 				cmd_decoder += (flag_mvc ? "mvc" : "h264");
 			cmd_decoder += " " + params.intelDecoderParam + " -i \"" + params.h264MuxedFilename + "\" -o " + s_dec_out;
@@ -249,7 +242,7 @@ namespace Filter {
 		CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter)
 	{
 		USES_CONVERSION;
-		std::wstring BinPathW(A2W(BinPath.c_str()));
+		std::wstring BinPathW(A2W(ProcessHolder::BinPath.c_str()));
 		BinPathW += L"MpegSplitter_mod.ax";
 
 		HRESULT hr = S_OK;
