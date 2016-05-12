@@ -19,6 +19,30 @@ namespace Tools {
 		std::string ExtractFilePath(const std::string& fn);
 		bool IsDirectoryExists(LPCSTR szPath);
 
+		std::string GetTempFilename();
+
+		class UniqueIdHolder {
+		public:
+			UniqueIdHolder();
+			~UniqueIdHolder();
+			std::string GetPipePath() const;
+			std::string MakePipeName(const std::string& name) const;
+			int Id() { return _id; }
+		private:
+			HANDLE hSemaphore;
+			int _id;
+		};
+
+		class ProcessHolder {
+		public:
+			ProcessHolder(const std::string& exe_name, const std::string& exe_args, bool flag_debug);
+			~ProcessHolder();
+			void Resume();
+		private:
+			STARTUPINFOA SI;
+			PROCESS_INFORMATION PI;
+		};
+
 	}
 
 }

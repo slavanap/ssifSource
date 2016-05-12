@@ -16,6 +16,7 @@ namespace Tools {
 			HANDLE hRead;
 			HANDLE hThread;
 			Thread() : hRead(nullptr), hThread(nullptr), error(false), stopEvent(false) { }
+			Thread(const Thread& other) = delete;
 			virtual ~Thread() { }
 			operator bool() { return !error; }
 		protected:

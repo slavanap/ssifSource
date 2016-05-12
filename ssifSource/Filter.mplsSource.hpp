@@ -1,12 +1,16 @@
 #pragma once
 #include "Tools.AviSynth.hpp"
+#include "Tools.Pipe.hpp"
+#include "Tools.WinApi.hpp"
 
 namespace Filter {
+
+	using namespace Tools::Pipe;
+	using namespace Tools::WinApi;
 
 	class mplsSource : public Tools::AviSynth::SourceFilterStub {
 	public:
 		mplsSource(IScriptEnvironment* env, AVSValue args);
-		virtual ~mplsSource();
 
 		PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env) override;
 
@@ -14,18 +18,13 @@ namespace Filter {
 		static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
 
 	private:
-		int currentIndex;
-		std::vector<std::string> fileNames;
-		std::vector<int> frameOffsets;
 		PClip currentClip;
 		std::string ssifPath;
 		bool flagMVC;
 		bool flagSwapViews;
-
-		AVSValue pluginParams;
-		AVSValue *pluginParamValues;
-
-		void ChangeCurrentFile(int new_idx, IScriptEnvironment* env);
+		std::unique_ptr<ProxyThread> proxyLeft, proxyRight;
+		std::unique_ptr<ProcessHolder> process;
+		UniqueIdHolder uniqueId;
 	};
 
 

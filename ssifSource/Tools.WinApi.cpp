@@ -117,6 +117,76 @@ namespace Tools {
 				TEST(dwAttrib, FILE_ATTRIBUTE_DIRECTORY));
 		}
 
+		std::string GetTempFilename() {
+			std::string path(MAX_PATH, 0);
+			path.resize(GetTempPathA(path.length(), &path[0]));
+			std::string filename(MAX_PATH, 0);
+			filename.resize(GetTempFileNameA(path.c_str(), "sstmp", 0, &filename[0]));
+			if (filename.empty())
+				throw std::runtime_error("Can't create temp file");
+			return filename;
+		}
+
+
+
+		// class UniqueIdHolder
+
+		LPCSTR globalName = "ssifSource";
+
+		UniqueIdHolder::UniqueIdHolder() {
+			_id = 0;
+			while (true) {
+				_id++;
+				hSemaphore = CreateSemaphoreA(nullptr, 0, 1, format("Global\\%s_%d", 128, globalName, _id).c_str());
+				if (GetLastError() == NOERROR)
+					break;
+				if (hSemaphore != nullptr)
+					CloseHandle(hSemaphore);
+			}
+		}
+
+		UniqueIdHolder::~UniqueIdHolder() {
+			CloseHandle(hSemaphore);
+		}
+
+		std::string UniqueIdHolder::GetPipePath() const {
+			return format("\\\\.\\pipe\\%s%04d", 128, globalName, _id);
+		}
+
+		std::string UniqueIdHolder::MakePipeName(const std::string& name) const {
+			return format("%s\\%s", 128, GetPipePath().c_str(), name.c_str());
+		}
+
+
+
+		// class ProcessHolder
+
+		ProcessHolder::ProcessHolder(const std::string& exe_name, const std::string& exe_args, bool flag_debug) {
+			memset(&SI, 0, sizeof(STARTUPINFO));
+			SI.cb = sizeof(SI);
+			SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;
+			SI.wShowWindow = flag_debug ? SW_HIDE : SW_SHOWNORMAL;
+
+			memset(&PI, 0, sizeof(PROCESS_INFORMATION));
+			PI.hProcess = INVALID_HANDLE_VALUE;
+
+			if (!CreateProcessA(exe_name.c_str(), const_cast<LPSTR>(exe_args.c_str()), nullptr, nullptr, false,
+				CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+				nullptr, nullptr, &SI, &PI))
+			{
+				throw std::runtime_error("Error while launching %s" + exe_name);
+			}
+		}
+
+		void ProcessHolder::Resume() {
+			ResumeThread(PI.hThread);
+		}
+
+		ProcessHolder::~ProcessHolder() {
+			if (PI.hProcess != INVALID_HANDLE_VALUE)
+				TerminateProcess(PI.hProcess, 0);
+		}
+
 	}
 
 }

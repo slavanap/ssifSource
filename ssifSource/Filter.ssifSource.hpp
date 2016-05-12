@@ -1,10 +1,14 @@
 #pragma once
-#include "Tools.Pipe.hpp"
 #include "Tools.AviSynth.hpp"
+#include "Tools.Pipe.hpp"
+#include "Tools.WinApi.hpp"
 
 namespace Filter {
 
 	using namespace Tools::Pipe;
+	using namespace Tools::WinApi;
+
+	extern std::string BinPath;
 	
 	class ssifSource : public Tools::AviSynth::SourceFilterStub {
 	public:
@@ -62,15 +66,13 @@ namespace Filter {
 		Params params;
 		VideoInfo frame_vi;
 		int lastFrame;
-		STARTUPINFOA SI;
-		PROCESS_INFORMATION PI1, PI2;
-		FrameSeparator *frLeft, *frRight;
-		Thread *dupThread1, *dupThread2, *dupThread3;
-		int unic_number;
+		std::unique_ptr<ProcessHolder> processMuxer, processDecoder;
+		std::unique_ptr<FrameSeparator> frLeft, frRight;
+		std::unique_ptr<Thread> proxyThread1, proxyThread2, proxyThread3;
 		bool pipesOverWarning;
 		CComPtr<IGraphBuilder> pGraph;
 		CComPtr<IBaseFilter> pSplitter;
-		HANDLE hUniqueSemaphore;
+		UniqueIdHolder uniqueId;
 		PVideoFrame vfLeft, vfRight;
 
 		void InitVariables();
@@ -79,10 +81,9 @@ namespace Filter {
 		void InitDecoder();
 		void InitComplete();
 		void DeinitAll();
-		PVideoFrame ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep);
-		void DropFrame(FrameSeparator* frSep);
+		PVideoFrame ReadFrame(IScriptEnvironment* env, const std::unique_ptr<FrameSeparator>& frSep);
+		void DropFrame(const std::unique_ptr<FrameSeparator>& frSep);
 
-		static std::string MakePipeName(int id, const std::string& name);
 		static HRESULT CreateGraph(LPCWSTR fnSource, LPCWSTR fnBase, LPCWSTR fnDept,
 			CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter);
 		void ParseEvents();

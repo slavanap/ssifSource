@@ -8,31 +8,21 @@ using namespace Tools::AviSynth;
 using namespace Tools::DirectShow;
 using namespace Tools::WinApi;
 
-// paths for binaries for debugging
-#ifdef _DEBUG
-#define PATH_SPLITTER L"..\\..\\bin\\"
-#define PATH_MUXER "..\\..\\bin\\"
-#define PATH_DECODER "..\\..\\bin\\"
-#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP)
-#else
-#define PATH_SPLITTER
-#define PATH_MUXER
-#define PATH_DECODER
-#define CREATE_PROCESS_FLAGS (CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP)
-#endif
-
 #define FILTER_NAME "ssifSource"
 
 namespace Filter {
+
+	// paths for binaries for debugging
+#ifdef _DEBUG
+	std::string BinPath = "..\\..\\bin\\";
+#else
+	std::string BinPath;
+#endif
 
 	enum FrameSpecial {
 		FRAME_START = -1,
 		FRAME_BLACK = -2,
 	};
-
-	std::string ssifSource::MakePipeName(int id, const std::string& name) {
-		return format("\\\\.\\pipe\\bluray%04d\\%s", 128, id, name.c_str());
-	}
 
 	ssifSource::ssifSource(const Params& creationParams) :
 		SourceFilterStub(VideoInfo())	// vi will be initialized in InitComplete function
@@ -83,29 +73,6 @@ namespace Filter {
 #pragma warning(pop)
 		}
 
-		memset(&SI, 0, sizeof(STARTUPINFO));
-		SI.cb = sizeof(SI);
-		SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;
-		SI.wShowWindow = (!params.flagDebug) ? SW_HIDE : SW_SHOWNORMAL;
-
-		memset(&PI1, 0, sizeof(PROCESS_INFORMATION));
-		PI1.hProcess = INVALID_HANDLE_VALUE;
-		memset(&PI2, 0, sizeof(PROCESS_INFORMATION));
-		PI2.hProcess = INVALID_HANDLE_VALUE;
-
-		frLeft = frRight = nullptr;
-		dupThread1 = dupThread2 = dupThread3 = nullptr;
-
-		unic_number = 0;
-		while (true) {
-			unic_number++;
-			hUniqueSemaphore = CreateSemaphoreA(NULL, 0, 1, format("Global\\" FILTER_NAME "_%d", 128, unic_number).c_str());
-			if (GetLastError() == NOERROR)
-				break;
-			if (hUniqueSemaphore != NULL)
-				CloseHandle(hUniqueSemaphore);
-		}
-
 		pipesOverWarning = false;
 
 		// WARNING: keep in mind this swapping!
@@ -119,10 +86,10 @@ namespace Filter {
 
 		USES_CONVERSION;
 		std::string
-			fiBase = MakePipeName(unic_number, "base.h264"),
-			fiDept = MakePipeName(unic_number, "dept.h264"),
-			foBase = MakePipeName(unic_number, "base_merge.h264"),
-			foDept = MakePipeName(unic_number, "dept_merge.h264");
+			fiBase = uniqueId.MakePipeName("base.h264"),
+			fiDept = uniqueId.MakePipeName("dept.h264"),
+			foBase = uniqueId.MakePipeName("base_merge.h264"),
+			foDept = uniqueId.MakePipeName("dept_merge.h264");
 
 		if (params.stopAfter == SA_DEMUXER) {
 			fiBase = params.left264Filename;
@@ -130,16 +97,16 @@ namespace Filter {
 		}
 		else {
 			if (params.left264Filename.empty())
-				dupThread2 = new ProxyThread(fiBase.c_str(), foBase.c_str());
+				proxyThread2 = std::make_unique<ProxyThread>(fiBase.c_str(), foBase.c_str());
 			else
-				dupThread2 = new CloneThread(fiBase.c_str(), foBase.c_str(), params.left264Filename.c_str());
+				proxyThread2 = std::make_unique<CloneThread>(fiBase.c_str(), foBase.c_str(), params.left264Filename.c_str());
 			params.left264Filename = foBase;
 
 			if (TEST(params.showParam, SP_RIGHTVIEW)) {
 				if (params.right264Filename.empty())
-					dupThread3 = new ProxyThread(fiDept.c_str(), foDept.c_str());
+					proxyThread3 = std::make_unique<ProxyThread>(fiDept.c_str(), foDept.c_str());
 				else
-					dupThread3 = new CloneThread(fiDept.c_str(), foDept.c_str(), params.right264Filename.c_str());
+					proxyThread3 = std::make_unique<CloneThread>(fiDept.c_str(), foDept.c_str(), params.right264Filename.c_str());
 			}
 			params.right264Filename = foDept;
 		}
@@ -189,32 +156,25 @@ namespace Filter {
 		}
 
 		std::string
-			fiMuxed = MakePipeName(unic_number, "muxed.h264"),
-			foMuxed = MakePipeName(unic_number, "intel_input.h264");
+			fiMuxed = uniqueId.MakePipeName("muxed.h264"),
+			foMuxed = uniqueId.MakePipeName("intel_input.h264");
 
 		if (params.stopAfter == SA_MUXER) {
 			fiMuxed = params.h264MuxedFilename;
 		}
 		else {
 			if (params.h264MuxedFilename.empty())
-				dupThread1 = new ProxyThread(fiMuxed.c_str(), foMuxed.c_str());
+				proxyThread1 = std::make_unique<ProxyThread>(fiMuxed.c_str(), foMuxed.c_str());
 			else
-				dupThread1 = new CloneThread(fiMuxed.c_str(), foMuxed.c_str(), params.h264MuxedFilename.c_str());
+				proxyThread1 = std::make_unique<CloneThread>(fiMuxed.c_str(), foMuxed.c_str(), params.h264MuxedFilename.c_str());
 			params.h264MuxedFilename = foMuxed;
 		}
 
 		std::string
-			name_muxer = PATH_MUXER "mvccombine.exe",
-			cmd_muxer = "\"" + name_muxer + "\" "
-			"-l \"" + params.left264Filename + "\" " +
-			"-r \"" + params.right264Filename + "\" " +
-			"-o \"" + fiMuxed + "\" ";
-
-		if (!CreateProcessA(name_muxer.c_str(), &cmd_muxer[0], nullptr, nullptr, false,
-			CREATE_PROCESS_FLAGS, nullptr, nullptr, &SI, &PI1))
-		{
-			throw std::runtime_error("Error while launching %s" + name_muxer);
-		}
+			name_muxer = BinPath + "mvccombine.exe",
+			cmd_muxer = format("\"%s\" -l \"%s\" -r \"%s\" -o \"%s\" ", 1024,
+				name_muxer.c_str(), params.left264Filename.c_str(), params.right264Filename.c_str(), fiMuxed.c_str());
+		processMuxer = std::make_unique<ProcessHolder>(name_muxer, cmd_muxer, params.flagDebug);
 	}
 
 	void ssifSource::InitDecoder() {
@@ -222,10 +182,10 @@ namespace Filter {
 		std::string name_decoder, s_dec_left_write, s_dec_right_write, s_dec_out, cmd_decoder;
 
 		if (params.flagUseLdecod) {
-			name_decoder = PATH_DECODER "ldecod.exe";
-			s_dec_left_write = MakePipeName(unic_number, "1_ViewId0000.yuv");
-			s_dec_right_write = MakePipeName(unic_number, "1_ViewId0001.yuv");
-			s_dec_out = MakePipeName(unic_number, "1.yuv");
+			name_decoder = BinPath + "ldecod.exe";
+			s_dec_left_write = uniqueId.MakePipeName("1_ViewId0000.yuv");
+			s_dec_right_write = uniqueId.MakePipeName("1_ViewId0001.yuv");
+			s_dec_out = uniqueId.MakePipeName("1.yuv");
 
 			cmd_decoder = "\"" + name_decoder + "\" -p InputFile=\"" + params.h264MuxedFilename + "\" "
 				"-p OutputFile=\"" + s_dec_out + "\" "
@@ -235,10 +195,10 @@ namespace Filter {
 			flag_mvc = true;
 		}
 		else {
-			name_decoder = PATH_DECODER "sample_decode.exe",
-				s_dec_left_write = MakePipeName(unic_number, "output_0.yuv"),
-				s_dec_right_write = MakePipeName(unic_number, "output_1.yuv"),
-				s_dec_out = MakePipeName(unic_number, "output"),
+			name_decoder = BinPath + "sample_decode.exe",
+				s_dec_left_write = uniqueId.MakePipeName("output_0.yuv"),
+				s_dec_right_write = uniqueId.MakePipeName("output_1.yuv"),
+				s_dec_out = uniqueId.MakePipeName("output"),
 				cmd_decoder = "\"" + name_decoder + "\" ";
 			if (!(!params.intelDecoderParam.empty() && params.intelDecoderParam[0] != '-'))
 				cmd_decoder += (flag_mvc ? "mvc" : "h264");
@@ -249,15 +209,11 @@ namespace Filter {
 		if (!flag_mvc)
 			s_dec_left_write = s_dec_out;
 
-		frLeft = new FrameSeparator(s_dec_left_write.c_str(), framesize);
+		frLeft = std::make_unique<FrameSeparator>(s_dec_left_write.c_str(), framesize);
 		if (flag_mvc)
-			frRight = new FrameSeparator(s_dec_right_write.c_str(), framesize);
+			frRight = std::make_unique<FrameSeparator>(s_dec_right_write.c_str(), framesize);
 
-		if (!CreateProcessA(name_decoder.c_str(), &cmd_decoder[0], nullptr, nullptr, false,
-			CREATE_PROCESS_FLAGS, NULL, NULL, &SI, &PI2))
-		{
-			throw std::runtime_error("Error while launching " + name_decoder);
-		}
+		processDecoder = std::make_unique<ProcessHolder>(name_decoder, cmd_decoder, params.flagDebug);
 	}
 
 	void ssifSource::InitComplete() {
@@ -265,27 +221,20 @@ namespace Filter {
 		if (TESTALL(params.showParam, SP_LEFTVIEW | SP_RIGHTVIEW))
 			(TEST(params.showParam, SP_HORIZONTAL) ? vi.width : vi.height) *= 2;
 
-		ResumeThread(PI1.hThread);
-		ResumeThread(PI2.hThread);
+		processMuxer->Resume();
+		processDecoder->Resume();
 		if (params.stopAfter == SA_DECODER)
 			lastFrame = FRAME_START;
 	}
 
 	void ssifSource::DeinitAll() {
-		if (PI2.hProcess != INVALID_HANDLE_VALUE)
-			TerminateProcess(PI2.hProcess, 0);
-		if (PI1.hProcess != INVALID_HANDLE_VALUE)
-			TerminateProcess(PI1.hProcess, 0);
-		if (dupThread1 != nullptr)
-			delete dupThread1;
-		if (dupThread2 != nullptr)
-			delete dupThread2;
-		if (dupThread3 != nullptr)
-			delete dupThread3;
-		if (frLeft != nullptr)
-			delete frLeft;
-		if (frRight != nullptr)
-			delete frRight;
+		processDecoder.reset();
+		processMuxer.reset();
+		proxyThread1.reset();
+		proxyThread2.reset();
+		proxyThread3.reset();
+		frLeft.reset();
+		frRight.reset();
 		pSplitter = nullptr;
 		if (pGraph != nullptr) {
 			// very dirty HACK!!!
@@ -293,18 +242,21 @@ namespace Filter {
 			while (static_cast<IUnknown*>(pGraph)->Release() > 1);
 		}
 		pGraph = nullptr;
-		CloseHandle(hUniqueSemaphore);
 		CoUninitialize();
 	}
 
 	HRESULT ssifSource::CreateGraph(LPCWSTR fnSource, LPCWSTR fnBase, LPCWSTR fnDept,
 		CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter)
 	{
+		USES_CONVERSION;
+		std::wstring BinPathW(A2W(BinPath.c_str()));
+		BinPathW += L"MpegSplitter_mod.ax";
+
 		HRESULT hr = S_OK;
 		IGraphBuilder *pGraph = nullptr;
 		CComQIPtr<IBaseFilter> pSplitter;
 		CComQIPtr<IBaseFilter> pDumper1, pDumper2;
-		LPOLESTR lib_Splitter = T2OLE(PATH_SPLITTER L"MpegSplitter_mod.ax");
+		LPOLESTR lib_Splitter = T2OLE(&BinPathW[0]);
 		const CLSID *clsid_Splitter = &CLSID_MpegSplitter;
 
 		WCHAR fullname_splitter[MAX_PATH + 64];
@@ -389,7 +341,7 @@ namespace Filter {
 		}
 	}
 
-	PVideoFrame ssifSource::ReadFrame(IScriptEnvironment* env, FrameSeparator* frSep) {
+	PVideoFrame ssifSource::ReadFrame(IScriptEnvironment* env, const std::unique_ptr<FrameSeparator>& frSep) {
 		PVideoFrame res = env->NewVideoFrame(frame_vi);
 		if (!frSep) {
 			if (!pipesOverWarning) {
@@ -405,7 +357,7 @@ namespace Filter {
 		return res;
 	}
 
-	void ssifSource::DropFrame(FrameSeparator* frSep) {
+	void ssifSource::DropFrame(const std::unique_ptr<FrameSeparator>& frSep) {
 		if (frSep != nullptr) {
 			if (frSep)
 				frSep->WaitForData();
