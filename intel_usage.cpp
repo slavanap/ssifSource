@@ -19,8 +19,6 @@
 #endif
 
 
-extern string program_path;
-
 #define FILTER_NAME "ssifSource"
 #define FRAME_START -1
 #define FRAME_BLACK -2
@@ -324,7 +322,7 @@ void SSIFSource::InitMuxer() {
 	}
 
 	string
-		name_muxer = program_path + PATH_MUXER "mvccombine.exe",
+		name_muxer = PATH_MUXER "mvccombine.exe",
 		cmd_muxer = "\"" + name_muxer + "\" "
 			"-l \"" + data.left_264 + "\" " +
 			"-r \"" + data.right_264 + "\" " +
@@ -342,7 +340,7 @@ void SSIFSource::InitDecoder() {
 	string name_decoder, s_dec_left_write, s_dec_right_write, s_dec_out, cmd_decoder;
 
 	if (data.flag_use_ldecod) {
-		name_decoder = program_path + PATH_DECODER "ldecod.exe";
+		name_decoder = PATH_DECODER "ldecod.exe";
 		s_dec_left_write = MakePipeName(unic_number, "1_ViewId0000.yuv");
 		s_dec_right_write = MakePipeName(unic_number, "1_ViewId0001.yuv");
 		s_dec_out = MakePipeName(unic_number, "1.yuv");
@@ -355,7 +353,7 @@ void SSIFSource::InitDecoder() {
 		flag_mvc = true;
 	}
 	else {
-		name_decoder = program_path + PATH_DECODER "sample_decode.exe",
+		name_decoder = PATH_DECODER "sample_decode.exe",
 		s_dec_left_write = MakePipeName(unic_number, "output_0.yuv"),
 		s_dec_right_write = MakePipeName(unic_number, "output_1.yuv"),
 		s_dec_out = MakePipeName(unic_number, "output"),

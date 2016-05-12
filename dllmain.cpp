@@ -2,21 +2,30 @@
 #include "utils.h"
 #include "intel_usage.h"
 #include "mpls_source.h"
+#include "utility_avs_functions.h"
 
-#define PATH_BUFFER_LENGTH 1024
-string program_path;
+#define PATH_BUFFER_LENGTH 8192
 
 bool DLLInit() {
-	char buffer[PATH_BUFFER_LENGTH];
-	int res;
 	srand((unsigned int)time(NULL));
-	res = GetModuleFileNameA(hInstance, buffer, PATH_BUFFER_LENGTH);
-	if (res == 0) {
+
+	wchar_t *exe_filename = new wchar_t[PATH_BUFFER_LENGTH];
+	if (!GetModuleFileNameW(hInstance, exe_filename, PATH_BUFFER_LENGTH)) {
 		MessageBoxA(HWND_DESKTOP, "Can not retrieve program path", NULL, MB_ICONERROR | MB_OK);
+		delete[] exe_filename;
 		return false;
 	}
-	program_path = buffer;
-	program_path.erase(program_path.rfind("\\")+1);
+	size_t len;
+	StringCchLengthW(exe_filename, PATH_BUFFER_LENGTH, &len);
+	while (len > 0 && exe_filename[len-1] != '\\') --len;
+	if (len > 0) {
+		exe_filename[len-1] = ';';
+		size_t path_len = GetEnvironmentVariableW(L"PATH", exe_filename + len, PATH_BUFFER_LENGTH - len);
+		if (path_len <= PATH_BUFFER_LENGTH - len) {
+			SetEnvironmentVariableW(L"PATH", exe_filename);
+		}
+	}
+	delete exe_filename;
 	return true;
 }
 
@@ -47,5 +56,13 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("mplsSource", 
 		"[mpls_file]s[ssif_path]s[left_view]b[right_view]b[horizontal_stack]b[swap_views]b[intel_params]s[debug]b[use_ldecod]b",
 		Create_MPLSSource, 0);
+
+	REGISTER_AVS_FUNCTION(ssCreateReadPipe)
+	REGISTER_AVS_FUNCTION(ssCreateWritePipe)
+	REGISTER_AVS_FUNCTION(ssDestroyPipe)
+	REGISTER_AVS_FUNCTION(ssWriteToPipe)
+	REGISTER_AVS_FUNCTION(ssWriteToPipeHandle)
+	REGISTER_AVS_FUNCTION(ssReadFromPipe)
+	REGISTER_AVS_FUNCTION(ssReadFromPipeHandle)
 	return 0;
 }

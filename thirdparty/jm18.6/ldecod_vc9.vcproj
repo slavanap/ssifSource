@@ -376,7 +376,7 @@
 				OutputFile="./bin/ldecod.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\ldecod\$(ConfigurationName)_$(PlatformName)_vc9/ldecod.pdb"
 				GenerateMapFile="true"
 				SubSystem="1"
