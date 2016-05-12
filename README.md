@@ -12,8 +12,7 @@ mplsSource accepts .mpls files, ssifSource accepts .ssif files or 2 streams (avc
 The plugin uses Windows pipes to connect all executables in pipeline. This adds a little overhead,
 but allows neither change original apps sources nor use additional disk space.
 
-Issues:
-
-1. No audio support
-2. Proprietary code usage: MVCCombine
-   (I have an opensource alternative, but it wasn't properly tested yet).
+TODO:
+1. AVISynth Audio support
+2. DirectShow FileAsync implementation through libdvdread
+3. MVCombiner replacement to opensource one
