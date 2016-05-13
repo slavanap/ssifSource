@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Filter.Pipe.hpp"
 #include "Filter.mplsSource.hpp"
+#include "Filter.mplsSource2.hpp"
 #include "Filter.ssifSource.hpp"
 #include "Tools.WinApi.hpp"
 #include <ctime>
@@ -40,5 +41,6 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("PipeWriterForHandle", Filter::Pipe::PipeWriter::CreateForHandleParams, Filter::Pipe::PipeWriter::CreateForHandle, nullptr);
 	env->AddFunction("ssifSource", Filter::ssifSource::CreateParams, Filter::ssifSource::Create, nullptr);
 	env->AddFunction("mplsSource", Filter::mplsSource::CreateParams, Filter::mplsSource::Create, nullptr);
+	env->AddFunction("mplsSource2", Filter::mplsSource2::CreateParams, Filter::mplsSource2::Create, nullptr);
 	return nullptr;
 }

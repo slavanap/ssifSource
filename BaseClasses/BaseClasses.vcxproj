@@ -57,6 +57,39 @@
     <ClInclude Include="wxlist.h" />
     <ClInclude Include="wxutil.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="amextra.cpp" />
+    <ClCompile Include="amfilter.cpp" />
+    <ClCompile Include="amvideo.cpp" />
+    <ClCompile Include="arithutil.cpp" />
+    <ClCompile Include="combase.cpp" />
+    <ClCompile Include="cprop.cpp" />
+    <ClCompile Include="ctlutil.cpp" />
+    <ClCompile Include="ddmm.cpp" />
+    <ClCompile Include="dllentry.cpp" />
+    <ClCompile Include="dllsetup.cpp" />
+    <ClCompile Include="mtype.cpp" />
+    <ClCompile Include="outputq.cpp" />
+    <ClCompile Include="perflog.cpp" />
+    <ClCompile Include="pstream.cpp" />
+    <ClCompile Include="pullpin.cpp" />
+    <ClCompile Include="refclock.cpp" />
+    <ClCompile Include="renbase.cpp" />
+    <ClCompile Include="schedule.cpp" />
+    <ClCompile Include="seekpt.cpp" />
+    <ClCompile Include="source.cpp" />
+    <ClCompile Include="strmctl.cpp" />
+    <ClCompile Include="sysclock.cpp" />
+    <ClCompile Include="transfrm.cpp" />
+    <ClCompile Include="transip.cpp" />
+    <ClCompile Include="videoctl.cpp" />
+    <ClCompile Include="vtrans.cpp" />
+    <ClCompile Include="winctrl.cpp" />
+    <ClCompile Include="winutil.cpp" />
+    <ClCompile Include="wxdebug.cpp" />
+    <ClCompile Include="wxlist.cpp" />
+    <ClCompile Include="wxutil.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CF5BE285-D130-45F8-AE7F-17458FCAF275}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

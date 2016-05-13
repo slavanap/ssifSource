@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClInclude Include="DumpFilter.hpp" />
     <ClInclude Include="Filter.mplsSource.hpp" />
+    <ClInclude Include="Filter.mplsSource2.hpp" />
     <ClInclude Include="Filter.Pipe.hpp" />
     <ClInclude Include="Filter.ssifSource.hpp" />
     <ClInclude Include="mplsReader.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DumpFilter.cpp" />
     <ClCompile Include="Filter.mplsSource.cpp" />
+    <ClCompile Include="Filter.mplsSource2.cpp" />
     <ClCompile Include="Filter.Pipe.cpp" />
     <ClCompile Include="Filter.ssifSource.cpp" />
     <ClCompile Include="mplsReader.c">

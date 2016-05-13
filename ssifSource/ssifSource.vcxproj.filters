@@ -39,9 +39,6 @@
     <ClInclude Include="Filter.ssifSource.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Filter.mplsSource.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tools.Pipe.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -49,6 +46,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tools.WinApi.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Filter.mplsSource2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Filter.mplsSource.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,13 +80,16 @@
     <ClCompile Include="mplsReader.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Filter.mplsSource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Filter.ssifSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tools.AviSynth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Filter.mplsSource2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Filter.mplsSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
