@@ -6,7 +6,7 @@ namespace Tools {
 
 		enum {
 			READ_CHUNK_SIZE = 0x80000,					// read chunk size
-			PIPE_BUFFER_SIZE = 0x1000000,				// request queue site from OS
+			PIPE_BUFFER_SIZE = 128 * 0x100000,			// request queue site from OS
 			CLONE_BUFFER_SIZE = PIPE_BUFFER_SIZE,		// same for CloneThread
 			WAIT_TIME = 3000,							// in ms, for hangs detection
 		};
@@ -55,7 +55,7 @@ namespace Tools {
 			volatile char *buffer;
 			int chunkSize;
 
-			FrameSeparator(const char* name, int chunkSize);
+			FrameSeparator(LPCSTR name, int chunkSize);
 			~FrameSeparator();
 			void WaitForData();
 			void DataParsed();
