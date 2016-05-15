@@ -120,8 +120,8 @@ namespace Filter {
 			leftReader.c_str(),             // avc264
 			rightReader.c_str(),            // mvc264
 			AVSValue(),                     // muxed264
-			args[9],                        // width
-			args[10],                       // height
+			args[9].AsInt(),                // width
+			args[10].AsInt(),               // height
 			AVSValue(),                     // stop_after
 		};
 		currentClip = env->Invoke("ssifSource", AVSValue(ssArgs, sizeof(ssArgs) / sizeof(ssArgs[0]))).AsClip();

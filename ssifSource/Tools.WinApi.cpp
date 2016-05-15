@@ -172,7 +172,7 @@ namespace Tools {
 			memset(&SI, 0, sizeof(STARTUPINFO));
 			SI.cb = sizeof(SI);
 			SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;
-			SI.wShowWindow = flag_debug ? SW_HIDE : SW_SHOWNORMAL;
+			SI.wShowWindow = flag_debug ? SW_SHOWNORMAL : SW_HIDE;
 
 			memset(&PI, 0, sizeof(PROCESS_INFORMATION));
 			PI.hProcess = INVALID_HANDLE_VALUE;
