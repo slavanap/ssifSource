@@ -35,6 +35,7 @@ HRESULT WINAPI IClassFactory_CreateInstance(IClassFactory* vtbl, IUnknown* pUnkO
 	if (FAILED(hr))
 		return hr;
 
+	USES_CONVERSION;
 	CComQIPtr<IPropertyBag> prog_bag = (IUnknown*)*ppvObject;
 	LPOLESTR settings[] = {L"app_mode=1", L"ilevels=2", L"olevels=2", L"ics=5", L"di=9", L"deblock=10", L"ai=1", L"crop1088=1",
 		L"vmr_ar=0", L"low_latency=0", L"brightness=0", L"contrast=0", L"saturation=0", L"use_tray=0", L"use_cuda=0"};

@@ -1,13 +1,1 @@
-Debug
-Release
-x64
-*.ncb
-*.suo
-*.user
-ipch
-/ssifSource.VC.VC.opendb
-/ssifSource.VC.db
-*.aps
-/bin/_releases
-/thirdparty/JM18.6
-/thirdparty/libdvdnav-4.1.2
+__build
