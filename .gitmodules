@@ -1,0 +1,3 @@
+[submodule "thirdparty/Lua"]
+	path = thirdparty/Lua
+	url = https://github.com/slavanap/clone-Lua.git

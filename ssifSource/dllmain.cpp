@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "Filter.Pipe.hpp"
+#include <Filter.Pipe.hpp>
+#include <Tools.WinApi.hpp>
+
 #include "Filter.mplsSource.hpp"
 #include "Filter.mplsSource2.hpp"
 #include "Filter.ssifSource.hpp"
-#include "Tools.WinApi.hpp"
-#include <ctime>
 
 // DirectShow initialization
 extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
@@ -12,16 +12,7 @@ extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
     switch (dwReason) {
         case DLL_PROCESS_ATTACH:
-            Tools::WinApi::hInstance = hModule;
-			try {
-				Tools::WinApi::AddCurrentPathToPathEnv();
-				srand((unsigned int)time(NULL));
-			}
-			catch (const std::exception& ex) {
-				MessageBoxA(HWND_DESKTOP, ex.what(), NULL, MB_ICONERROR | MB_OK);
-				return FALSE;
-			}
-            break;
+			return Tools::WinApi::InitLibrary(hModule);
         case DLL_THREAD_ATTACH:
         case DLL_THREAD_DETACH:
         case DLL_PROCESS_DETACH:

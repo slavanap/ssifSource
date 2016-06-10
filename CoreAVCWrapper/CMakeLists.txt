@@ -9,7 +9,7 @@ set(SOURCES
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Third Party")
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Tools")
 target_link_libraries(${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT Tools)

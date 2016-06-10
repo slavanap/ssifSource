@@ -1,20 +1,18 @@
 project(ssifSource)
 
-include_directories(${BASECLASSES_INCLUDE_DIR})
+include_directories(
+	${BASECLASSES_INCLUDE_DIR}
+	${AVSTOOLS_INCLUDE_DIR}
+)
 
 set(HEADERS
 	mplsReader.h
 	resource.h
-	targetver.h
 	DumpFilter.hpp
 	Filter.mplsSource.hpp
 	Filter.mplsSource2.hpp
-	Filter.Pipe.hpp
 	Filter.ssifSource.hpp
-	Tools.AviSynth.hpp
 	Tools.DirectShow.hpp
-	Tools.Pipe.hpp
-	Tools.WinApi.hpp
 )
 
 set(SOURCES
@@ -22,12 +20,8 @@ set(SOURCES
 	DumpFilter.cpp
 	Filter.mplsSource.cpp
 	Filter.mplsSource2.cpp
-	Filter.Pipe.cpp
 	Filter.ssifSource.cpp
-	Tools.AviSynth.cpp
 	Tools.DirectShow.cpp
-	Tools.Pipe.cpp
-	Tools.WinApi.cpp
 	ssifSource.rc
 )
 
@@ -38,12 +32,12 @@ list(APPEND SOURCES
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} BaseClasses)
+target_link_libraries(${PROJECT_NAME} BaseClasses AvsTools)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT ssifSource)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT ${PROJECT_NAME})
 
 install(FILES
-	sample.avs
+	ssifSource.avs
 	MpegSplitter_mod.ax
 	libmfxsw64.dll
 	vcomp90.dll
@@ -52,7 +46,7 @@ install(FILES
 	MVCCombine.exe
 	sample_decode.exe
 	tsMuxeR.exe
-	DESTINATION bin COMPONENT ssifSource
+	DESTINATION bin COMPONENT ${PROJECT_NAME}
 )
 
 install(FILES
@@ -61,5 +55,5 @@ install(FILES
 	x86/vcomp90d.dll
 	x86/ldecod.exe
 	x86/sample_decode.exe
-	DESTINATION bin/x86 COMPONENT ssifSource
+	DESTINATION bin/x86 COMPONENT ${PROJECT_NAME}
 )

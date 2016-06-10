@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "Filter.ssifSource.hpp"
 #include "Tools.DirectShow.hpp"
-#include "Tools.WinApi.hpp"
 #include "DumpFilter.hpp"
+
+#include <common.h>
+#include <Tools.WinApi.hpp>
 
 using namespace Tools::AviSynth;
 using namespace Tools::DirectShow;
@@ -275,14 +277,14 @@ namespace Filter {
 		}
 		printf("OK\n");
 
-		printf("ssifSource4: Load source ... ");
+		printf(FILTER_NAME ": Load source ... ");
 		hr = pGraph->AddFilter(pSplitter, L"VSplitter");
 		if (FAILED(hr)) goto lerror;
 		hr = CComQIPtr<IFileSourceFilter>(pSplitter)->Load(fnSource, nullptr);
 		if (FAILED(hr)) goto lerror;
 		printf("OK\n");
 
-		printf("ssifSource4: Add Dumpers ... ");
+		printf(FILTER_NAME ": Add Dumpers ... ");
 		hr = pGraph->AddFilter(pDumper1, L"VDumper1");
 		if (FAILED(hr)) goto lerror;
 		hr = CComQIPtr<IFileSinkFilter>(pDumper1)->SetFileName(fnBase, nullptr);
@@ -296,7 +298,7 @@ namespace Filter {
 		}
 		printf("OK\n");
 
-		printf("ssifSource4: Graph connection ... ");
+		printf(FILTER_NAME ": Graph connection ... ");
 		hr = pGraph->ConnectDirect(GetOutPin(pSplitter, 0, true), GetInPin(pDumper1, 0), nullptr);
 		if (FAILED(hr)) goto lerror;
 		if (pDumper2) {
@@ -393,7 +395,8 @@ namespace Filter {
 			PClip resultClip1 = (env->Invoke("BlankClip", AVSValue(args1, 2), arg_names1)).AsClip();
 
 			const char* arg_names2[6] = { 0, 0, "lsp", "size", "text_color", "halo_color" };
-			AVSValue args2[6] = { resultClip1, AVSValue(errstream.str().c_str()), 10, 50, 0xFFFFFF, 0x000000 };
+			std::string message = errstream.str();
+			AVSValue args2[6] = { resultClip1, AVSValue(message.c_str()), 10, 50, 0xFFFFFF, 0x000000 };
 			PClip resultClip2 = (env->Invoke("Subtitle", AVSValue(args2, 6), arg_names2)).AsClip();
 			return resultClip2->GetFrame(n, env);
 		}

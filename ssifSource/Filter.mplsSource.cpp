@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Filter.mplsSource.hpp"
-#include "Tools.WinApi.hpp"
 #include "mplsReader.h"
+
+#include <common.h>
+#include <Tools.WinApi.hpp>
 
 #define FILTER_NAME "mplsSource"
 
@@ -51,19 +53,26 @@ namespace Filter {
 		flagMVC = false;
 
 		std::string mplsFilename = args[0].AsString();
-		std::string mplsPath = ExtractFilePath(mplsFilename);
-		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsPath + "..\\STREAM\\");
+		std::string mplsDir = ExtractFileDir(mplsFilename);
+		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsDir + "..\\STREAM\\");
 		if (IsDirectoryExists((ssifPath + "SSIF").c_str())) {
 			flagMVC = true;
 			ssifPath += "SSIF\\";
 		}
 
 		// parse playlist
-		mpls_file_t mpls_file = init_mpls(&mplsFilename[0]);
-		playlist_t playlist_base = create_playlist_t();
-		parse_stream_clips(&mpls_file, &playlist_base);
-		print_stream_clips_header(&playlist_base);
-		print_stream_clips(&playlist_base);
+		mpls_file_t mpls_file;
+		playlist_t playlist_base;
+		try {
+			mpls_file = init_mpls(&mplsFilename[0]);
+			playlist_base = create_playlist_t();
+			parse_stream_clips(&mpls_file, &playlist_base);
+			print_stream_clips_header(&playlist_base);
+			print_stream_clips(&playlist_base);
+		}
+		catch (std::exception& err) {
+			env->ThrowError("%s", err.what());
+		}
 
 		// swap views auto-detection
 		flagSwapViews = TEST(mpls_file.data[0x38], 0x10);
@@ -119,4 +128,12 @@ namespace Filter {
 		return AVSValue();
 	}
 
+}
+
+extern "C" void die(const char* filename, int line_number, const char * format, ...) {
+	va_list vargs;
+	va_start(vargs, format);
+	char buffer[256];
+	vsprintf_s(buffer, sizeof(buffer), format, vargs);
+	throw std::runtime_error(buffer);
 }

@@ -113,17 +113,6 @@ char *realpath(const char *path, char *resolved_path)
  */
 
 
-void
-die (const char* filename, int line_number, const char * format, ...)
-{
-    va_list vargs;
-    va_start (vargs, format);
-    fprintf (stderr, "%s:%d: ", filename, line_number);
-    vfprintf (stderr, format, vargs);
-    fprintf (stderr, "\n");
-    exit (EXIT_FAILURE);
-}
-
 double
 timecode_to_sec(int32_t timecode)
 {

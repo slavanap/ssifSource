@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 include(utils.cmake)
 
 project(ssifSource)
-include_directories(${PROJECT_SOURCE_DIR} thirdparty)
+include_directories( ${PROJECT_SOURCE_DIR} thirdparty )
+link_directories( ${PROJECT_SOURCE_DIR}/thirdparty/avisynth )
 
 if (MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -10,12 +11,21 @@ elseif(MINGW)
 	add_definitions(-D __MINGW_USE_VC2005_COMPAT)	# we need sizeof(time_t) == 8
 endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+#configure_msvc_runtime("static")
 
 add_definitions(-D _UNICODE)
 
-add_subdirectory(BaseClasses)
 add_subdirectory(CoreAVCWrapper)
+add_subdirectory(FilmTester)
+add_subdirectory(AvsTools)
+add_subdirectory(LoadHelper)
+
+add_subdirectory(thirdparty/BaseClasses)
 add_subdirectory(ssifSource)
+
+add_subdirectory(thirdparty/lua)
+add_subdirectory(thirdparty/tinyxml2)
+add_subdirectory(Sub3D)
 
 set(CPACK_GENERATOR NSIS)
 set(CPACK_PACKAGE_NAME "ssifSource")

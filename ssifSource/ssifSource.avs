@@ -3,7 +3,7 @@ SA_MUXER   = 1
 SA_DECODER = 2
 
 # function proto:
-
+#
 # ssifSource(
 #   string ssif_file,                                   # path to ssif file
 #   int frame_count,                                    # precise framecount
@@ -22,14 +22,11 @@ SA_DECODER = 2
 #   int height = 1080,                                  #    you should specify avc264 and/or mvc264 or muxed264 parameter then
 #   int stop_after = SA_DECODER                         # stop pipeline at any part (for dumping intermediate data)
 # );
-
+#
 # mplsSource(
 #   string mpls_file,               # path to mpls file
 #   int ssif_path,                  # path where ssif files is placed (isn't necessary, if you specify mpls file at bluray disc)
-#   ------------------------
-#   same as for ssifSource:         # these parameters below delivered unchanged to ssifSource function
-#   ------------------------
-#   bool left_view = true,
+#   bool left_view = true,			# same as for ssifSource: these parameters below delivered unchanged to ssifSource function
 #   bool right_view = true,
 #   bool horizontal_stack = false,
 #   bool swap_views = <autodetect>,
@@ -38,23 +35,30 @@ SA_DECODER = 2
 #   int use_ldecod = true,
 # );
 
-# WARNING!
-# 1. swap_views flag now applies even if one view is shown. It just swaps avc_view/mvc_view (left_view/right_view) values correctly.
-#    So, if you specify (avc_view = false & mvc_view = true & swap_views = true) -> avc_view will be shown!
-# 2. avc_view & mvc_view was renamed for mplsSource because of misleading rules.
-#    Now you can just leave swap_view unspecified and the correct view (left/right) will be showed according info about swapping on blu-ray disc.
-#    In framestack left view goes first (top or left). If you want AVC view, set left_view = true & swap_views = false.
+# mplsSource2(
+#   ------------------------
+#   same as for mplsSource
+#   ------------------------
+#	int width = 1920,				# frame size is required parameter for mplsSource2
+#	int height = 1080,
+# );
 
 # NOTICE:
-# * when mplsSource is used then the error message about what frame is should be decoded next displays incorrectly (it contains wrong frame number)
-# * all parameters combinations were not tested. Plugin may crash with wrong parameters
-# * not all mpls files may be processed correctly (see diagnostic info for what ssif(m2ts) files is used for playing mpls file).
-#   You can also try to set 'use_ldecod' parameter a different value if decoding fails.
+# 1. swap_views flag  applies even if one view is shown. It just swaps avc_view/mvc_view (left_view/right_view) values correctly.
+#    So, if you specify (avc_view = false & mvc_view = true & swap_views = true) -> avc_view will be shown!
+# 2. avc_view & mvc_view was renamed for mplsSource because of misleading rules.
+#    Now you can just leave swap_views unspecified and the correct view (left/right) will be showed according info about swapping on blu-ray disc.
+#    In framestack left view goes first (top or left). For example, if you want AVC view, set left_view = true & swap_views = false.
+# 3. when mplsSource is used the error message about what frame is should be decoded next contains wrong frame number.
+# 4. not all mpls files may be processed correctly (see diagnostic info for what ssif(m2ts) files is used for playing mpls file).
+# 5. You can also try to set 'use_ldecod' parameter a different value if decoding fails.
+# 6. mplsSource2 uses tsMuxer.exe instead MPEGSplitter_mod.ax
 
+LoadPlugin("c:\Program Files (x86)\ssifSource\bin\LoadHelper.dll")
+LoadPlugin("ssifSource.dll")
 
-LoadPlugin("c:\Users\Vyacheslav\Projects\Utils\ssifSource2\bin\ssifSource4.dll")
 #ssifSource("..\samples\ISO\BDMV\STREAM\SSIF\00001.ssif", 465)
+
 #mplsSource("..\samples\ISO\BDMV\PLAYLIST\00001.mpls", right_view = false)
 
-#ssifSource("d:\BDMV\PLAYLIST\00800.mpls", 108155, debug = true)
-mplsSource("x:\JRNY_CNTR_EARTH_3D_BLUEBIRD.iso|BDMV\PLAYLIST\00004.mpls")
+mplsSource2("f:\BDMV\PLAYLIST\00001.mpls", use_ldecod = true, width = 1920, height = 1080)

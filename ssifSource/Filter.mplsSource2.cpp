@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Filter.mplsSource2.hpp"
-#include "Tools.WinApi.hpp"
 #include "mplsReader.h"
+
+#include <common.h>
+#include <Tools.WinApi.hpp>
 
 #define FILTER_NAME "mplsSource2"
 
@@ -22,19 +24,26 @@ namespace Filter {
 		flagMVC = false;
 
 		std::string mplsFilename = args[0].AsString();
-		std::string mplsPath = ExtractFilePath(mplsFilename);
-		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsPath + "\\..\\STREAM\\");
+		std::string mplsDir = ExtractFileDir(mplsFilename);
+		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsDir + "..\\STREAM\\");
 		if (IsDirectoryExists((ssifPath + "SSIF").c_str())) {
 			flagMVC = true;
 			ssifPath += "SSIF\\";
 		}
 
-		// prepare playlist
-		mpls_file_t mpls_file = init_mpls(&mplsFilename[0]);
-		playlist_t playlist_base = create_playlist_t();
-		parse_stream_clips(&mpls_file, &playlist_base);
-		print_stream_clips_header(&playlist_base);
-		print_stream_clips(&playlist_base);
+		// parse playlist
+		mpls_file_t mpls_file;
+		playlist_t playlist_base;
+		try {
+			mpls_file = init_mpls(&mplsFilename[0]);
+			playlist_base = create_playlist_t();
+			parse_stream_clips(&mpls_file, &playlist_base);
+			print_stream_clips_header(&playlist_base);
+			print_stream_clips(&playlist_base);
+		}
+		catch (std::exception& err) {
+			env->ThrowError("%s", err.what());
+		}
 
 		std::stringstream muxedFilenamePart;
 		std::stringstream optionFileListPart;

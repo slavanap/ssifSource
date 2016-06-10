@@ -1,5 +1,8 @@
 #include "stdafx.h"
+#include "common.h"
 #include "Tools.WinApi.hpp"
+
+#include <ctime>
 
 namespace Tools {
 
@@ -8,22 +11,42 @@ namespace Tools {
 		HINSTANCE hInstance = nullptr;
 
 		enum {
-			PATH_BUFFER_LENGTH = 8192,
+			PATH_BUFFER_LENGTH = 16 * 1024,
 		};
 
-		void AddCurrentPathToPathEnv() {
-			std::wstring exe_filename(PATH_BUFFER_LENGTH, 0);
-			if (!GetModuleFileNameW(hInstance, &exe_filename[0], PATH_BUFFER_LENGTH))
-				throw std::exception("Can not retrieve program path");
+		tstring szLibraryPath;
+
+		void AddLibraryPathToPathEnv() {
+			szLibraryPath.resize(PATH_BUFFER_LENGTH, 0);
+			if (!GetModuleFileName(hInstance, &szLibraryPath[0], szLibraryPath.size()))
+				goto error;
 			size_t len;
-			StringCchLengthW(exe_filename.c_str(), PATH_BUFFER_LENGTH, &len);
-			while (len > 0 && exe_filename[len - 1] != '\\') --len;
+			if (FAILED(StringCchLength(&szLibraryPath[0], szLibraryPath.size(), &len)))
+				goto error;
+			while (len > 0 && szLibraryPath[len - 1] != '\\') --len;
 			if (len > 0) {
-				exe_filename[len - 1] = ';';
-				size_t path_len = GetEnvironmentVariableW(L"PATH", &exe_filename[len], PATH_BUFFER_LENGTH - len);
-				if (path_len <= PATH_BUFFER_LENGTH - len) {
-					SetEnvironmentVariableW(L"PATH", &exe_filename[0]);
-				}
+				szLibraryPath[len - 1] = ';';
+				size_t path_len = GetEnvironmentVariable(TEXT("PATH"), &szLibraryPath[len], szLibraryPath.size() - len);
+				if (path_len <= szLibraryPath.size() - len)
+					SetEnvironmentVariable(TEXT("PATH"), &szLibraryPath[0]);
+				szLibraryPath[len - 1] = '\\';
+			}
+			szLibraryPath.resize(len);
+			return;
+		error:
+			throw std::exception("Can not retrieve program path");
+		}
+
+		BOOL InitLibrary(HMODULE hModule) {
+			hInstance = hModule;
+			try {
+				AddLibraryPathToPathEnv();
+				srand((unsigned int)time(nullptr));
+				return TRUE;
+			}
+			catch (std::exception& e) {
+				MessageBoxA(HWND_DESKTOP, e.what(), nullptr, MB_ICONERROR | MB_OK);
+				return FALSE;
 			}
 		}
 
@@ -104,11 +127,18 @@ namespace Tools {
 			return res;
 		}
 
-		std::string ExtractFilePath(const std::string& fn) {
+		std::string ExtractFileDir(const std::string& fn) {
 			size_t pos = fn.rfind("\\");
 			if (pos == std::string::npos)
 				return std::string();
-			return std::string(fn.c_str(), pos);
+			return fn.substr(0, pos + 1);
+		}
+
+		std::string ExtractFileName(const std::string& fn) {
+			size_t pos = fn.rfind("\\");
+			if (pos == std::string::npos)
+				return fn;
+			return fn.substr(pos + 1);
 		}
 
 		bool IsDirectoryExists(LPCSTR szPath) {
@@ -193,6 +223,16 @@ namespace Tools {
 		ProcessHolder::~ProcessHolder() {
 			if (PI.hProcess != INVALID_HANDLE_VALUE)
 				TerminateProcess(PI.hProcess, 0);
+		}
+
+
+
+		size_t string_pos_max(size_t pos1, size_t pos2) {
+			if (pos1 == std::string::npos)
+				return pos2;
+			if (pos2 == std::string::npos)
+				return pos1;
+			return std::max(pos1, pos2);
 		}
 
 	}

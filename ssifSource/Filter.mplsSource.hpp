@@ -26,6 +26,7 @@ namespace Filter {
 		std::unique_ptr<AVSValue[]> pluginParamValues;
 
 		void ChangeCurrentFile(int new_idx, IScriptEnvironment* env);
+
 	};
 
 

@@ -45,7 +45,6 @@ extern "C" {
 
 
 #define DIE(...) die(__FILE__, __LINE__, __VA_ARGS__);
-#define ARRAY_SIZE(x)  (sizeof(x) / sizeof(x[0]))
 
 
 /*
