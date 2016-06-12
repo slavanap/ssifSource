@@ -1,3 +1,6 @@
 [submodule "thirdparty/Lua"]
 	path = thirdparty/Lua
 	url = https://github.com/slavanap/clone-Lua.git
+[submodule "thirdparty/JM"]
+	path = thirdparty/JM
+	url = https://github.com/slavanap/JM.git
