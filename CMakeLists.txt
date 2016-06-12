@@ -15,17 +15,17 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_definitions(-D _UNICODE)
 
+add_subdirectory(thirdparty)
+
 add_subdirectory(CoreAVCWrapper)
 add_subdirectory(FilmTester)
 add_subdirectory(AvsTools)
 add_subdirectory(LoadHelper)
-
-add_subdirectory(thirdparty/BaseClasses)
 add_subdirectory(ssifSource)
 
-add_subdirectory(thirdparty/lua)
-add_subdirectory(thirdparty/tinyxml2)
-add_subdirectory(Sub3D)
+if (EXISTS "${PROJECT_SOURCE_DIR}/Sub3D/CMakeLists.txt")
+	add_subdirectory(Sub3D)
+endif()
 
 set(CPACK_GENERATOR NSIS)
 set(CPACK_PACKAGE_NAME "ssifSource")

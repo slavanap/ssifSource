@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <Filter.Pipe.hpp>
 #include <Tools.WinApi.hpp>
+#include <Filter.CropDetect.hpp>
 
 #include "Filter.mplsSource.hpp"
 #include "Filter.mplsSource2.hpp"
@@ -30,6 +31,7 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("PipeReaderForHandle", Filter::Pipe::PipeReader::CreateForHandleParams, Filter::Pipe::PipeReader::CreateForHandle, nullptr);
 	env->AddFunction("PipeWriter", Filter::Pipe::PipeWriter::CreateParams, Filter::Pipe::PipeWriter::Create, nullptr);
 	env->AddFunction("PipeWriterForHandle", Filter::Pipe::PipeWriter::CreateForHandleParams, Filter::Pipe::PipeWriter::CreateForHandle, nullptr);
+	env->AddFunction("CropDetect", Filter::CropDetect::CreateParams, Filter::CropDetect::Create, nullptr);
 	env->AddFunction("ssifSource", Filter::ssifSource::CreateParams, Filter::ssifSource::Create, nullptr);
 	env->AddFunction("mplsSource", Filter::mplsSource::CreateParams, Filter::mplsSource::Create, nullptr);
 	env->AddFunction("mplsSource2", Filter::mplsSource2::CreateParams, Filter::mplsSource2::Create, nullptr);
