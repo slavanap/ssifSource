@@ -5,8 +5,6 @@
 #include <vector>
 #include <tchar.h>
 
-using namespace std;
-
 #define SPACES "                          "
 
 PClip clip;
@@ -19,9 +17,9 @@ BOOL CtrlHandler(DWORD fdwCtrlType) {
 		case CTRL_C_EVENT:
 		case CTRL_CLOSE_EVENT:
 			EnterCriticalSection(&cs);
-			dst = NULL;
-			prev_frame = NULL;
-			clip = NULL;
+			dst = nullptr;
+			prev_frame = nullptr;
+			clip = nullptr;
 			return FALSE;
 
 		default:
@@ -30,7 +28,6 @@ BOOL CtrlHandler(DWORD fdwCtrlType) {
 }
 
 int main(int argc, TCHAR* argv[]) {
-//	SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
 	SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
 
 	printf("Usage: filmtester <avs filename> [duplicates_maxlength=2]\n");
@@ -49,9 +46,9 @@ int main(int argc, TCHAR* argv[]) {
 	IScriptEnvironment *env = CreateScriptEnvironment();
 	_tprintf(_T("Loading \"%s\" ...\n"), argv[1]);
 
-	const char* arg_names[1] = {NULL};
-	AVSValue arg_vals[1] = {(LPCSTR)argv[1]};
-	clip = (env->Invoke("import", AVSValue(arg_vals,1), arg_names)).AsClip();
+	LPCSTR arg_names[1] = { nullptr };
+	AVSValue arg_vals[1] = { (LPCSTR)argv[1] };
+	clip = env->Invoke("import", AVSValue(arg_vals,1), arg_names).AsClip();
 
 	printf("AVS file loaded successfully.\n\n");
 
@@ -63,7 +60,7 @@ int main(int argc, TCHAR* argv[]) {
 		printf("num_frames: %d\n", vi.num_frames);
 		printf("fps: %d/%d\n", vi.fps_numerator, vi.fps_denominator);
 
-		string colorspace = "";
+		std::string colorspace;
 		if (vi.pixel_type & VideoInfo::CS_BGR) colorspace += "BGR, ";
 		if (vi.pixel_type & VideoInfo::CS_YUV) colorspace += "YUV, ";
 		if (vi.pixel_type & VideoInfo::CS_INTERLEAVED) colorspace += "INTERLEAVED, ";
@@ -71,7 +68,7 @@ int main(int argc, TCHAR* argv[]) {
 		if (colorspace.length() > 0) colorspace.erase(colorspace.length()-2);
 		printf("colorspace: %s\n", colorspace.c_str());
 
-		string colorformat = "";
+		std::string colorformat;
 		if (vi.pixel_type & VideoInfo::CS_BGR24) colorformat += "BGR24, ";
 		if (vi.pixel_type & VideoInfo::CS_BGR32) colorformat += "BGR32, ";
 		if (vi.pixel_type & VideoInfo::CS_YUY2)  colorformat += "YUY2, ";
@@ -83,7 +80,7 @@ int main(int argc, TCHAR* argv[]) {
 			colorformat = "UNKNOWN";
 		printf("colorformat: %s\n", colorformat.c_str());
 
-		string imagetype = "";
+		std::string imagetype;
 		if (vi.image_type & VideoInfo::IT_BFF) imagetype += "BFF, ";
 		if (vi.image_type & VideoInfo::IT_TFF) imagetype += "TFF, ";
 		if (vi.image_type & VideoInfo::IT_FIELDBASED)  imagetype += "FIELDBASED, ";
@@ -125,7 +122,7 @@ int main(int argc, TCHAR* argv[]) {
 	int error_count = 0;
 	int dup_start_frame = 0;
 	bool flag_dup = false;
-	vector<pair<int,int> > duplicates;
+	std::vector<std::pair<int, int>> duplicates;
 	for(int i=1; i<vi.num_frames; ++i) {
 		EnterCriticalSection(&cs);
 		dst = clip->GetFrame(i, env);
@@ -141,7 +138,7 @@ int main(int argc, TCHAR* argv[]) {
 			int length = (i-1) - dup_start_frame;
 			if (length >= duplicates_maxlength) {
 				printf("\rfilmtester: duplication interval: %d..%d" SPACES "\n", dup_start_frame, i-1);
-				duplicates.push_back(make_pair(dup_start_frame, i-1));
+				duplicates.push_back(std::make_pair(dup_start_frame, i-1));
 				error_count++;
 			}
 			flag_dup = false;
@@ -157,7 +154,7 @@ int main(int argc, TCHAR* argv[]) {
 		int length = (i-1) - dup_start_frame;
 		if (length >= duplicates_maxlength) {
 			printf("\rfilmtester: duplication interval: %d..%d" SPACES "\n", dup_start_frame, i-1);
-			duplicates.push_back(make_pair(dup_start_frame, i-1));
+			duplicates.push_back(std::make_pair(dup_start_frame, i-1));
 			error_count++;
 		}
 		flag_dup = false;
@@ -167,13 +164,13 @@ int main(int argc, TCHAR* argv[]) {
 	printf("\n");
 	if (error_count > 0) {
 		printf("Erroneous intervals (%d):\n", duplicates.size());
-		for(vector<pair<int,int> >::const_iterator it = duplicates.begin(); it != duplicates.end(); ++it)
+		for(auto it = duplicates.begin(); it != duplicates.end(); ++it)
 			printf("%5d .. %d\n", it->first, it->second);
 		printf("\n");
 	}
-	dst = NULL;
-	prev_frame = NULL;
-	clip = NULL;
+	dst = nullptr;
+	prev_frame = nullptr;
+	clip = nullptr;
 
 	LeaveCriticalSection(&cs);
 	DeleteCriticalSection(&cs);

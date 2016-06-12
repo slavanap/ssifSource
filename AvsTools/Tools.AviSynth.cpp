@@ -1,14 +1,12 @@
 #include "stdafx.h"
-#include "common.h"
 #include "Tools.AviSynth.hpp"
+#include "common.h"
 
 namespace Tools {
 	namespace AviSynth {
 
 		PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal) {
-			const char* arg_names[2] = { NULL, NULL };
-			AVSValue args[2] = { a, b };
-			return (env->Invoke(horizontal ? "StackHorizontal" : "StackVertical", AVSValue(args, 2), arg_names)).AsClip();
+			return AvsCall(env, horizontal ? "StackHorizontal" : "StackVertical", a, b).AsClip();
 		}
 
 		PVideoFrame FrameStack(IScriptEnvironment* env, VideoInfo& vi, PVideoFrame a, PVideoFrame b, bool horizontal) {
@@ -18,9 +16,7 @@ namespace Tools {
 		PClip ConvertToRGB32(IScriptEnvironment* env, PClip src) {
 			if (src->GetVideoInfo().IsRGB32())
 				return src;
-			const char* arg_names[1] = { NULL };
-			AVSValue args[1] = { src };
-			return env->Invoke("ConvertToRGB32", AVSValue(args, 1), arg_names).AsClip();
+			return AvsCall(env, "ConvertToRGB32", src).AsClip();
 		}
 
 		void ClipSplit(IScriptEnvironment* env, PClip source, PClip& left, PClip& right) {

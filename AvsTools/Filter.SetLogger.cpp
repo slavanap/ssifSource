@@ -1,12 +1,13 @@
 #include "stdafx.h"
-#include <avisynth/avisynth.h>
+#include "Filter.SetLogger.hpp"
 #include <io.h>
+#include <stdio.h>
 
 namespace Filter {
 
 	static int orig_stdout = _dup(1), orig_stderr = _dup(2);
 
-	LPCSTR SetLoggerParams = "[filename]s[console]b";
+	AvsParams SetLoggerParams = "[filename]s[console]b";
 
 	AVSValue __cdecl SetLogger(AVSValue args, void* user_data, IScriptEnvironment* env) {
 		bool console = args[1].AsBool(false);

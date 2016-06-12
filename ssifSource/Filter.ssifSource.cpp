@@ -19,9 +19,9 @@ namespace Filter {
 		FRAME_BLACK = -2,
 	};
 
-	ssifSource::ssifSource(const Params& creationParams) :
-		SourceFilterStub(VideoInfo())	// vi will be initialized in InitComplete function
-	{
+	ssifSource::ssifSource(const Params& creationParams) {
+		// Note, vi will be initialized in InitComplete function
+
 		params = creationParams;
 		try {
 			InitVariables();
@@ -106,11 +106,11 @@ namespace Filter {
 			params.right264Filename = foDept;
 		}
 
-		CoInitialize(NULL);
+		CoInitialize(nullptr);
 		HRESULT res = CreateGraph(
 			A2W(params.ssifFilename.c_str()),
 			A2W(fiBase.c_str()),
-			TEST(params.showParam, SP_RIGHTVIEW) ? A2W(fiDept.c_str()) : NULL,
+			TEST(params.showParam, SP_RIGHTVIEW) ? A2W(fiDept.c_str()) : nullptr,
 			pGraph, pSplitter);
 		if (FAILED(res))
 			throw std::runtime_error(format("Can't create graph. Error: %s (0x%08x)", 1024, GetErrorMessage(res).c_str(), res));
@@ -251,7 +251,7 @@ namespace Filter {
 		IGraphBuilder *pGraph = nullptr;
 		CComQIPtr<IBaseFilter> pSplitter;
 		CComQIPtr<IBaseFilter> pDumper1, pDumper2;
-		LPOLESTR lib_Splitter = T2OLE(&BinPathW[0]);
+		LPOLESTR lib_Splitter = &BinPathW[0];
 		const CLSID *clsid_Splitter = &CLSID_MpegSplitter;
 
 		WCHAR fullname_splitter[MAX_PATH + 64];
@@ -426,7 +426,7 @@ namespace Filter {
 
 
 
-	LPCSTR ssifSource::CreateParams =
+	AvsParams ssifSource::CreateParams =
 		"[ssif_file]s"
 		"[frame_count]i"
 		"[avc_view]b"

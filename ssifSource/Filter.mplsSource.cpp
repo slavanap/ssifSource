@@ -38,9 +38,9 @@ namespace Filter {
 		return currentClip->GetFrame(n - frameOffsets[idx], env);
 	}
 
-	mplsSource::mplsSource(IScriptEnvironment* env, AVSValue args) :
-		SourceFilterStub(VideoInfo())	// vi will be initialized at the end of constructor
-	{
+	mplsSource::mplsSource(IScriptEnvironment* env, AVSValue args) {
+		// Note, vi will be initialized at the end of constructor
+
 		// copy plug-in arguments for later usage
 		pluginParamValues.reset(new AVSValue[args.ArraySize()]);
 		for (int i = 0; i < args.ArraySize(); ++i)
@@ -107,7 +107,7 @@ namespace Filter {
 		currentClip = nullptr;
 	}
 
-	LPCSTR mplsSource::CreateParams =
+	AvsParams mplsSource::CreateParams =
 		"[mpls_file]s"
 		"[ssif_path]s"
 		"[left_view]b"

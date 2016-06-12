@@ -1,10 +1,11 @@
 #pragma once
+#include "Tools.AviSynth.hpp"
 
 namespace Filter {
 
 	class CropDetect : public GenericVideoFilter {
 	public:
-		static LPCSTR CreateParams;
+		static AvsParams CreateParams;
 		static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
 	protected:
 		void DetectForFrame(PVideoFrame vf, RECT* res);

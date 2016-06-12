@@ -1,7 +1,7 @@
 #include "stdafx.h"
+#include <Filter.CropDetect.hpp>
 #include <Filter.Pipe.hpp>
 #include <Tools.WinApi.hpp>
-#include <Filter.CropDetect.hpp>
 
 #include "Filter.mplsSource.hpp"
 #include "Filter.mplsSource2.hpp"

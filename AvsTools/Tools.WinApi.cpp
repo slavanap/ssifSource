@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "common.h"
 #include "Tools.WinApi.hpp"
 
+#include "common.h"
 #include <ctime>
 
 namespace Tools {
@@ -59,12 +59,12 @@ namespace Tools {
 		}
 
 		void ConsolePrintErrorA(LPSTR desc, DWORD code) {
-			if (desc == NULL)
+			if (desc == nullptr)
 				desc = "ERROR";
 			LPVOID lpMsgBuf;
-			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, code,
+			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, code,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(LPSTR)&lpMsgBuf, 0, NULL);
+				(LPSTR)&lpMsgBuf, 0, nullptr);
 			fprintf(stderr, "\n%s | 0x%.8x: %s\n", desc, code, (LPSTR)lpMsgBuf);
 			LocalFree(lpMsgBuf);
 		}
@@ -116,9 +116,9 @@ namespace Tools {
 
 		std::string GetErrorMessage(DWORD code) {
 			LPSTR lpMsgBuf;
-			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, code,
+			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, code,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(LPSTR)&lpMsgBuf, 0, NULL);
+				(LPSTR)&lpMsgBuf, 0, nullptr);
 			size_t len = strlen(lpMsgBuf);
 			if (lpMsgBuf[len - 2] == 13 && lpMsgBuf[len - 1] == 10)
 				lpMsgBuf[len - 2] = 0;

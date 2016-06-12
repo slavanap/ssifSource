@@ -14,7 +14,7 @@ namespace Filter {
 
 		PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env) override;
 
-		static LPCSTR CreateParams;
+		static AvsParams CreateParams;
 		static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
 
 	private:

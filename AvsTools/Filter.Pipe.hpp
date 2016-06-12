@@ -1,15 +1,16 @@
 #pragma once
+#include "Tools.AviSynth.hpp"
 
 namespace Filter {
 	namespace Pipe {
 
-		extern LPCSTR CreateReadPipeParams;
+		extern AvsParams CreateReadPipeParams;
 		AVSValue __cdecl CreateReadPipe(AVSValue args, void* user_data, IScriptEnvironment* env);
 
-		extern LPCSTR CreateWritePipeParams;
+		extern AvsParams CreateWritePipeParams;
 		AVSValue __cdecl CreateWritePipe(AVSValue args, void* user_data, IScriptEnvironment* env);
 
-		extern LPCSTR DestroyPipeParams;
+		extern AvsParams DestroyPipeParams;
 		AVSValue __cdecl DestroyPipe(AVSValue args, void* user_data, IScriptEnvironment* env);
 
 		class PipeWriter : public GenericVideoFilter {
@@ -20,9 +21,9 @@ namespace Filter {
 			PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env) override;
 
 			// AviSynth functions
-			static LPCSTR CreateParams;
+			static AvsParams CreateParams;
 			static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
-			static LPCSTR CreateForHandleParams;
+			static AvsParams CreateForHandleParams;
 			static AVSValue __cdecl CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env);
 		private:
 			HANDLE hPipe;
@@ -30,7 +31,7 @@ namespace Filter {
 			void WriteVideoInfoToPipe(IScriptEnvironment* env);
 		};
 
-		class PipeReader : public IClip {
+		class PipeReader : public Tools::AviSynth::SourceFilterStub {
 		public:
 			PipeReader(IScriptEnvironment* env, const std::string& pipe_name);
 			PipeReader(IScriptEnvironment* env, HANDLE hPipe);
@@ -39,21 +40,14 @@ namespace Filter {
 			PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env) override;
 
 			// AviSynth functions
-			static LPCSTR CreateParams;
+			static AvsParams CreateParams;
 			static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
-			static LPCSTR CreateForHandleParams;
+			static AvsParams CreateForHandleParams;
 			static AVSValue __cdecl CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env);
 			
-			// stubs
-			bool WINAPI GetParity(int n) { return false; }
-			void WINAPI GetAudio(void* buf, __int64 start, __int64 count, IScriptEnvironment* env) { }
-			const VideoInfo& WINAPI GetVideoInfo() { return vi; }
-			void WINAPI SetCacheHints(int cachehints, int frame_range) { }
-
 		private:
 			HANDLE hPipe;
 			bool flagClose;
-			VideoInfo vi;
 
 			void ReadVideoInfoFromPipe(IScriptEnvironment* env);
 		};

@@ -16,9 +16,10 @@ namespace Filter {
 	}
 
 	mplsSource2::mplsSource2(IScriptEnvironment* env, AVSValue args) :
-		SourceFilterStub(VideoInfo()),	// vi will be initialized at the end of constructor
 		proxyLeft(nullptr), proxyRight(nullptr)
 	{
+		// Note, this->vi will be initialized at the end of constructor
+
 		bool leftView = args[2].AsBool(true);
 		bool rightView = args[3].AsBool(true);
 		flagMVC = false;
@@ -139,7 +140,7 @@ namespace Filter {
 		process->Resume();
 	}
 
-	LPCSTR mplsSource2::CreateParams = 
+	AvsParams mplsSource2::CreateParams =
 		"[mpls_file]s"
 		"[ssif_path]s"
 		"[left_view]b"

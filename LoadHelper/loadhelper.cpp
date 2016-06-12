@@ -1,7 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <avisynth/avisynth.h>
-#include <string>
 #include <Tools.WinApi.hpp>
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
@@ -15,6 +13,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	}
 	return TRUE;
 }
+
+
+#include <avisynth/avisynth.h>
 
 extern "C" __declspec(dllexport)
 const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {

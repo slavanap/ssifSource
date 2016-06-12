@@ -1,4 +1,8 @@
 #pragma once
+#include <AviSynth/avisynth.h>
+#include <string>
+
+typedef const LPCSTR AvsParams;
 
 namespace Tools {
 	namespace AviSynth {
@@ -20,7 +24,7 @@ namespace Tools {
 
 		template<typename ... Args>
 		AVSValue AvsCall(IScriptEnvironment* env, const char* name, Args ... args) {
-			const char* arg_names[sizeof...(Args)] = { AvsNamedArg::GetName(args) ... };
+			LPCSTR arg_names[sizeof...(Args)] = { AvsNamedArg::GetName(args) ... };
 			AVSValue args[sizeof...(Args)] = { args ... };
 			return env->Invoke(name, AVSValue(args, sizeof...(Args)), arg_names);
 		}
@@ -29,9 +33,7 @@ namespace Tools {
 		// stub for AviSynth source video filters that doesn't support audio playback
 		class SourceFilterStub : public IClip {
 		public:
-			SourceFilterStub(const VideoInfo& vi) :
-				vi(vi)
-			{
+			SourceFilterStub() {
 				// empty
 			}
 			bool WINAPI GetParity(int n) override {
@@ -55,8 +57,9 @@ namespace Tools {
 		class FrameHolder : public SourceFilterStub {
 		public:
 			FrameHolder(const VideoInfo& vi, PVideoFrame vf) :
-				SourceFilterStub(vi), vf(vf)
+				vf(vf)
 			{
+				this->vi = vi;
 			}
 			PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env) override {
 				return vf;

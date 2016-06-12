@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Tools.AviSynth.hpp"
 #include "Filter.CropDetect.hpp"
 
 using namespace Tools::AviSynth;
@@ -117,7 +116,7 @@ namespace Filter {
 	}
 
 
-	LPCSTR CropDetect::CreateParams = "[src]c[outfile]s[threshold]i[detect_frames]i";
+	AvsParams CropDetect::CreateParams = "[src]c[outfile]s[threshold]i[detect_frames]i";
 
 	AVSValue CropDetect::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
 		PClip temp_clip = new CropDetect(env, args[0].AsClip(), args[1].AsString(), args[2].AsInt(24), args[3].AsInt(20));

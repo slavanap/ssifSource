@@ -79,7 +79,7 @@ namespace Tools {
 			hWrite2 = CreateNamedPipeA(name_write2, PIPE_ACCESS_OUTBOUND,
 				PIPE_TYPE_BYTE | PIPE_WAIT, 1, CLONE_BUFFER_SIZE, 0, NMPWAIT_USE_DEFAULT_WAIT, nullptr);
 			if (hWrite2 == INVALID_HANDLE_VALUE)
-				hWrite2 = CreateFileA(name_write2, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+				hWrite2 = CreateFileA(name_write2, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 			if (hRead == INVALID_HANDLE_VALUE || hWrite1 == INVALID_HANDLE_VALUE || hWrite2 == INVALID_HANDLE_VALUE) {
 				error = true;
 				return;
@@ -226,8 +226,8 @@ namespace Tools {
 		{
 			hRead = CreateNamedPipeA(name, PIPE_ACCESS_INBOUND | PIPE_ACCESS_OUTBOUND,
 				PIPE_TYPE_BYTE | PIPE_WAIT, 1, chunkSize * 10, chunkSize * 10, NMPWAIT_USE_DEFAULT_WAIT, nullptr);
-			heDataReady = CreateEvent(NULL, false, false, NULL);
-			heDataParsed = CreateEvent(NULL, false, true, NULL);
+			heDataReady = CreateEvent(nullptr, false, false, nullptr);
+			heDataParsed = CreateEvent(nullptr, false, true, nullptr);
 			buffer = new char[chunkSize];
 			if (hRead == INVALID_HANDLE_VALUE || heDataReady == nullptr || heDataParsed == nullptr || buffer == nullptr) {
 				error = true;
@@ -262,7 +262,7 @@ namespace Tools {
 
 		DWORD WINAPI FrameSeparator::ThreadProc(LPVOID param) {
 			FrameSeparator* object = (FrameSeparator*)param;
-			ConnectNamedPipe(object->hRead, NULL);
+			ConnectNamedPipe(object->hRead, nullptr);
 			while (!object->stopEvent) {
 				int want_read = object->chunkSize;
 				char *start = (char*)object->buffer;
@@ -271,7 +271,7 @@ namespace Tools {
 				int flag;
 				while (want_read > 0) {
 					DWORD did_read;
-					flag = ReadFile(object->hRead, start, want_read, &did_read, NULL);
+					flag = ReadFile(object->hRead, start, want_read, &did_read, nullptr);
 					if (!flag) {
 						DWORD code = GetLastError();
 						if (code != ERROR_BROKEN_PIPE)

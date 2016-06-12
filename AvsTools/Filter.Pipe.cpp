@@ -11,7 +11,7 @@ namespace Filter {
 
 	namespace Pipe {
 
-		LPCSTR CreateReadPipeParams = "[pipe_name]s";
+		AvsParams CreateReadPipeParams = "[pipe_name]s";
 
 		AVSValue __cdecl CreateReadPipe(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			LPCSTR pipe_name = args[0].AsString();
@@ -22,7 +22,7 @@ namespace Filter {
 			return (int)hPipe;
 		}
 
-		LPCSTR CreateWritePipeParams = "[pipe_name]s";
+		AvsParams CreateWritePipeParams = "[pipe_name]s";
 
 		AVSValue __cdecl CreateWritePipe(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			LPCSTR pipe_name = args[0].AsString();
@@ -33,7 +33,7 @@ namespace Filter {
 			return (int)hPipe;
 		}
 
-		LPCSTR DestroyPipeParams = "[pipe_cookie]i";
+		AvsParams DestroyPipeParams = "[pipe_cookie]i";
 
 		AVSValue __cdecl DestroyPipe(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			HANDLE hPipe = (HANDLE)args[0].AsInt();
@@ -81,12 +81,12 @@ namespace Filter {
 			return vf;
 		}
 
-		LPCSTR PipeWriter::CreateParams = "[pipe_name]s[clip]c";
+		AvsParams PipeWriter::CreateParams = "[pipe_name]s[clip]c";
 		AVSValue __cdecl PipeWriter::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			return new PipeWriter(env, args[1].AsClip(), args[0].AsString());
 		}
 		
-		LPCSTR PipeWriter::CreateForHandleParams = "[pipe_cookie]i[clip]c";
+		AvsParams PipeWriter::CreateForHandleParams = "[pipe_cookie]i[clip]c";
 		AVSValue __cdecl PipeWriter::CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			return new PipeWriter(env, args[1].AsClip(), reinterpret_cast<HANDLE>(args[0].AsInt()));
 		}
@@ -129,12 +129,12 @@ namespace Filter {
 			return vf;
 		}
 
-		LPCSTR PipeReader::CreateParams = "[pipe_name]s";
+		AvsParams PipeReader::CreateParams = "[pipe_name]s";
 		AVSValue __cdecl PipeReader::Create(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			return new PipeReader(env, args[0].AsString());
 		}
 
-		LPCSTR PipeReader::CreateForHandleParams = "[pipe_cookie]i";
+		AvsParams PipeReader::CreateForHandleParams = "[pipe_cookie]i";
 		AVSValue __cdecl PipeReader::CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			return new PipeReader(env, reinterpret_cast<HANDLE>(args[0].AsInt()));
 		}

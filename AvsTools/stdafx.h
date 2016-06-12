@@ -6,9 +6,6 @@
 #include <windows.h>
 #include <strsafe.h>
 
-// AviSynth reference
-#include <AviSynth\avisynth.h>
-
 // STD references
 #include <string>
 #include <algorithm>

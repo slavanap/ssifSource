@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Tools {
 
 	namespace WinApi {
@@ -9,7 +11,7 @@ namespace Tools {
 #ifdef UNICODE
 		typedef std::wstring tstring;
 #else
-		typedef std::string string;
+		typedef std::string tstring;
 #endif
 
 		extern tstring szLibraryPath;
