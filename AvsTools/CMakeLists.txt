@@ -5,9 +5,11 @@ set(HEADERS
 	
 	Filter.CropDetect.hpp
 	Filter.Pipe.hpp
+	Filter.RestoreAlpha.hpp
 	Filter.SequentialToSeekable.hpp
 	Filter.SetLogger.hpp
 	Tools.AviSynth.hpp
+	Tools.AviSynth.Frame.hpp
 	Tools.Pipe.hpp
 	Tools.WinApi.hpp
 )
@@ -15,9 +17,11 @@ set(HEADERS
 set(SOURCES
 	Filter.CropDetect.cpp
 	Filter.Pipe.cpp
+	Filter.RestoreAlpha.cpp
 	Filter.SequentialToSeekable.cpp
 	Filter.SetLogger.cpp
 	Tools.AviSynth.cpp
+	Tools.AviSynth.Frame.cpp
 	Tools.Pipe.cpp
 	Tools.WinApi.cpp
 )

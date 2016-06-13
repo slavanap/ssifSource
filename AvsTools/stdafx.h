@@ -7,5 +7,7 @@
 #include <strsafe.h>
 
 // STD references
-#include <string>
 #include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <string>

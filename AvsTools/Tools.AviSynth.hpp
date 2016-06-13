@@ -12,7 +12,7 @@ namespace Tools {
 			AVSValue value;
 			LPCSTR name;
 			AvsNamedArg(LPCSTR name, AVSValue value) : name(name), value(value) { }
-			operator AVSValue() { return value; }
+			operator AVSValue() const { return value; }
 
 			template<typename T> static LPCSTR GetName(T v) {
 				return nullptr;
