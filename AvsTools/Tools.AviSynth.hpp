@@ -74,7 +74,7 @@ namespace Tools {
 		}
 
 		PClip ClipStack(IScriptEnvironment* env, PClip a, PClip b, bool horizontal);
-		PVideoFrame FrameStack(IScriptEnvironment* env, VideoInfo& vi, PVideoFrame a, PVideoFrame b, bool horizontal);
+		PVideoFrame FrameStack(IScriptEnvironment* env, const VideoInfo& vi, PVideoFrame a, PVideoFrame b, bool horizontal);
 		PClip ConvertToRGB32(IScriptEnvironment* env, PClip src);
 		void ClipSplit(IScriptEnvironment* env, PClip source, PClip& left, PClip& right);
 		void CheckVideoInfo(IScriptEnvironment* env, const VideoInfo& svi, const VideoInfo& tvi);

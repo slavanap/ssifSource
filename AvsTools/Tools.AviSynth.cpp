@@ -9,7 +9,7 @@ namespace Tools {
 			return AvsCall(env, horizontal ? "StackHorizontal" : "StackVertical", a, b).AsClip();
 		}
 
-		PVideoFrame FrameStack(IScriptEnvironment* env, VideoInfo& vi, PVideoFrame a, PVideoFrame b, bool horizontal) {
+		PVideoFrame FrameStack(IScriptEnvironment* env, const VideoInfo& vi, PVideoFrame a, PVideoFrame b, bool horizontal) {
 			return ClipStack(env, new FrameHolder(vi, a), new FrameHolder(vi, b), horizontal)->GetFrame(0, env);
 		}
 
