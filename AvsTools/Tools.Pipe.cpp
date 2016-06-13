@@ -268,7 +268,7 @@ namespace Tools {
 				char *start = (char*)object->buffer;
 				WaitForSingleObject(object->heDataParsed, INFINITE);
 				ResetEvent(object->heDataParsed);
-				int flag;
+				int flag = TRUE;
 				while (want_read > 0) {
 					DWORD did_read;
 					flag = ReadFile(object->hRead, start, want_read, &did_read, nullptr);

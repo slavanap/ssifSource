@@ -106,7 +106,8 @@ namespace Filter {
 			params.right264Filename = foDept;
 		}
 
-		CoInitialize(nullptr);
+		if (FAILED(CoInitialize(nullptr)))
+			throw std::runtime_error("CoInitialize call retuned an error");
 		HRESULT res = CreateGraph(
 			A2W(params.ssifFilename.c_str()),
 			A2W(fiBase.c_str()),
@@ -258,7 +259,8 @@ namespace Filter {
 		size_t len;
 		if (GetModuleFileNameW(hInstance, fullname_splitter, MAX_PATH) == 0)
 			return E_UNEXPECTED;
-		StringCchLengthW(fullname_splitter, MAX_PATH, &len);
+		if (FAILED(StringCchLengthW(fullname_splitter, MAX_PATH, &len)))
+			return E_UNEXPECTED;
 		while (len > 0 && fullname_splitter[len - 1] != '\\') --len;
 		fullname_splitter[len] = '\0';
 		StringCchCatW(fullname_splitter, MAX_PATH + 64, lib_Splitter);

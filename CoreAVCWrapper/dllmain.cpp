@@ -65,7 +65,7 @@ lerror:
 	return E_UNEXPECTED;
 }
 
-STDAPI DllGetClassObject(__in REFCLSID rclsid, __in REFIID riid, LPVOID FAR* ppv) {
+STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID FAR* ppv) {
 	HRESULT hr = fpGetClassObject(rclsid, riid, ppv);
 	if (hr != S_OK)
 		return hr;
