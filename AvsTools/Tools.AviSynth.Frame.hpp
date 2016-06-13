@@ -42,6 +42,9 @@ namespace Tools {
 				bool operator==(const Pixel& other) const {
 					return (toUInt() & 0xFFFFFF) == (other.toUInt() & 0xFFFFFF);
 				}
+				int GetBrightness() const {
+					return ColorLimits((299 * (int)r + 587 * (int)g + 114 * (int)b) / 1000);
+				}
 			};
 #pragma pack(pop)
 
@@ -146,13 +149,21 @@ namespace Tools {
 			ConstIterator cend() const { return ConstIterator(*this); }
 
 			const Pixel& read(int x, int y) const {
-				return reinterpret_cast<const Pixel*>(m_read_ptr + get_real_y(y) * m_pitch)[x];
-			}
-			const Pixel& read_raw(int x, int y) const {
-				return reinterpret_cast<const Pixel*>(m_read_ptr + y * m_pitch)[x];
+				return read_row(y)[x];
 			}
 			Pixel& write(int x, int y) {
-				return reinterpret_cast<Pixel*>(m_write_ptr + get_real_y(y) * m_pitch)[x];
+				return write_row(y)[x];
+			}
+
+			inline const Pixel* read_row(int y) const {
+				return reinterpret_cast<const Pixel*>(m_read_ptr + get_real_y(y) * m_pitch);
+			}
+			inline Pixel* write_row(int y) {
+				return reinterpret_cast<Pixel*>(m_write_ptr + get_real_y(y) * m_pitch);
+			}
+
+			const Pixel& read_raw(int x, int y) const {
+				return reinterpret_cast<const Pixel*>(m_read_ptr + y * m_pitch)[x];
 			}
 			Pixel& write_raw(int x, int y) {
 				return reinterpret_cast<Pixel*>(m_write_ptr + y * m_pitch)[x];
