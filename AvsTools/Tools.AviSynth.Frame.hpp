@@ -212,7 +212,7 @@ namespace Tools {
 		}
 
 		inline bool Frame::Iterator::operator!=(const Iterator& other) const {
-			return x != other.x || y != other.y || &image != &other.image;
+			return x != other.x || y != other.y;
 		}
 
 		inline Frame::Iterator::Iterator(Frame& image, int x, int y) :
@@ -245,7 +245,7 @@ namespace Tools {
 		}
 
 		inline bool Frame::ConstIterator::operator!=(const ConstIterator& other) const {
-			return x != other.x || y != other.y /*|| &image != &other.image*/;
+			return x != other.x || y != other.y;
 		}
 
 		inline Frame::ConstIterator::ConstIterator(const Frame& image, int x, int y) :
