@@ -1,4 +1,5 @@
-project(ssifSource)
+project(ssifSource VERSION ${ssifSource_VERSION})
+make_version_file(${PROJECT_VERSION} "AviSynth plugin for ssif & mpls files decoding")
 
 include_directories(
 	${BASECLASSES_INCLUDE_DIR}
