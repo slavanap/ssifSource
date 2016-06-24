@@ -36,10 +36,7 @@ add_subdirectory(FilmTester)
 add_subdirectory(AvsTools)
 add_subdirectory(LoadHelper)
 add_subdirectory(ssifSource)
-
-if (EXISTS "${PROJECT_SOURCE_DIR}/Sub3D/CMakeLists.txt")
-	add_subdirectory(Sub3D)
-endif()
+add_subdirectory(Sub3D)
 
 set(CPACK_GENERATOR NSIS)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${PROJECT_NAME})
