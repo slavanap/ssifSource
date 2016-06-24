@@ -5,5 +5,5 @@
 	path = thirdparty/JM
 	url = https://github.com/slavanap/JM.git
 [submodule "Sub3D"]
-	path = Sub3D
+	path = proprietary
 	url = p:/sub3d
