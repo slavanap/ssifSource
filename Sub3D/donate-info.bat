@@ -1,0 +1,1 @@
+rundll32 "%~dp0\sub3d.dll",_Donate@16

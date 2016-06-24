@@ -1,0 +1,56 @@
+Version 1.009 - 05/28/16 - alpha
+	* added "progress" boolean parameter to CalcSRTDepths function to show processing progress in console
+
+Version 1.008 - 01/29/16 - alpha
+	* added donation info page
+
+Version 1.007 - 01/09/16 - alpha
+	* SetConfThreshold function removed (was buggy in case of mean_depth&mean_conf measuments).
+	  Added CalcForFrameRaw(threshold) function instead. See sub3d.lua for reference. threshold = 0.0 if not specified.
+	  CalcForFrameRaw() returns nil in case of no values 
+	* Confidence value measurement scaled a little bit. 0.0 confidence -> 0.5. More gradations added.
+	* New Lua function added - GetFrameRawData() - returning raw depths information.
+	  See debug printings that was added to sub3d.lua for reference.
+	* Changed CalcForFrame return value interpretation (now no return value) and deleted last parameter from CalcForSub
+	  function. 'depth' values retriving still possible via global variable.
+
+Version 1.006 - 01/04/16 - alpha
+	* tools3d.avsi added with useful format conversion functions
+	* mean_depth in lua now number value (not integer)
+	* added SetConfThreshold lua function (for usage see sub3d.lua)
+	* confidence now is value between 0 and 1.
+
+Version 1.005 - 12/22/15 - alpha
+	* documentation in sub3d.avs cleanup (thanks to r0lZ)
+	* added new global variables to Lua (see sub3d.lua)
+	* added ability to write .ofs format (see sub3d.lua)
+	* SetLogger now restores original handles if called with default parameters
+
+Version 1.004 - 12/21/15 - alpha
+	* fixed a bug when SetDepthComputationAlg function did not work
+	* fixed a bug when depths in xml were divided by 2
+	* fixed a bug in sub3d-old.lua when it did not work
+	* filmtester.exe tool added to render your avs files
+	* example code to use .avs for depth calculations only added into sub3d.avs
+
+Version 1.003 - 12/20/15 - alpha
+	* "Restore Alpha" algorithm implemented. Now you can use this technique with any subtitle rendering engine (see sub3d-3.avs example).
+	* 'masksub' optional parameter added for CalcSRTDepths & RenderSRT functions (see sub3d-3.avs where it's used).
+	* Both vsfilter dlls added to the package:
+		* VSFilter.klite.dll aka xy-vsfilter. Renders srt/ass subs. Has issues with accent symbols
+		* VSFilter.mpc.dll aka DirectVobSub (MPC filter). Rejects to render .srt files. Renders .ass even with accent symbols
+	* Depth rounding unification (see sub3d.lua: (depth + 1) / 2) among all algorithms.
+	* OpenMP optimization tuning.
+
+Version 1.002 - 12/19/15 - prerelease
+	* fixed 3d planes generation algorithm to generate planes according standart (see sub3d.lua)
+	* confidence values added to CalcForFrame
+	* .depths format changed! It is not compatible with previous one. Moreover, additional info added at the end of file
+	* sub3d-old.lua added with old subtitle depth calculation formula
+	* minor speed-ups
+
+Version 1.001 - 12/19/15 - prerelease
+	* fixed lengthinframes value in CalcForSub lua function (it was lastframe instead lengthinframes)
+	* added FRAME_COUNT global lua value
+	* added OnFinish function support (presence of this function is not necessary). It is called after all calculations performed.
+	* example writing 3D planes bin file (see sub3d.lua)
