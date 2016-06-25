@@ -113,7 +113,7 @@ namespace Filter {
 			m_depthsLoaded(false)
 		{
 			if (!vi.IsRGB32())
-				env->ThrowError("plugin supports RGB32 input only");
+				throw std::runtime_error("plugin supports RGB32 input only");
 
 			// Try to load .depths file
 			m_depthsFile = srtfile + ".depths";
@@ -205,7 +205,7 @@ namespace Filter {
 				f << "# sub file: " << m_srtFile << std::endl;
 			}
 			else
-				env->ThrowError("Can't open .depths file '%s' for write", m_depthsFile.c_str());
+				throw std::runtime_error("Can't open .depths file \"" + m_depthsFile + "\" for write");
 		}
 
 

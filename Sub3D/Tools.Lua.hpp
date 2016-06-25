@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <Tools.AviSynth.hpp>		// only for AvsParams
+
 struct lua_State;
 
 namespace Tools {
@@ -52,7 +54,7 @@ namespace Tools {
 			static int luaGetFrameRawData(lua_State* L);
 		};
 
-		extern LPCSTR SetLuaFileParams;
+		extern AvsParams SetLuaFileParams;
 		AVSValue SetLuaFile(AVSValue args, void* user_data, IScriptEnvironment* env);
 
 	}

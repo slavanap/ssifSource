@@ -28,7 +28,9 @@ using namespace Tools::Motion;
 namespace Tools {
 	namespace Depth {
 
-		Estimator::Estimator(std::shared_ptr<Lua::Script> script) : m_script(script) {
+		Estimator::Estimator(std::shared_ptr<Lua::Script> script) :
+			m_script(script)
+		{
 			startFrame = -1;
 			lastFrame = -1;
 		}
@@ -68,11 +70,3 @@ namespace Tools {
 
 	}
 }
-
-
-
-#if 0
-
-
-
-#endif

@@ -1,9 +1,32 @@
+// 3D subtitle rendering tool
+// Copyright 2016 Vyacheslav Napadovsky.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 #include "stdafx.h"
 #include "Tools.Motion.hpp"
 #include <common.h>
 
 namespace Tools {
 	namespace Motion {
+
+		using Tools::AviSynth::Frame;
 
 		enum {
 			BLOCK_COMPARE_SIZE = BLOCK_SIZE,
@@ -180,9 +203,9 @@ namespace Tools {
 
 		double GetRealConfidence(const Vector& mv) {
 			double c = (double)mv.confidence / (
-				Frame::ColorCount			// color - color
-				* 3							// 3 color components
-				* BLOCK_COMPARE_SIZE		// loop over block sz * sz
+				Frame::ColorCount           // color - color
+				* 3                         // 3 color components
+				* BLOCK_COMPARE_SIZE        // loop over block sz * sz
 				* BLOCK_COMPARE_SIZE
 				);
 			return std::max(0.0, std::min(1.0 - c, 1.0));
@@ -195,7 +218,7 @@ namespace Tools {
 namespace Tools {
 	namespace Motion {
 
-		void Estimate(const Tools::AviSynth::Frame& from, Tools::AviSynth::Frame& to, Map& result, const Array2D<char>& mask) {
+		void Estimate(const Frame& from, Frame& to, Map& result, const Array2D<char>& mask) {
 			PrepareFrames(from, to);
 			Map m(result);
 			Estimation(from, to, m, result, mask);

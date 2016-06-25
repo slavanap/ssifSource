@@ -70,8 +70,8 @@ namespace Filter {
 		std::map<int, xEvent>::const_iterator loaded_image_it;
 		
 		PClip overlayed_image;
-		int time2framenum(const char* time);
-		int str2number(tinyxml2::XMLElement* elem, const char* attr);
+		int time2framenum(const char* time) const;
+		int str2number(tinyxml2::XMLElement* elem, const char* attr) const;
 
 	};
 

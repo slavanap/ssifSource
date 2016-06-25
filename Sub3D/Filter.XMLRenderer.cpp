@@ -33,19 +33,19 @@ using namespace Tools::Motion;
 
 namespace Filter {
 
-	int XMLRenderer::time2framenum(const char* time) {
+	int XMLRenderer::time2framenum(const char* time) const {
 		int h, m, s, f;
 		if (sscanf_s(time, "%2d:%2d:%2d:%2d", &h, &m, &s, &f) != 4)
-			env->ThrowError("invalid time format in xml file");
+			throw std::runtime_error("invalid time format in xml file");
 		s += m * 60 + h * 3600;
 		f += (s * vi.fps_numerator) / vi.fps_denominator;
 		return f;
 	}
 
-	int XMLRenderer::str2number(tinyxml2::XMLElement* elem, const char* attr) {
+	int XMLRenderer::str2number(tinyxml2::XMLElement* elem, const char* attr) const {
 		int i;
 		if (elem->QueryIntAttribute(attr, &i) != tinyxml2::XML_NO_ERROR)
-			env->ThrowError("invalid number format in xml file");
+			throw std::runtime_error("invalid number format in xml file");
 		return i;
 	}
 
@@ -61,13 +61,13 @@ namespace Filter {
 		m_xmlfile(xmlfile)
 	{
 		if (!vi.IsRGB32())
-			env->ThrowError("plugin supports only RGB32 input");
+			throw std::runtime_error("plugin supports only RGB32 input");
 
 		graphics_path = ExtractFileDir(xmlfile);
 		std::string xmlnameonly = ExtractFileName(xmlfile);
 
 		if (xml.LoadFile(xmlfile.c_str()) != tinyxml2::XML_NO_ERROR)
-			env->ThrowError("Can't open xml file \"%s\"", xmlfile.c_str());
+			throw std::runtime_error("Can't open xml file \"" + xmlfile + "\"");
 		for (tinyxml2::XMLElement *xml_event = xml.FirstChildElement("BDN")->FirstChildElement("Events")->FirstChildElement("Event"); xml_event != nullptr; xml_event = xml_event->NextSiblingElement("Event")) {
 			xEvent event;
 			event.in_frame = time2framenum(xml_event->Attribute("InTC"));
@@ -172,7 +172,7 @@ namespace Filter {
 			else
 				--it;
 		}
-		const xEvent& sub_desc = it->second;
+		const xEvent &sub_desc = it->second;
 		if (n >= sub_desc.out_frame || (m_forcedOnly && !sub_desc.forced)) {
 		nosub:
 			return frame;

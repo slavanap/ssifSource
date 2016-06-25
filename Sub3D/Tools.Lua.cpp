@@ -231,13 +231,22 @@ namespace Tools {
 			lua_pushinteger(L, lengthInFrames);
 			if (!pcall(2, 1))
 				throw std::runtime_error("Call to CalcForSub failed");
-			if (lua_isnil(L, -1))
-				return false;
-			int isnum;
-			depth = (int)lua_tointegerx(L, -1, &isnum);
-			if (!isnum)
-				throw std::runtime_error("The value returned by CalcForSub is not a number");
-			return true;
+			bool ret = false;
+			try {
+				if (!lua_isnil(L, -1)) {
+					ret = true;
+					int isnum;
+					depth = (int)lua_tointegerx(L, -1, &isnum);
+					if (!isnum)
+						throw std::runtime_error("The value returned by CalcForSub is not a number");
+				}
+			}
+			catch (...) {
+				lua_pop(L, 1);
+				throw;
+			}
+			lua_pop(L, 1);
+			return ret;
 		}
 
 		void Script::OnFinish() {
@@ -250,7 +259,7 @@ namespace Tools {
 
 
 
-		LPCSTR SetLuaFileParams = "[luafile]s";
+		AvsParams SetLuaFileParams = "[luafile]s";
 
 		AVSValue SetLuaFile(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			Script::SetLuaFile(args[0].AsString());

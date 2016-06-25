@@ -106,10 +106,7 @@ namespace Tools {
 
 		typedef Array2D<Vector> Map;
 
-		using Tools::AviSynth::Frame;
-
-		void Estimate(const Frame& from, Frame& to, Map& result, const Array2D<char>& mask);
-
+		void Estimate(const AviSynth::Frame& from, AviSynth::Frame& to, Map& result, const Array2D<char>& mask);
 		double GetRealConfidence(const Vector& mv);
 
 	}
