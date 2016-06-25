@@ -37,6 +37,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 
 #include <Tools.AviSynth.hpp>
+#include <Tools.HistogramMatching.hpp>
+#include <Filter.CropDetect.hpp>
 #include <Filter.SequentialToSeekable.hpp>
 #include <Filter.SetLogger.hpp>
 #include "Filter.XMLRenderer.hpp"
@@ -47,14 +49,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 // AviSynth functions registration
 extern "C" __declspec(dllexport)
 const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
-	env->AddFunction("SequentialToSeekable", Filter::SequentialToSeekable::CreateParams, Filter::SequentialToSeekable::Create, nullptr);
-	env->AddFunction("SetLogger", Filter::SetLoggerParams, Filter::SetLogger, nullptr);
+	// Sub3D
+	env->AddFunction("CalcSRTDepths", Filter::SRTRenderer::Renderer::CalculateParams, Filter::SRTRenderer::Renderer::Calculate, nullptr);
 	env->AddFunction("CalcXMLDepths", Filter::XMLRenderer::CalculateParams, Filter::XMLRenderer::Calculate, nullptr);
 	env->AddFunction("RenderXML", Filter::XMLRenderer::RenderParams, Filter::XMLRenderer::Render, nullptr);
-	env->AddFunction("CalcSRTDepths", Filter::SRTRenderer::Renderer::CalculateParams, Filter::SRTRenderer::Renderer::Calculate, nullptr);
 	env->AddFunction("RenderSRT", Filter::SRTRenderer::Renderer::RenderParams, Filter::SRTRenderer::Renderer::Render, nullptr);
 	env->AddFunction("RestoreAlpha", Filter::RestoreAlpha::CreateParams, Filter::RestoreAlpha::Create, nullptr);
 	env->AddFunction("SetDepthComputationAlg", Tools::Lua::SetLuaFileParams, Tools::Lua::SetLuaFile, nullptr);
+	env->AddFunction("SetLogger", Filter::SetLoggerParams, Filter::SetLogger, nullptr);
+	// Tools
+	env->AddFunction("CropDetect", Filter::CropDetect::CreateParams, Filter::CropDetect::Create, nullptr);
+	env->AddFunction("HistogramMatching", Filter::HistogramMatching::CreateParams, Filter::HistogramMatching::Create, nullptr);
+	env->AddFunction("SequentialToSeekable", Filter::SequentialToSeekable::CreateParams, Filter::SequentialToSeekable::Create, nullptr);
+
 	return nullptr;
 }
 

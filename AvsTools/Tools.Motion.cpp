@@ -1,4 +1,4 @@
-// 3D subtitle rendering tool
+// Motion estimation algorithm
 // Copyright 2016 Vyacheslav Napadovsky.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +21,7 @@
 
 #include "stdafx.h"
 #include "Tools.Motion.hpp"
-#include <common.h>
+#include "common.h"
 
 namespace Tools {
 	namespace Motion {

@@ -10,7 +10,6 @@ set(HEADERS
 	Filter.XMLRenderer.hpp
 	Tools.Depth.hpp
 	Tools.Lua.hpp
-	Tools.Motion.hpp
 
 	resource.h
 )
@@ -20,17 +19,10 @@ set(SOURCES
 	Filter.XMLRenderer.cpp
 	Tools.Depth.cpp
 	Tools.Lua.cpp
-	Tools.Motion.cpp
 
 	dllmain.cpp
 	sub3d.rc
 )
-
-if (EXISTS "${CMAKE_SOURCE_DIR}/proprietary/Tools.Motion.Proprietary.hpp")
-	add_definitions(-D MOTION_PROPRIETARY)
-	include_directories("${CMAKE_SOURCE_DIR}/proprietary")
-	list(APPEND HEADERS "${CMAKE_SOURCE_DIR}/proprietary/Tools.Motion.Proprietary.hpp")
-endif()
 
 set_precompiled_header(stdafx.h stdafx.cpp)
 

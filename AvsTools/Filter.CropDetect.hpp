@@ -16,4 +16,5 @@ namespace Filter {
 			return lum / (scale * 1000) >= m_threshold;
 		}
 	};
+
 }
