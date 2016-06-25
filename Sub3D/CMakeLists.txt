@@ -1,4 +1,4 @@
-project(Sub3D VERSION "1.0.1")
+project(Sub3D VERSION "1.0.2")
 make_version_file(${PROJECT_VERSION} "3D subtitles renderer")
 
 include_directories(

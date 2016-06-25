@@ -1,7 +1,7 @@
 This project contains a collection of plugins I've developed in 4 years.
 
 * ssifSource - for reading BD3D,
-* Sub3D - for rendering 3D subtitles and estimating they depth (recently closed-source),
+* Sub3D - for rendering 3D subtitles and estimating they depth (partially closed-source),
 * LoadHelper - for easy loading AviSynth plugins that requires additional .dll files,
 * FilmTester - for reading through .avs file frame by frame (without a need of encoding with x264, for example),
 * and others. 
