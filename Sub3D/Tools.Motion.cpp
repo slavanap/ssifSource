@@ -34,10 +34,6 @@ namespace Tools {
 			STARTPATTERN = 2,
 		};
 
-		static inline int sqr(int x) {
-			return x*x;
-		}
-
 		struct IntPixel {
 			int r, g, b;
 
@@ -196,15 +192,15 @@ namespace Tools {
 				for (int x = 0; x < BLOCK_COMPARE_SIZE; ++x) {
 					IntPixel temp = from.read(pixel_x + v.dx + x, pixel_y + v.dy + y);
 					temp -= to.read(pixel_x + x, pixel_y + y);
-					v.confidence += sqr(abs(temp.r) + abs(temp.g) + abs(temp.b));
+					v.confidence += abs(temp.r) + abs(temp.g) + abs(temp.b);
 				}
 			}
 		}
 
 		double GetRealConfidence(const Vector& mv) {
 			double c = (double)mv.confidence / (
-				Frame::ColorCount           // color - color
-				* 3                         // 3 color components
+				Frame::ColorCount           // abs(color - color)
+				* 3                         // 3 components
 				* BLOCK_COMPARE_SIZE        // loop over block sz * sz
 				* BLOCK_COMPARE_SIZE
 				);

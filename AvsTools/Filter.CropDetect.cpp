@@ -23,7 +23,7 @@ namespace Filter {
 		fclose(f);
 	}
 
-	int GetLuminance(const Frame::Pixel& pixel) {
+	static inline int GetLuminance(const Frame::Pixel& pixel) {
 		return (257 * (int)pixel.r) + (504 * (int)pixel.g) + (98 * (int)pixel.b);
 	}
 

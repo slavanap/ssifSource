@@ -90,7 +90,7 @@ namespace Filter {
 	{
 		int colors[SAMPLES] = { 0x404040, 0x808080, 0xC0C0C0 };
 		for (int i = 0; i < ARRAY_SIZE(colors); ++i) {
-			bkcolor[i] = *reinterpret_cast<Frame::Pixel*>(&colors[i]);
+			bkcolor[i].toUInt() = (uint32_t)colors[i];
 			clipOverlay[i] = AvsCall(env, funcname.c_str(),
 				AvsCall(env, "BlankClip", reference, AvsNamedArg("color", colors[i]))).AsClip();
 			CheckVideoInfo(env, vi, clipOverlay[i]->GetVideoInfo());
