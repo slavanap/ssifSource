@@ -15,6 +15,7 @@ This project contains a collection of plugins I've developed in 4 years.
 
 **FilmTester** simple tool that tests .avs file for readability.
 
-**Additinally** ssifSource & Sub3D plugins contains some other interesing functions:
+**Additinally** Sub3D plugin contains some other interesing functions:
 * *CropDetect* - detects a clipbox of video and generates .avsi file for easy cropping.
 * *SequentialToSeekable* - converts any AviSynth plugin that outputs its result sequentially to a seekable plugin. Beware, if you seek backwards, the dependent plugin will be reloaded because seeking is emulated and thus slow.
+* *HistogramMatching* - tries to make color histogram of input clip similar to reference clip frame by frame
