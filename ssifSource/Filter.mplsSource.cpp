@@ -156,5 +156,9 @@ extern "C" void die(const char* filename, int line_number, const char * format, 
 	va_start(vargs, format);
 	char buffer[256];
 	vsprintf_s(buffer, sizeof(buffer), format, vargs);
+#pragma warning(push)
+#pragma warning(disable: 4297)
+	// Sometimes this evil is required. Especially if you don't want to rewrite someone else's code.
 	throw std::runtime_error(buffer);
+#pragma warning(pop)
 }

@@ -109,10 +109,15 @@ namespace Tools {
 		CalculateHistogramFunction(inp_b, ref_b, func_b);
 
 		// Apply color transformation
-		for (auto it = input.begin(); it != input.end(); ++it) {
-			it->r = func_r[it->r],
+#pragma omp parallel for
+		for (int y = 0; y < input.height(); ++y) {
+			Frame::Pixel *it = input.write_row(y);
+			for (int x = 0; x < input.width(); ++x, ++it) {
+				it->r = func_r[it->r],
 				it->g = func_g[it->g],
 				it->b = func_b[it->b];
+			}
+
 		}
 
 	}
@@ -128,7 +133,7 @@ namespace Filter {
 		GenericVideoFilter(input), m_reference(reference)
 	{
 		if (!vi.IsRGB32())
-			throw std::runtime_error("plugin supports only RGB32 input");
+			env->ThrowError("plugin supports only RGB32 input");
 		m_rvi = reference->GetVideoInfo();
 		CheckVideoInfo(env, vi, m_rvi);
 	}
