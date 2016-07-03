@@ -1,6 +1,8 @@
+test_dir = "c:\Users\Vyacheslav\Projects\ssifSource-misc\test sequences\"
+
 #
 # About: Plugin to create 3D subtitles with correct depth for 3D video files.
-# Author: Vyacheslav, 2015.
+# Author: Vyacheslav Napadovsky, 2016.
 # License: MIT.
 #
 # main functions:
@@ -94,7 +96,7 @@ LoadPlugin("VSFilter.klite.dll")
 SetLogger(console = true)
 
 # source video filename
-vid = "c:\Users\Vyacheslav\Projects\ssifSource\test sequences\SupTitle_Sample\video_Full-SBS.mkv"
+vid = test_dir + "SupTitle_Sample\video_Full-SBS.mkv"
 
 # Note that the input video must be in Full-SBS format, and in RGB32
 clip = ffmpegsource2(vid).converttorgb32("PC.709")
@@ -104,7 +106,7 @@ clip = ffmpegsource2(vid).converttorgb32("PC.709")
 # XML rendering
 
 # the xml file should be in the directory with subtitle .png images
-sub = "c:\Users\Vyacheslav\Projects\ssifSource\test sequences\SupTitle_Sample\XML-PNG\FRA_2D.xml"
+sub = test_dir + "SupTitle_Sample\XML-PNG\FRA_2D.xml"
 clip.CalcXMLDepths(sub)
 out = clip.RenderXML(sub)
 
@@ -112,7 +114,7 @@ out = clip.RenderXML(sub)
 
 # SRT rendering
 
-sub = "c:\Users\Vyacheslav\Projects\ssifSource\test sequences\MM1_test\MM1_ANSI.srt"
+sub = test_dir + "MM1_test\MM1_ANSI.srt"
 clip.CalcSRTDepths(sub)
 out = clip.RenderSRT(sub)
 

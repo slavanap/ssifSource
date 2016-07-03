@@ -1,6 +1,7 @@
-test_dir = "c:\Users\Vyacheslav\Projects\ssifSource\test sequences\MM1_test\"
-vid = test_dir + "MM1-001.mkv"
-sub = test_dir + "MM1_ANSI.srt"
+test_dir = "c:\Users\Vyacheslav\Projects\ssifSource-misc\test sequences\"
+
+vid = test_dir + "MM1_test\MM1-001.mkv"
+sub = test_dir + "MM1_test\MM1_ANSI.srt"
 
 LoadPlugin("c:\Program Files (x86)\ssifSource\bin\LoadHelper.dll")
 LoadPlugin("sub3d.dll")

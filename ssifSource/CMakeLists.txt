@@ -52,8 +52,8 @@ install(FILES
 
 install(FILES
 	x86/libmfxsw32.dll
-	x86/vcomp90.dll
-	x86/vcomp90d.dll
+	x86/vcomp90.dll            # for ldecod.exe only
+	x86/vcomp90d.dll           # for ldecod.exe only
 	x86/ldecod.exe
 	x86/sample_decode.exe
 	DESTINATION bin/x86 COMPONENT ${PROJECT_NAME}

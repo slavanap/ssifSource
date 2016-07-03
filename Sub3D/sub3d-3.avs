@@ -1,10 +1,11 @@
-test_dir = "c:\Users\Vyacheslav\Projects\ssifSource\test sequences\SupTitle_Sample\" 
-vid = test_dir + "video_Full-SBS.mkv"
-global sub = test_dir + "FRA_2D.sup"
+test_dir = "c:\Users\Vyacheslav\Projects\ssifSource-misc\test sequences\"
+
+vid = test_dir + "SupTitle_Sample\video_Full-SBS.mkv"
+global sub = test_dir + "SupTitle_Sample\FRA_2D.sup"
 
 LoadPlugin("c:\Program Files (x86)\ssifSource\bin\LoadHelper.dll")
 LoadPlugin("sub3d.dll")
-LoadPlugin(test_dir + "SupTitle.dll")
+LoadPlugin(test_dir + "SupTitle_Sample\SupTitle.dll")
 
 #sub3D_setlogger(console = true)
 
