@@ -218,8 +218,10 @@ namespace Filter {
 			Frame fSubtitle(env, cSubtitle, n);
 
 			subtitles_map_t::const_iterator it = subtitles.lower_bound(n);
-			if (subtitles.empty())
-				goto nosub;
+			if (subtitles.empty()) {
+			nosub:
+				return FrameStack(env, fLeft.GetVideoInfo(), fLeft, fRight, true);
+			}
 			if (it == subtitles.end())
 				--it;
 			if (it->first > n) {
@@ -229,10 +231,8 @@ namespace Filter {
 					--it;
 			}
 			const subtitle_desc_t& sub_desc = it->second;
-			if (n >= it->first + sub_desc.length) {
-			nosub:
-				return FrameStack(env, fLeft.GetVideoInfo(), fLeft, fRight, true);
-			}
+			if (n >= it->first + sub_desc.length)
+				goto nosub;
 
 			PClip fhLeft = new FrameHolder(vi, fLeft);
 			PClip fhRight = new FrameHolder(vi, fRight);

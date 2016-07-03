@@ -22,6 +22,7 @@
 #pragma once
 
 #include <string>
+#include <stdexcept>
 
 namespace Tools {
 
@@ -40,7 +41,7 @@ namespace Tools {
 		void AddLibraryPathToPathEnv();
 		BOOL InitLibrary(HMODULE hModule);
 		void ErrorMessageA(DWORD dwError, LPSTR pBuffer, size_t nSize);
-		void ConsolePrintErrorA(LPSTR desc, DWORD code);
+		void ConsolePrintErrorA(LPCSTR desc, DWORD code);
 
 		bool ConfidentRead(HANDLE hFile, LPVOID buffer, size_t cbSize);
 		bool ConfidentWrite(HANDLE hFile, LPCVOID buffer, size_t cbSize);

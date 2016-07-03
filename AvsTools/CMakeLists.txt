@@ -32,7 +32,7 @@ set(SOURCES
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/proprietary/Tools.Motion.Proprietary.hpp")
 	add_definitions(-D MOTION_PROPRIETARY)
-	include_directories("${CMAKE_SOURCE_DIR}/proprietary")
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/proprietary")
 	list(APPEND HEADERS "${CMAKE_SOURCE_DIR}/proprietary/Tools.Motion.Proprietary.hpp")
 endif()
 

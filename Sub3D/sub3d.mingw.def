@@ -1,0 +1,3 @@
+EXPORTS
+	_AvisynthPluginInit2@4 = AvisynthPluginInit2@4
+	_Donate@16 = Donate@16

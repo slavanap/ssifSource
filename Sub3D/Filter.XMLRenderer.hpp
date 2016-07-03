@@ -43,7 +43,7 @@ namespace Filter {
 
 	private:
 		enum {
-			DEPTH_UNDEF = MININT,
+			DEPTH_UNDEF = INT_MIN,
 		};
 
 		struct xGraphic {

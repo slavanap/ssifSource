@@ -6,8 +6,6 @@
 
 #include <avisynth/avisynth.h>
 
-#include <concurrent_queue.h>
-
 #include <algorithm>
 #include <cassert>
 #include <fstream>

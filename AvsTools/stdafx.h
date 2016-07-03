@@ -12,3 +12,5 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <climits>
+#include <stdexcept>

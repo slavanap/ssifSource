@@ -24,11 +24,14 @@ set(SOURCES
 	sub3d.rc
 )
 
+if (MINGW)
+	list(APPEND SOURCES ${PROJECT_NAME}.mingw.def)
+endif()
+
 set_precompiled_header(stdafx.h stdafx.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} AvsTools Lua TinyXML2)
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${CMAKE_CURRENT_SOURCE_DIR}/dialogs.res)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT ${PROJECT_NAME})
 

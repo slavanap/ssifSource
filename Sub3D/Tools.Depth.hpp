@@ -62,7 +62,7 @@ namespace Tools {
 			}
 
 			void SetMasksSize(int x, int y);
-			void ProcessFrame(Frame& left, Frame& right, int frame_num);
+			void ProcessFrame(const Frame &left, const Frame &right, int frame_num);
 
 			bool CalculateDepth(int& depth) {
 				bool ret = m_script->CalculateForSubtitle(startFrame, lastFrame - startFrame + 1, depth);

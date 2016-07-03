@@ -46,7 +46,7 @@ namespace Tools {
 			mv_map.resize(DIV_AND_ROUND(x, BLOCK_SIZE), DIV_AND_ROUND(y, BLOCK_SIZE));
 		}
 
-		void Estimator::ProcessFrame(Frame& left, Frame& right, int frame_num) {
+		void Estimator::ProcessFrame(const Frame& left, const Frame& right, int frame_num) {
 			if (startFrame == -1)
 				startFrame = frame_num;
 			lastFrame = frame_num;

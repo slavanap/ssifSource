@@ -38,16 +38,16 @@ namespace Tools {
 			template<typename T> static LPCSTR GetName(T v) {
 				return nullptr;
 			}
-			template<> static LPCSTR GetName(AvsNamedArg v) {
-				return v.name;
-			}
 		};
+		template<> inline LPCSTR AvsNamedArg::GetName(AvsNamedArg v) {
+			return v.name;
+		}
 
 		template<typename ... Args>
 		AVSValue AvsCall(IScriptEnvironment* env, const char* name, Args ... args) {
 			LPCSTR arg_names[sizeof...(Args)] = { AvsNamedArg::GetName(args) ... };
-			AVSValue args[sizeof...(Args)] = { args ... };
-			return env->Invoke(name, AVSValue(args, sizeof...(Args)), arg_names);
+			AVSValue arg_values[sizeof...(Args)] = { args ... };
+			return env->Invoke(name, AVSValue(arg_values, sizeof...(Args)), arg_names);
 		}
 
 

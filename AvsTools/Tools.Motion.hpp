@@ -61,19 +61,19 @@ namespace Tools {
 		Array2D(size_t width, size_t height) : m_width(width), m_height(height) {
 			resize(width, height);
 		}
-		reference operator()(size_t x, size_t y) {
+		typename std::vector<T>::reference operator()(size_t x, size_t y) {
 			assert(0 <= x && x < m_width && 0 <= y && y < m_height);
-			return at(y * m_width + x);
+			return std::vector<T>::at(y * m_width + x);
 		}
-		const_reference operator()(size_t x, size_t y) const {
+		typename std::vector<T>::const_reference operator()(size_t x, size_t y) const {
 			assert(0 <= x && x < m_width && 0 <= y && y < m_height);
-			return at(y * m_width + x);
+			return std::vector<T>::at(y * m_width + x);
 		}
 		void resize(size_t width, size_t height) {
 			std::vector<T>::resize(width * height);
 			m_width = width, m_height = height;
 		}
-		void resize(size_t width, size_t height, const value_type& val) {
+		void resize(size_t width, size_t height, const typename std::vector<T>::value_type& val) {
 			std::vector<T>::resize(width * height, val);
 			m_width = width, m_height = height;
 		}
@@ -106,7 +106,7 @@ namespace Tools {
 
 		typedef Array2D<Vector> Map;
 
-		void Estimate(const AviSynth::Frame& from, AviSynth::Frame& to, Map& result, const Array2D<char>& mask);
+		void Estimate(const AviSynth::Frame& from, const AviSynth::Frame &to, Map& result, const Array2D<char>& mask);
 		double GetRealConfidence(const Vector& mv);
 
 	}

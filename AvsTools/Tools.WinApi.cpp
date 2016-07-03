@@ -55,7 +55,7 @@ namespace Tools {
 			szLibraryPath.resize(len);
 			return;
 		error:
-			throw std::exception("Can not retrieve program path");
+			throw std::runtime_error("Can not retrieve program path");
 		}
 
 		BOOL InitLibrary(HMODULE hModule) {
@@ -79,7 +79,7 @@ namespace Tools {
 			LocalFree(pText);
 		}
 
-		void ConsolePrintErrorA(LPSTR desc, DWORD code) {
+		void ConsolePrintErrorA(LPCSTR desc, DWORD code) {
 			if (desc == nullptr)
 				desc = "ERROR";
 			LPVOID lpMsgBuf;

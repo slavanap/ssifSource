@@ -39,6 +39,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 #include <Tools.AviSynth.hpp>
 #include <Tools.HistogramMatching.hpp>
 #include <Filter.CropDetect.hpp>
+#include <Filter.Pipe.hpp>
 #include <Filter.SequentialToSeekable.hpp>
 #include <Filter.SetLogger.hpp>
 #include "Filter.XMLRenderer.hpp"
@@ -57,11 +58,17 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("RestoreAlpha", Filter::RestoreAlpha::CreateParams, Filter::RestoreAlpha::Create, nullptr);
 	env->AddFunction("SetDepthComputationAlg", Tools::Lua::SetLuaFileParams, Tools::Lua::SetLuaFile, nullptr);
 	env->AddFunction("SetLogger", Filter::SetLoggerParams, Filter::SetLogger, nullptr);
+	// Pipes
+	env->AddFunction("CreateReadPipe", Filter::Pipe::CreateReadPipeParams, Filter::Pipe::CreateReadPipe, nullptr);
+	env->AddFunction("CreateWritePipe", Filter::Pipe::CreateWritePipeParams, Filter::Pipe::CreateWritePipe, nullptr);
+	env->AddFunction("PipeReader", Filter::Pipe::PipeReader::CreateParams, Filter::Pipe::PipeReader::Create, nullptr);
+	env->AddFunction("PipeReaderForHandle", Filter::Pipe::PipeReader::CreateForHandleParams, Filter::Pipe::PipeReader::CreateForHandle, nullptr);
+	env->AddFunction("PipeWriter", Filter::Pipe::PipeWriter::CreateParams, Filter::Pipe::PipeWriter::Create, nullptr);
+	env->AddFunction("PipeWriterForHandle", Filter::Pipe::PipeWriter::CreateForHandleParams, Filter::Pipe::PipeWriter::CreateForHandle, nullptr);
 	// Tools
 	env->AddFunction("CropDetect", Filter::CropDetect::CreateParams, Filter::CropDetect::Create, nullptr);
 	env->AddFunction("HistogramMatching", Filter::HistogramMatching::CreateParams, Filter::HistogramMatching::Create, nullptr);
 	env->AddFunction("SequentialToSeekable", Filter::SequentialToSeekable::CreateParams, Filter::SequentialToSeekable::Create, nullptr);
-
 	return nullptr;
 }
 

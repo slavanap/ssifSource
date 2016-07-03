@@ -6,3 +6,7 @@
 #define DIV_AND_ROUND(x,y) (((x)+(y)-1) / (y))
 
 #define strcasecmp _stricmp
+
+#ifndef _MSC_VER
+	#define sscanf_s sscanf
+#endif

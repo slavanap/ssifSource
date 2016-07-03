@@ -214,10 +214,11 @@ namespace Tools {
 namespace Tools {
 	namespace Motion {
 
-		void Estimate(const Frame& from, Frame& to, Map& result, const Array2D<char>& mask) {
-			PrepareFrames(from, to);
+		void Estimate(const Frame& from, const Frame& to, Map& result, const Array2D<char>& mask) {
+			Frame new_to(to);
+			PrepareFrames(from, new_to);
 			Map m(result);
-			Estimation(from, to, m, result, mask);
+			Estimation(from, new_to, m, result, mask);
 		}
 
 	}

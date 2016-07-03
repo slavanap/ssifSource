@@ -162,8 +162,10 @@ namespace Filter {
 		PVideoFrame frame = child->GetFrame(n, env);
 
 		std::map<int, xEvent>::const_iterator it = subtitles.lower_bound(n);
-		if (subtitles.empty())
-			goto nosub;
+		if (subtitles.empty()) {
+		nosub:
+			return frame;
+		}
 		if (it == subtitles.end())
 			--it;
 		if (it->first > n) {
@@ -173,10 +175,8 @@ namespace Filter {
 				--it;
 		}
 		const xEvent &sub_desc = it->second;
-		if (n >= sub_desc.out_frame || (m_forcedOnly && !sub_desc.forced)) {
-		nosub:
-			return frame;
-		}
+		if (n >= sub_desc.out_frame || (m_forcedOnly && !sub_desc.forced))
+			goto nosub;
 
 		if (loaded_image_it != it) {
 			overlayed_image = child;

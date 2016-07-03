@@ -1,5 +1,7 @@
-add_subdirectory(BaseClasses)
-set(BASECLASSES_INCLUDE_DIR ${BASECLASSES_INCLUDE_DIR} PARENT_SCOPE)
+if (MSVC)
+	add_subdirectory(BaseClasses)
+	set(BASECLASSES_INCLUDE_DIR ${BASECLASSES_INCLUDE_DIR} PARENT_SCOPE)
+endif()
 
 add_subdirectory(tinyxml2)
 
