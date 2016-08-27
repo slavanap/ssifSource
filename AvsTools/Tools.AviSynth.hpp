@@ -34,24 +34,27 @@ namespace Tools {
 		struct AvsNamedArg {
 			AVSValue value;
 			const char *name;
-			AvsNamedArg(const char* name, AVSValue value) : name(name), value(value) { }
+			AvsNamedArg(const char* name, const AVSValue& value) : name(name), value(value) { }
 			operator AVSValue() const { return value; }
 
-			template<typename T> static LPCSTR GetName(const T& v) {
+			template<typename T> static const char* GetName(const T& v) {
 				return nullptr;
 			}
 		};
-		template<> inline LPCSTR AvsNamedArg::GetName(const AvsNamedArg& v) {
+		template<> inline const char* AvsNamedArg::GetName(const AvsNamedArg& v) {
 			return v.name;
 		}
 
 		template<typename ... Args>
 		AVSValue AvsCall(IScriptEnvironment* env, const char* name, const Args& ... args) {
-			LPCSTR arg_names[sizeof...(Args)] = { AvsNamedArg::GetName(args) ... };
+			const char* arg_names[sizeof...(Args)] = { AvsNamedArg::GetName(args) ... };
 			AVSValue arg_values[sizeof...(Args)] = { args ... };
 			return env->Invoke(name, AVSValue(arg_values, sizeof...(Args)), arg_names);
 		}
-
+		template<>
+		inline AVSValue AvsCall(IScriptEnvironment* env, const char* name) {
+			return env->Invoke(name, AVSValue(0, 0));
+		}
 
 		// stub for AviSynth source video filters that doesn't support audio playback
 		class SourceFilterStub : public IClip {
