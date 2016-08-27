@@ -1,6 +1,6 @@
 MIT license
 
-Copyright (C) 2016 Vyacheslav Napadovsky <napadovskiy@gmail.com>.
+Copyright 2016 Vyacheslav Napadovsky <napadovskiy@gmail.com>.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 -------------------------------------------------------------------------------
+
+NOTICE:
 
 There are source code parts under 'thirdparty' folder that does not complain
 MIT license. Nevertheless, currently these code parts are not used
