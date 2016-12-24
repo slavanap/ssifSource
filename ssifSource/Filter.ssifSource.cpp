@@ -42,7 +42,9 @@ namespace Filter {
 		FRAME_BLACK = -2,
 	};
 
-	ssifSource::ssifSource(const Params& creationParams) {
+	ssifSource::ssifSource(const Params& creationParams) :
+		coInitializeResult(S_OK)
+	{
 		// Note, vi will be initialized in InitComplete function
 
 		params = creationParams;
@@ -129,8 +131,9 @@ namespace Filter {
 			params.right264Filename = foDept;
 		}
 
-		if (FAILED(CoInitialize(nullptr)))
-			throw std::runtime_error("CoInitialize call retuned an error");
+		coInitializeResult = CoInitialize(nullptr);
+		if (FAILED(coInitializeResult))
+			fprintf(stderr, "WARNING: CoInitialize call returned an error.\n");
 		HRESULT res = CreateGraph(
 			A2W(params.ssifFilename.c_str()),
 			A2W(fiBase.c_str()),
@@ -190,7 +193,7 @@ namespace Filter {
 		}
 
 		processMuxer = std::make_unique<ProcessHolder>(
-			"mvccombine.exe",
+			"MVCCombine.exe",
 			format("-l \"%s\" -r \"%s\" -o \"%s\"", 1024,
 				params.left264Filename.c_str(), params.right264Filename.c_str(), fiMuxed.c_str()),
 			params.flagDebug
@@ -255,24 +258,20 @@ namespace Filter {
 		frLeft.reset();
 		frRight.reset();
 		pSplitter = nullptr;
-		if (pGraph != nullptr) {
-			// very dirty HACK!!!
-			static_cast<IUnknown*>(pGraph)->AddRef();
-			while (static_cast<IUnknown*>(pGraph)->Release() > 1);
-		}
 		pGraph = nullptr;
-		CoUninitialize();
+		if (coInitializeResult == S_OK)
+			CoUninitialize();
 	}
 
 	HRESULT ssifSource::CreateGraph(LPCWSTR fnSource, LPCWSTR fnBase, LPCWSTR fnDept,
-		CComPtr<IGraphBuilder>& poGraph, CComPtr<IBaseFilter>& poSplitter)
+		CComPtr<IGraphBuilder>& pGraph, CComPtr<IBaseFilter>& poSplitter)
 	{
 		USES_CONVERSION;
 		std::wstring BinPathW(A2W(ProcessHolder::BinPath.c_str()));
 		BinPathW += L"MpegSplitter_mod.ax";
 
 		HRESULT hr = S_OK;
-		IGraphBuilder *pGraph = nullptr;
+		pGraph = nullptr;
 		CComQIPtr<IBaseFilter> pSplitter;
 		CComQIPtr<IBaseFilter> pDumper1, pDumper2;
 		LPOLESTR lib_Splitter = &BinPathW[0];
@@ -289,7 +288,7 @@ namespace Filter {
 		StringCchCatW(fullname_splitter, MAX_PATH + 64, lib_Splitter);
 
 		// Create the Filter Graph Manager.
-		printf("ssifSource4: Create graph items ... ");
+		printf(FILTER_NAME ": Create graph items ... ");
 		hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&pGraph);
 		if (FAILED(hr)) goto lerror;
 		hr = DSHelpCreateInstance(fullname_splitter, *clsid_Splitter, nullptr, IID_IBaseFilter, (void**)&pSplitter);
@@ -332,7 +331,6 @@ namespace Filter {
 		}
 		printf("OK\n");
 
-		poGraph = pGraph;
 		poSplitter = pSplitter;
 		return S_OK;
 	lerror:

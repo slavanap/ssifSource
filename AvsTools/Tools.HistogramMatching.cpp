@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 
+#include "stdafx.h"
 #include "Tools.HistogramMatching.hpp"
 
 namespace Tools {

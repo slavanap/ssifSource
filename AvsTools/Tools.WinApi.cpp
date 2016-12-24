@@ -221,7 +221,10 @@ namespace Tools {
 		std::string ProcessHolder::BinPath;
 #endif
 
-		ProcessHolder::ProcessHolder(const std::string& exe_name, const std::string& exe_args, bool flag_debug) {
+		ProcessHolder::ProcessHolder(std::string exe_name, const std::string& exe_args, bool flag_debug) {
+			if (exe_name.find_first_of('\\') == std::string::npos)
+				exe_name = tostring(szLibraryPath) + exe_name;
+
 			memset(&SI, 0, sizeof(STARTUPINFO));
 			SI.cb = sizeof(SI);
 			SI.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEOFFFEEDBACK;

@@ -95,6 +95,7 @@ namespace Filter {
 		CComPtr<IBaseFilter> pSplitter;
 		UniqueIdHolder uniqueId;
 		PVideoFrame vfLeft, vfRight;
+		HRESULT coInitializeResult;
 
 		void InitVariables();
 		void InitDemuxer();

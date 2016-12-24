@@ -264,6 +264,7 @@ namespace Tools {
 
 		FrameSeparator::~FrameSeparator() {
 			stopEvent = true;
+			SetEvent(heDataParsed);
 			if (WaitForSingleObject(hThread, WAIT_TIME) != WAIT_OBJECT_0)
 				TerminateThread(hThread, 0);
 			CloseHandle(heDataReady);
