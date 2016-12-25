@@ -75,11 +75,13 @@ namespace Filter {
 
 	void ssifSource::InitVariables() {
 		// VideoType
+		memset(&frame_vi, 0, sizeof(frame_vi));
 		frame_vi.width = params.width;
 		frame_vi.height = params.height;
 		frame_vi.fps_numerator = 24000;
 		frame_vi.fps_denominator = 1001;
 		frame_vi.pixel_type = VideoInfo::CS_I420;
+		frame_vi.image_type = VideoInfo::IT_BFF;
 		frame_vi.num_frames = params.frameCount;
 		frame_vi.audio_samples_per_second = 0;
 

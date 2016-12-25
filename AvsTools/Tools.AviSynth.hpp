@@ -60,7 +60,7 @@ namespace Tools {
 		class SourceFilterStub : public IClip {
 		public:
 			SourceFilterStub() {
-				// empty
+				memset(&vi, 0, sizeof(vi));
 			}
 			bool WINAPI GetParity(int n) override {
 				return false;

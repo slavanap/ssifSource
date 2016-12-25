@@ -43,7 +43,11 @@ namespace Tools {
 				BYTE r;
 				BYTE a;
 				Pixel() { }
-				Pixel(BYTE r, BYTE g, BYTE b, BYTE a = 0) : r(r), g(g), b(b), a(a) { }
+				Pixel(BYTE r, BYTE g, BYTE b, BYTE a = 0xFF) : r(r), g(g), b(b), a(a) { }
+
+				void assign(BYTE r, BYTE g, BYTE b, BYTE a = 0xFF) {
+					this->r = r, this->g = g, this->b = b, this->a = a;
+				}
 
 				static inline BYTE ColorLimits(int value) {
 					if ((value & ~0xFF) == 0)
@@ -53,7 +57,7 @@ namespace Tools {
 					else
 						return 0xFF;
 				}
-				static inline Pixel FromIntegerColors(int r, int g, int b, int a = 0) {
+				static inline Pixel FromIntegerColors(int r, int g, int b, int a = 0xFF) {
 					return Pixel(ColorLimits(r), ColorLimits(g), ColorLimits(b), ColorLimits(a));
 				}
 				const uint32_t& toUInt() const {
