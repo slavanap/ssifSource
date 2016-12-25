@@ -80,20 +80,39 @@ namespace Tools {
 			PROCESS_INFORMATION PI;
 		};
 
-		inline std::wstring towstring(const std::string& str, UINT cp) {
-			int sz = MultiByteToWideChar(cp, 0, str.data(), (int)str.size(), NULL, 0);
-			std::wstring ret(sz, 0);
-			if (!MultiByteToWideChar(cp, 0, str.data(), (int)str.size(), &ret[0], (int)ret.size()))
-				throw std::runtime_error("Can't convert std::string to std::wstring");
-			return ret;
+		inline std::wstring towstring(const char* ch, int len, UINT cp) {
+			if (len <= 0)
+				return std::wstring();
+			int ret = MultiByteToWideChar(cp, 0, ch, len, nullptr, 0);
+			if (ret > 0) {
+				std::wstring str((size_t)ret, 0);
+				ret = MultiByteToWideChar(cp, 0, ch, len, &str[0], ret);
+				if (ret > 0)
+					return str;
+			}
+			throw std::invalid_argument("Can't convert MultiByteToWideChar");
+		}
+
+		inline std::string tostring(const wchar_t* wch, int len, UINT cp) {
+			if (len <= 0)
+				return std::string();
+			BOOL cant_convert;
+			int ret = WideCharToMultiByte(cp, 0, wch, len, nullptr, 0, nullptr, &cant_convert);
+			if (ret > 0 && !cant_convert) {
+				std::string str((size_t)ret, 0);
+				ret = WideCharToMultiByte(cp, 0, wch, len, &str[0], ret, nullptr, &cant_convert);
+				if (ret > 0 && !cant_convert)
+					return str;
+			}
+			throw std::invalid_argument("Can't convert WideCharToMultiByte");
 		}
 
 		inline std::string tostring(const std::wstring& wstr, UINT cp) {
-			int sz = WideCharToMultiByte(cp, WC_COMPOSITECHECK, wstr.data(), (int)wstr.size(), NULL, 0, NULL, NULL);
-			std::string ret(sz, 0);
-			if (!WideCharToMultiByte(cp, 0, wstr.data(), (int)wstr.size(), &ret[0], (int)ret.size(), NULL, NULL))
-				throw std::runtime_error("Can't convert std::wstring to std::string");
-			return ret;
+			return tostring(wstr.data(), (int)wstr.size(), cp);
+		}
+
+		inline std::wstring towstring(const std::string& str, UINT cp) {
+			return towstring(str.data(), (int)str.size(), cp);
 		}
 
 #ifdef UNICODE

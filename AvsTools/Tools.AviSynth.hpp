@@ -71,9 +71,18 @@ namespace Tools {
 			const VideoInfo& WINAPI GetVideoInfo() override {
 				return vi;
 			}
+
+#if defined __AVISYNTH_H__
 			void WINAPI SetCacheHints(int cachehints, int frame_range) override {
 				// empty
 			}
+#elif defined __AVISYNTH_6_H__
+			int WINAPI SetCacheHints(int cachehints, int frame_range) override {
+				// empty
+				return 0;
+			}
+#endif
+
 		protected:
 			VideoInfo vi;
 		};
