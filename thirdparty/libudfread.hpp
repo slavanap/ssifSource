@@ -1,19 +1,17 @@
 #pragma once
 
-#ifdef LIBDVDREAD_EXPORTS
-#define LIBDVDREAD_API __declspec(dllexport)
+#ifdef LIBUDFREAD_EXPORTS
+#define LIBUDFREAD_API __declspec(dllexport)
 #else
-#define LIBDVDREAD_API __declspec(dllimport)
+#define LIBUDFREAD_API __declspec(dllimport)
 #endif
 
 #include <streambuf>
-#pragma once
-#include <streambuf>
 
-typedef struct dvd_reader_s dvd_reader_t;
-typedef struct dvd_file_s dvd_file_t;
+struct udfread;
+typedef struct udfread_file UDFFILE;
 
-class LIBDVDREAD_API dvdfilebuf : public std::streambuf {
+class LIBUDFREAD_API dvdfilebuf : public std::streambuf {
 public:
 	dvdfilebuf(const char* filename);
 	~dvdfilebuf();
@@ -24,8 +22,8 @@ public:
 	dvdfilebuf(const dvdfilebuf& other) = delete;
 	dvdfilebuf& operator=(const dvdfilebuf& other) = delete;
 private:
-	dvd_reader_t *_dvd;
-	dvd_file_t *_file;
+	udfread *_udf;
+	udfread_file *_file;
 	std::streamoff _size;
 	char *_buffer;
 

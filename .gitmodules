@@ -7,3 +7,6 @@
 [submodule "Sub3D"]
 	path = proprietary
 	url = p:/sub3d
+[submodule "thirdparty/libudfread"]
+	path = thirdparty/libudfread
+	url = git://git.videolan.org/libudfread.git

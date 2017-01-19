@@ -1,15 +1,16 @@
-#include "libdvdread.hpp"
+#include "libudfread.hpp"
 
 #include <algorithm>
 #include <vector>
 #include <string>
 
-#include <dvdread/dvd_reader.h>
+#include "config.h"
+#include "udfread.h"
 
-constexpr int default_buffer_size = DVD_VIDEO_LB_LEN * 1024;
+constexpr int default_buffer_size = UDF_BLOCK_SIZE * 1024;
 
 dvdfilebuf::dvdfilebuf(const char* filename) :
-	_dvd(nullptr),
+	_udf(nullptr),
 	_file(nullptr),
 	_buffer(nullptr)
 {
@@ -34,7 +35,6 @@ dvdfilebuf::dvdfilebuf(const char* filename) :
 			if ((info.st_mode & S_IFDIR) == 0)
 				throw std::runtime_error("invalid file");
 		}
-		printf("%d\n", errno);
 		// else ignore errors of stat
 		
 		// still directory
@@ -43,48 +43,50 @@ dvdfilebuf::dvdfilebuf(const char* filename) :
 	}
 
 	try {
-		_dvd = DVDOpen(dvd_fn.c_str());
-		if (_dvd == nullptr)
+		_udf = udfread_init();
+		if (_udf == nullptr)
+			throw std::bad_alloc();
+		if (udfread_open(_udf, dvd_fn.c_str()) < 0)
 			throw std::runtime_error("Can't open the image");
-		_file = DVDOpenFilename(_dvd, const_cast<char*>(file_fn.c_str()));
+		_file = udfread_file_open(_udf, file_fn.c_str());
 		if (_file == nullptr)
 			throw std::runtime_error("Can't open file in the image");
-		_size = DVDGetFileSize(_file);
+		_size = udfread_file_size(_file);
 		_buffer = new char[default_buffer_size];
 	}
 	catch (...) {
-		DVDCloseFile(_file);
-		DVDClose(_dvd);
+		udfread_file_close(_file);
+		udfread_close(_udf);
 		throw;
 	}
 }
 
 dvdfilebuf::~dvdfilebuf() {
-	DVDCloseFile(_file);
-	DVDClose(_dvd);
 	delete[] _buffer;
+	udfread_file_close(_file);
+	udfread_close(_udf);
 }
 
 std::streampos dvdfilebuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
 	bool success = false;
 	if (which == std::ios_base::in) {
-		if (off == 0)
-			success = true;
-		else {
-			switch (way) {
-				case std::ios_base::beg:
-					success = DVDFileSeek(_file, off) != -1;
-					break;
-				case std::ios_base::cur:
-					success = DVDFileSeek(_file, _size + off) != -1;
-					break;
-				case std::ios_base::end:
-					success = DVDFileSeek(_file, getpos() + off) != -1;
-					break;
-			}
+		int whence;
+		switch (way) {
+			case std::ios_base::beg:
+				whence = UDF_SEEK_SET;
+				break;
+			case std::ios_base::cur:
+				whence = UDF_SEEK_CUR;
+				break;
+			case std::ios_base::end:
+				whence = UDF_SEEK_END;
+				break;
+			default:
+				return std::streamoff(-1);
 		}
+		return udfread_file_seek(_file, off, whence);
 	}
-	return std::streampos(success ? getpos() : std::streamoff(-1));
+	return std::streamoff(-1);
 }
 
 std::streampos dvdfilebuf::seekpos(std::streampos sp, std::ios_base::openmode which) {
@@ -97,7 +99,9 @@ int dvdfilebuf::underflow() {
 		if (bytesLeft > 0) {
 			if (bytesLeft > default_buffer_size)
 				bytesLeft = default_buffer_size;
-			auto ret = DVDReadBytes(_file, &_buffer[0], (size_t)bytesLeft);
+			auto ret = udfread_file_read(_file, &_buffer[0], (size_t)bytesLeft);
+			if (ret < 0)
+				throw std::runtime_error("error in udfread_file_read");
 			this->setg(&_buffer[0], &_buffer[0], &_buffer[0] + ret);
 		}
 	}
@@ -107,5 +111,5 @@ int dvdfilebuf::underflow() {
 }
 
 std::streamoff dvdfilebuf::getpos() {
-	return DVDGetFilePos(_file);
+	return udfread_file_tell(_file);
 }
