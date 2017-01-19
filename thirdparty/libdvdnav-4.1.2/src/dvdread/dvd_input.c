@@ -492,7 +492,7 @@ static int rarfile_read(dvd_input_t dev, void *buffer, int blocks, int flags)
   /* Spawn new unrar? */
   if (!dev->unrar_stream) {
 	  snprintf(ibuffer, sizeof(ibuffer),
-			   "%s p -inul -c- -p- -y -cfg- -sk%"PRIu64" -- \"%s\" \"%s\"",
+			   "%s p -inul -c- -p- -y -cfg- -sk%" PRIu64 " -- \"%s\" \"%s\"",
 			   dvdinput_unrar_cmd,
 			   dev->seek_pos,
 			   dev->unrar_file,
