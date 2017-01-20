@@ -21,8 +21,10 @@
 
 #include "stdafx.h"
 #include <Vfw.h>
-#include "winddk/devioctl.h"
-#include "winddk/ntddcdrm.h"
+#ifndef NOSETTINGS
+#	include "winddk/devioctl.h"
+#	include "winddk/ntddcdrm.h"
+#endif
 #include "DSUtil.h"
 #include "Mpeg2Def.h"
 #include "vd.h"
@@ -832,6 +834,7 @@ cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
             return CDROM_DVDVideo;
         }
 
+#ifndef NOSETTINGS
         // CDROM_Audio
         HANDLE hDrive = CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, nullptr,
                                    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)nullptr);
@@ -852,6 +855,7 @@ cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
 
             CloseHandle(hDrive);
         }
+#endif
         if (!files.IsEmpty()) {
             return CDROM_Audio;
         }

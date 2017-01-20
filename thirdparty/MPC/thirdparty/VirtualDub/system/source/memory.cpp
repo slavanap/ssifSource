@@ -380,7 +380,7 @@ void VDMemset32Rect(void *dst, ptrdiff_t pitch, uint32 value, size_t w, size_t h
 	}
 }
 
-#if defined(_WIN32) && defined(VD_CPU_X86) && defined(VD_COMPILER_MSVC)
+#if defined(_WIN32) && defined(VD_CPU_X86) && defined(VD_COMPILER_MSVC) && !defined(NOSETTINGS)
 	extern "C" void __cdecl VDFastMemcpyPartialScalarAligned8(void *dst, const void *src, size_t bytes);
 	extern "C" void __cdecl VDFastMemcpyPartialMMX(void *dst, const void *src, size_t bytes);
 	extern "C" void __cdecl VDFastMemcpyPartialMMX2(void *dst, const void *src, size_t bytes);

@@ -19,6 +19,9 @@
  */
 
 #include "stdafx.h"
+
+#ifndef NOSETTINGS
+
 #include "MpegSplitterSettingsWnd.h"
 #include "../../../DSUtil/DSUtil.h"
 #include "resource.h"
@@ -150,3 +153,5 @@ bool CMpegSplitterSettingsWnd::OnApply()
 
 BEGIN_MESSAGE_MAP(CMpegSplitterSettingsWnd, CInternalPropertyPageWnd)
 END_MESSAGE_MAP()
+
+#endif

@@ -23,7 +23,9 @@
 
 #include "../BaseSplitter/BaseSplitter.h"
 #include "MpegSplitterFile.h"
-#include "MpegSplitterSettingsWnd.h"
+#ifndef NOSETTINGS
+#	include "MpegSplitterSettingsWnd.h"
+#endif
 #include "ITrackInfo.h"
 
 #define MpegSplitterName L"MPC MPEG Splitter"
@@ -33,8 +35,10 @@ class __declspec(uuid("DC257063-045F-4BE2-BD5B-E12279C464F0"))
     CMpegSplitterFilter
     : public CBaseSplitterFilter
     , public IAMStreamSelect
+#ifndef NOSETTINGS
     , public ISpecifyPropertyPages2
     , public IMpegSplitterFilter
+#endif
 {
     REFERENCE_TIME  m_rtStartOffset;
     bool            m_pPipoBimbo;

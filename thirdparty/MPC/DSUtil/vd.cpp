@@ -74,6 +74,7 @@ CCpuID::CCpuID()
     m_flags = (flag_t)flags;
 }
 
+#ifndef NOSETTINGS
 bool BitBltFromI420ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
 {
     VDPixmap srcbm = {0};
@@ -298,6 +299,7 @@ bool BitBltFromYUY2ToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* 
 
     return VDPixmapBlt(dstpxm, srcbm);
 }
+#endif
 
 static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
 {

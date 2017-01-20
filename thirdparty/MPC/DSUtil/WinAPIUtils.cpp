@@ -19,7 +19,9 @@
  */
 
 #include "stdafx.h"
-#include <d3dx9.h>
+#ifndef NOSETTINGS
+#	include <d3dx9.h>
+#endif
 #include "WinAPIUtils.h"
 #include "SysVersion.h"
 
@@ -178,6 +180,7 @@ bool ExportRegistryKey(CStdioFile& file, HKEY hKeyRoot, CString keyName)
 
 UINT GetAdapter(IDirect3D9* pD3D, HWND hWnd)
 {
+#ifndef NOSETTINGS
     if (hWnd == nullptr || pD3D == nullptr) {
         return D3DADAPTER_DEFAULT;
     }
@@ -195,6 +198,9 @@ UINT GetAdapter(IDirect3D9* pD3D, HWND hWnd)
     }
 
     return D3DADAPTER_DEFAULT;
+#else
+	return 0;
+#endif
 }
 
 int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* /*lpelfe*/, NEWTEXTMETRICEX* /*lpntme*/, int /*FontType*/, LPARAM lParam)

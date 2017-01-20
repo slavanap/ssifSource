@@ -22,6 +22,12 @@
 #pragma once
 
 #include "../../../DSUtil/SharedInclude.h"
-#include "../../../../include/stdafx_common.h"
-#include "../../../../include/stdafx_common_afx.h"
-#include "../../../../include/stdafx_common_dshow.h"
+#include "stdafx_common.h"
+#include "stdafx_common_afx.h"
+#include "stdafx_common_dshow.h"
+
+#include <atlcoll.h>
+#include <atlpath.h>
+
+#include "IMpegSplitterFilter.h"
+

@@ -21,7 +21,6 @@
 #pragma once
 
 #include "../../InternalPropertyPage.h"
-#include "IMpegSplitterFilter.h"
 #include "resource.h"
 #include <afxcmn.h>
 

@@ -22,14 +22,16 @@
 #include "stdafx.h"
 #include <MMReg.h>
 #ifdef STANDALONE_FILTER
-#include <InitGuid.h>
+#	include <InitGuid.h>
 #endif
 #include <dmodshow.h>
 #include "MpegSplitter.h"
 #include "moreuuids.h"
 #include "../../../DSUtil/AudioParser.h"
 #include "../../../DSUtil/DSUtil.h"
-#include "../../../mpc-hc/SettingsDefines.h"
+#ifndef NOSETTINGS
+#	include "../../../mpc-hc/SettingsDefines.h"
+#endif
 
 TCHAR* MPEG2_Profile[] = {
     L"0",
@@ -77,14 +79,24 @@ const AMOVIESETUP_PIN sudpPins[] = {
 };
 
 const AMOVIESETUP_FILTER sudFilter[] = {
-    {&__uuidof(CMpegSplitterFilter), MpegSplitterName, MERIT_NORMAL + 1, _countof(sudpPins), sudpPins, CLSID_LegacyAmFilterCategory},
-    {&__uuidof(CMpegSourceFilter), MpegSourceName, MERIT_UNLIKELY, 0, nullptr, CLSID_LegacyAmFilterCategory},
+    {&__uuidof(CMpegSplitterFilter), MpegSplitterName, MERIT_NORMAL + 1, _countof(sudpPins), sudpPins
+#ifndef NOSETTINGS
+		, CLSID_LegacyAmFilterCategory
+#endif
+	},
+    {&__uuidof(CMpegSourceFilter), MpegSourceName, MERIT_UNLIKELY, 0, nullptr
+#ifndef NOSETTINGS
+		, CLSID_LegacyAmFilterCategory
+#endif
+	},
 };
 
 CFactoryTemplate g_Templates[] = {
     {sudFilter[0].strName, sudFilter[0].clsID, CreateInstance<CMpegSplitterFilter>, nullptr, &sudFilter[0]},
     {sudFilter[1].strName, sudFilter[1].clsID, CreateInstance<CMpegSourceFilter>, nullptr, &sudFilter[1]},
+#ifndef NOSETTINGS
     {L"CMpegSplitterPropertyPage", &__uuidof(CMpegSplitterSettingsWnd), CreateInstance<CInternalPropertyPageTempl<CMpegSplitterSettingsWnd>>},
+#endif
 };
 
 int g_cTemplates = _countof(g_Templates);
@@ -496,6 +508,7 @@ CMpegSplitterFilter::CMpegSplitterFilter(LPUNKNOWN pUnk, HRESULT* phr, const CLS
     , m_nVC1_GuidFlag(1)
     , m_AlternativeDuration(false)
 {
+#ifndef NOSETTINGS
 #ifdef STANDALONE_FILTER
     CRegKey key;
     TCHAR buff[256];
@@ -548,6 +561,7 @@ CMpegSplitterFilter::CMpegSplitterFilter(LPUNKNOWN pUnk, HRESULT* phr, const CLS
     m_AC3CoreOnly = AfxGetApp()->GetProfileInt(_T("Filters\\MPEG Splitter"), _T("AC3CoreOnly"), m_AC3CoreOnly);
     m_AlternativeDuration = !!AfxGetApp()->GetProfileInt(_T("Filters\\MPEG Splitter"), _T("AlternativeDuration"), m_AlternativeDuration);
 #endif
+#endif
 }
 
 bool CMpegSplitterFilter::StreamIsTrueHD(const WORD pid)
@@ -565,8 +579,10 @@ STDMETHODIMP CMpegSplitterFilter::NonDelegatingQueryInterface(REFIID riid, void*
 
     return
         QI(IMpegSplitterFilter)
+#ifndef NOSETTINGS
         QI(ISpecifyPropertyPages)
         QI(ISpecifyPropertyPages2)
+#endif
         QI(IAMStreamSelect)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
@@ -1381,6 +1397,7 @@ STDMETHODIMP CMpegSplitterFilter::GetPages(CAUUID* pPages)
 
     HRESULT hr = S_OK;
 
+#ifndef NOSETTINGS
     pPages->cElems = 1;
     pPages->pElems = (GUID*)CoTaskMemAlloc(sizeof(GUID) * pPages->cElems);
     if (pPages->pElems != nullptr) {
@@ -1388,6 +1405,7 @@ STDMETHODIMP CMpegSplitterFilter::GetPages(CAUUID* pPages)
     } else {
         hr = E_OUTOFMEMORY;
     }
+#endif
 
     return hr;
 }
@@ -1400,11 +1418,13 @@ STDMETHODIMP CMpegSplitterFilter::CreatePage(const GUID& guid, IPropertyPage** p
         return E_INVALIDARG;
     }
 
+#ifndef NOSETTINGS
     HRESULT hr;
 
     if (guid == __uuidof(CMpegSplitterSettingsWnd)) {
         (*ppPage = DEBUG_NEW CInternalPropertyPageTempl<CMpegSplitterSettingsWnd>(nullptr, &hr))->AddRef();
     }
+#endif
 
     return *ppPage ? S_OK : E_FAIL;
 }
