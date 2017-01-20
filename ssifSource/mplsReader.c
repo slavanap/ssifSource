@@ -20,7 +20,6 @@
 #endif
 
 #include "stdint.h"
-//#include <libdvdnav-4.1.2\dvdfopen\dvdfopen.h>
 #include "mplsReader.h"
 
 
@@ -96,11 +95,11 @@ char *basename(char *path)
 static
 char *realpath(const char *path, char *resolved_path)
 {
-	char *pszFilePart;
+	size_t len = strlen(path);
 	if (resolved_path == NULL)
-		resolved_path = (char*)malloc(MAX_PATH);
-	if (GetFullPathNameA(path, MAXPATHLEN, resolved_path, &pszFilePart)==0)
-		return NULL;
+		resolved_path = (char*)malloc(len+1);
+	memcpy(resolved_path, path, len);
+	resolved_path[len] = 0;
 	return resolved_path;
 }
 /*---------------------------------------------------------------------------*/
@@ -177,26 +176,6 @@ get_stream_clip_at(stream_clip_list_t* list, int index)
  */
 
 
-/**
- * Get the size of a file (in bytes).
- * @param file
- * @return Size of the file in bytes.
- */
-long
-file_get_length(FILE* file)
-{
-    // Beginning to End of file
-    fseek(file, 0, SEEK_END);
-    
-    // Get file size
-    long fSize = ftell(file);
-    
-    // Reset cursor to beginning of file
-    rewind(file);
-    
-    return fSize;
-}
-
 int16_t
 get_int16(char* bytes)
 {
@@ -238,7 +217,7 @@ get_int32_cursor(char* bytes, int* cursor)
 }
 
 char*
-file_read_string(FILE* file, int offset, int length)
+file_read_string(UDFFILE file, int offset, int length)
 {
     // Allocate an empty string initialized to all NULL chars
     char* chars = (char*) calloc(length + 1, sizeof(char));
@@ -248,7 +227,7 @@ file_read_string(FILE* file, int offset, int length)
     
     // Read 4 bytes of data into a char array
     // e.g., fread(chars, 1, 8) = first eight chars
-	int br = fread(chars, 1, length, file);
+	int br = udfread(chars, 1, length, file);
     
     if(br != length)
     {
@@ -262,7 +241,7 @@ file_read_string(FILE* file, int offset, int length)
 }
 
 char*
-file_read_string_cursor(FILE* file, int* offset, int length)
+file_read_string_cursor(UDFFILE file, int* offset, int length)
 {
     char* str = file_read_string(file, *offset, length);
     *offset += length;
@@ -400,6 +379,7 @@ free_mpls_file_members(mpls_file_t* mpls_file)
 {
     free(mpls_file->path); mpls_file->path = NULL;
     free(mpls_file->data); mpls_file->data = NULL;
+	udfclose(mpls_file->file);
 }
 
 void
@@ -448,13 +428,13 @@ init_mpls(char* path)
         DIE("Unable to get the file name (basename) of \"%s\".", path);
     }
     
-	mpls_file.file = fopen(mpls_file.path, "rb");
+	mpls_file.file = udfopen(mpls_file.path, "rb");
     if (mpls_file.file == NULL)
     {
         DIE("Unable to open \"%s\" for reading.", mpls_file.path);
     }
 
-	mpls_file.size = file_get_length(mpls_file.file);
+	mpls_file.size = udffile_get_length(mpls_file.file);
     if (mpls_file.size < 90)
     {
         DIE("Invalid MPLS file (too small): \"%s\".", mpls_file.path);

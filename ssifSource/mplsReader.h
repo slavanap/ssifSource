@@ -5,11 +5,12 @@
  * Created on January 22, 2013, 10:48 AM
  */
 
-#ifndef PARSE_MPLS_H
-#define	PARSE_MPLS_H
+#pragma once
+
+#include <libfileread.h>
 
 #ifdef _MSC_VER
-#include "stdint.h"
+#include <stdint.h>
 #else
 #include <libgen.h>
 #include <stdbool.h>
@@ -54,7 +55,7 @@ extern "C" {
 typedef struct {
     char* path;
     char* name;
-    FILE* file;
+    UDFFILE file;
     long size;
     char* data;
     char header[9];              /* "MPLS0100" or "MPLS0200" */
@@ -104,184 +105,28 @@ typedef struct {
     size_t chapter_count;
 } playlist_t;
 
-
-/*
- * Utility functions
- */
+void die(const char* filename, int line_number, const char* format, ...);
+void format_duration_to(double length_sec, char* str);
 
 
-/**
- * From http://www.lemoda.net/c/die/index.html
- * @param filename name of the .c file that called die()
- * @param line_number
- * @param format format passed to printf()
- * @param ... arguments passed to printf()
- */
-void
-die (const char* filename, int line_number, const char * format, ...);
+//Struct initialization
+void init_mpls_file_t(mpls_file_t* mpls_file);
+void init_stream_clip_t(stream_clip_t* stream_clip);
+playlist_t create_playlist_t();
+void init_playlist_t(playlist_t* playlist);
 
-/**
- * Converts the specified timecode to seconds.
- * @param timecode
- * @return Number of seconds (integral part) and milliseconds (fractional part) represented by the timecode
- */
-double
-timecode_to_sec(int32_t timecode);
+// Struct freeing
+void free_mpls_file_members(mpls_file_t* mpls_file);
+void free_playlist_members(playlist_t* playlist);
 
-/**
- * Converts a duration in seconds to a human-readable string in the format HH:MM:SS.mmm
- * @param length_sec
- * @return 
- */
-char*
-format_duration(double length_sec);
-
-void
-format_duration_to(double length_sec, char* str);
-
-
-/*
- * Linked list functions
- */
-
-
-void
-add_stream_clip(stream_clip_list_t* list, stream_clip_t* clip);
-
-stream_clip_t*
-get_stream_clip_at(stream_clip_list_t* list, int index);
-
-
-/*
- * Binary file handling
- */
-
-
-long
-file_get_length(FILE* file);
-
-int16_t
-get_int16(char* bytes);
-
-int32_t
-get_int32(char* bytes);
-
-/**
- * Converts a sequence of bytes to an int16_t and advances the cursor position by +2.
- * @param bytes
- * @param cursor
- * @return 
- */
-int16_t
-get_int16_cursor(char* bytes, int* cursor);
-
-/**
- * Converts a sequence of bytes to an int32_t and advances the cursor position by +4.
- * @param bytes
- * @param cursor
- * @return 
- */
-int32_t
-get_int32_cursor(char* bytes, int* cursor);
-
-char*
-file_read_string(FILE* file, int offset, int length);
-
-/**
- * Reads a sequence of bytes into a C string and advances the cursor position by #{length}.
- * @param file
- * @param offset
- * @param length
- * @return 
- */
-char*
-file_read_string_cursor(FILE* file, int* offset, int length);
-
-/**
- * Copies a sequence of bytes into a newly alloc'd C string and advances the cursor position by #{length}.
- * @param bytes
- * @param offset
- * @param length
- * @return 
- */
-char*
-copy_string_cursor(char* bytes, int* offset, int length);
-
-
-/*
- * Struct initialization
- */
-
-
-mpls_file_t
-create_mpls_file_t();
-
-void
-init_mpls_file_t(mpls_file_t* mpls_file);
-
-stream_clip_t
-create_stream_clip_t();
-
-void
-init_stream_clip_t(stream_clip_t* stream_clip);
-
-void
-init_stream_clip_list_t(stream_clip_list_t* list);
-
-playlist_t
-create_playlist_t();
-
-void
-init_playlist_t(playlist_t* playlist);
-
-
-/*
- * Struct freeing
- */
-
-
-void
-free_stream_clip_list(stream_clip_list_t* list);
-
-void
-free_mpls_file_members(mpls_file_t* mpls_file);
-
-void
-free_playlist_members(playlist_t* playlist);
-
-
-/*
- * Main parsing functions
- */
-
-
-mpls_file_t
-init_mpls(char* path);
-
-void
-parse_stream_clips(mpls_file_t* mpls_file, playlist_t* playlist);
-
-void
-parse_stream_clip();
-
-void
-parse_chapters(mpls_file_t* mpls_file, playlist_t* playlist);
-
-void
-parse_chapter();
-
-void
-parse_mpls(char* path);
-
+// Main parsing functions
+mpls_file_t init_mpls(char* path);
+void parse_stream_clips(mpls_file_t* mpls_file, playlist_t* playlist);
 
 // printing functions 
 void print_stream_clips_header(playlist_t* playlist);
 void print_stream_clips(playlist_t* playlist);
 
-
 #ifdef	__cplusplus
 }
 #endif
-
-#endif	/* PARSE_MPLS_H */
-

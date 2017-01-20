@@ -1,4 +1,4 @@
-#include "libfileread.hpp"
+#include "libfileread.h"
 
 #include <fstream>
 
@@ -59,4 +59,32 @@ UniversalFileStream::UniversalFileStream(const char* filename) :
 	std::shared_ptr<std::streambuf>(CreateFileBuf(filename)), std::istream(std::shared_ptr<std::streambuf>::get())
 {
 	// empty
+}
+
+
+
+size_t udfread(void* buffer, size_t elementSize, size_t elementCount, UDFFILE stream) {
+	auto sz = elementSize * elementCount;
+	auto ret = stream->rdbuf()->sgetn((char*)buffer, sz);
+	return (ret < 0) ? 0 : (size_t)ret;
+}
+
+long udffile_get_length(UDFFILE stream) {
+	auto buf = stream->rdbuf();
+	auto pos = buf->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
+	auto ret = buf->pubseekoff(0, std::ios_base::end, std::ios_base::in);
+	buf->pubseekpos(pos, std::ios_base::in);
+	return (long)ret;
+}
+
+UDFFILE udfopen(const char* path, const char* mode) {
+	if (!strcmp(mode, "rb") || !strcmp(mode, "br") || !strcmp(mode, "b")) {
+		try { return new UniversalFileStream(path); } catch (...) {}
+	}
+	return nullptr;
+}
+
+int udfclose(UDFFILE stream) {
+	delete stream;
+	return 0;
 }
