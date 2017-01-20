@@ -31,7 +31,7 @@
 
 #define ISVALIDPID(pid) (pid >= 0x10 && pid < 0x1fff)
 
-//#define MVC_SUPPORT
+#define MVC_SUPPORT
 
 class CMpegSplitterFile : public CBaseSplitterFileEx
 {
