@@ -7,9 +7,26 @@
 #include "config.h"
 #include "udfread.h"
 
+extern "C" LIBUDFREAD_API std::streambuf* CreateUdfFileBuf(const char* filename) {
+	try {
+		return new udffilebuf(filename);
+	}
+	catch (...) {
+		return nullptr;
+	}
+}
+
+extern "C" LIBUDFREAD_API void DeleteUdfFileBuf(std::streambuf* ptr) {
+	delete ptr;
+}
+
+
+
+
+
 constexpr int default_buffer_size = UDF_BLOCK_SIZE * 1024;
 
-dvdfilebuf::dvdfilebuf(const char* filename) :
+udffilebuf::udffilebuf(const char* filename) :
 	_udf(nullptr),
 	_file(nullptr),
 	_buffer(nullptr)
@@ -61,13 +78,13 @@ dvdfilebuf::dvdfilebuf(const char* filename) :
 	}
 }
 
-dvdfilebuf::~dvdfilebuf() {
+udffilebuf::~udffilebuf() {
 	delete[] _buffer;
 	udfread_file_close(_file);
 	udfread_close(_udf);
 }
 
-std::streampos dvdfilebuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
+std::streampos udffilebuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
 	bool success = false;
 	if (which == std::ios_base::in) {
 		int whence;
@@ -89,11 +106,11 @@ std::streampos dvdfilebuf::seekoff(std::streamoff off, std::ios_base::seekdir wa
 	return std::streamoff(-1);
 }
 
-std::streampos dvdfilebuf::seekpos(std::streampos sp, std::ios_base::openmode which) {
+std::streampos udffilebuf::seekpos(std::streampos sp, std::ios_base::openmode which) {
 	return seekoff(sp, std::ios_base::beg, which);
 }
 
-int dvdfilebuf::underflow() {
+int udffilebuf::underflow() {
 	if (this->gptr() == this->egptr()) {
 		auto bytesLeft = _size - getpos();
 		if (bytesLeft > 0) {
@@ -110,6 +127,6 @@ int dvdfilebuf::underflow() {
 		: std::char_traits<char>::to_int_type(*this->gptr());
 }
 
-std::streamoff dvdfilebuf::getpos() {
+std::streamoff udffilebuf::getpos() {
 	return udfread_file_tell(_file);
 }
