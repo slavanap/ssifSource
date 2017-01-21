@@ -61,7 +61,6 @@ STDMETHODIMP CAsyncFileReader::NonDelegatingQueryInterface(REFIID riid, void** p
     return
         QI(IAsyncReader)
         QI(ISyncReader)
-        QI(IFileHandle)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -123,18 +122,6 @@ STDMETHODIMP CAsyncFileReader::Length(LONGLONG* pTotal, LONGLONG* pAvailable)
         *pAvailable = len;
     }
     return S_OK;
-}
-
-// IFileHandle
-
-STDMETHODIMP_(HANDLE) CAsyncFileReader::GetFileHandle()
-{
-    return m_hFile;
-}
-
-STDMETHODIMP_(LPCTSTR) CAsyncFileReader::GetFileName()
-{
-    return m_nCurPart != -1 ? m_strFiles[m_nCurPart] : m_strFiles[0];
 }
 
 //

@@ -26,7 +26,7 @@
 IMPLEMENT_DYNAMIC(CMultiFiles, CObject)
 
 CMultiFiles::CMultiFiles()
-    : m_hFile(INVALID_HANDLE_VALUE)
+    : m_hFile(nullptr)
     , m_llTotalLength(0)
     , m_nCurPart(-1)
     , m_pCurrentPTSOffset(nullptr)
@@ -64,8 +64,7 @@ BOOL CMultiFiles::OpenFiles(CAtlList<CHdmvClipInfo::PlaylistItem>& files, UINT n
             return false;
         }
 
-        llSize.QuadPart = 0;
-        GetFileSizeEx(m_hFile, &llSize);
+        llSize.QuadPart = m_hFile->size();
         m_llTotalLength += llSize.QuadPart;
         m_FilesSize.Add(llSize.QuadPart);
         m_rtPtsOffsets.Add(rtDur);
@@ -80,16 +79,22 @@ BOOL CMultiFiles::OpenFiles(CAtlList<CHdmvClipInfo::PlaylistItem>& files, UINT n
     return TRUE;
 }
 
+LONGLONG SeekStream(UniversalFileStream& stream, LONGLONG distanceToMove, UINT moveMethod) {
+    std::ios_base::seekdir way;
+    switch (moveMethod) {
+        case FILE_BEGIN: way = std::ios_base::beg; break;
+        case FILE_CURRENT: way = std::ios_base::cur; break;
+        case FILE_END: way = std::ios_base::end; break;
+        default:
+            return -1;
+    }
+    return stream.rdbuf()->pubseekoff(distanceToMove, way);
+}
+
 ULONGLONG CMultiFiles::Seek(LONGLONG lOff, UINT nFrom)
 {
-    LARGE_INTEGER llNewPos;
-    LARGE_INTEGER llOff;
-
     if (m_strFiles.GetCount() == 1) {
-        llOff.QuadPart = lOff;
-        SetFilePointerEx(m_hFile, llOff, &llNewPos, nFrom);
-
-        return llNewPos.QuadPart;
+        return SeekStream(*m_hFile, lOff, nFrom);
     } else {
         ULONGLONG lAbsolutePos = GetAbsolutePosition(lOff, nFrom);
         int nNewPart = 0;
@@ -101,24 +106,24 @@ ULONGLONG CMultiFiles::Seek(LONGLONG lOff, UINT nFrom)
         }
 
         OpenPart(nNewPart);
-        llOff.QuadPart = lAbsolutePos - llSum;
-        SetFilePointerEx(m_hFile, llOff, &llNewPos, FILE_BEGIN);
-
-        return llSum + llNewPos.QuadPart;
+        LONGLONG ret = SeekStream(*m_hFile, lAbsolutePos - llSum, FILE_BEGIN);
+        if (ret < 0)
+            return ret;
+        return llSum + ret;
     }
 }
 
 ULONGLONG CMultiFiles::GetAbsolutePosition(LONGLONG lOff, UINT nFrom)
 {
-    LARGE_INTEGER llNoMove = {0, 0};
-    LARGE_INTEGER llCurPos;
-
     switch (nFrom) {
         case begin:
             return lOff;
-        case current:
-            SetFilePointerEx(m_hFile, llNoMove, &llCurPos, FILE_CURRENT);
-            return llCurPos.QuadPart + lOff;
+        case current: {
+            LONGLONG pos = m_hFile->pos();
+            if (pos < 0)
+                return pos;
+            return lOff + pos;
+        }
         case end:
             return m_llTotalLength - lOff;
         default:
@@ -129,9 +134,7 @@ ULONGLONG CMultiFiles::GetAbsolutePosition(LONGLONG lOff, UINT nFrom)
 ULONGLONG CMultiFiles::GetLength() const
 {
     if (m_strFiles.GetCount() == 1) {
-        LARGE_INTEGER llSize;
-        GetFileSizeEx(m_hFile, &llSize);
-        return llSize.QuadPart;
+        return m_hFile->size();
     } else {
         return m_llTotalLength;
     }
@@ -141,9 +144,10 @@ UINT CMultiFiles::Read(void* lpBuf, UINT nCount)
 {
     DWORD dwRead;
     do {
-        if (!ReadFile(m_hFile, lpBuf, nCount, &dwRead, nullptr)) {
+        std::streamsize ret = m_hFile->rdbuf()->sgetn((char*)lpBuf, nCount);
+        if (ret == -1)
             break;
-        }
+        dwRead = (DWORD)ret;
 
         if (dwRead != nCount && (m_nCurPart < 0 || (size_t)m_nCurPart < m_strFiles.GetCount() - 1)) {
             OpenPart(m_nCurPart + 1);
@@ -175,24 +179,25 @@ BOOL CMultiFiles::OpenPart(int nPart)
         ClosePart();
 
         fn = m_strFiles.GetAt(nPart);
-        m_hFile = CreateFile(fn, GENERIC_READ, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-
-        if (m_hFile != INVALID_HANDLE_VALUE) {
+        CT2A fn_ascii(fn, CP_ACP);
+        try {
+            m_hFile.reset(new UniversalFileStream(fn_ascii.m_psz));
             m_nCurPart = nPart;
             if (m_pCurrentPTSOffset != nullptr) {
                 *m_pCurrentPTSOffset = m_rtPtsOffsets[nPart];
             }
+            return TRUE;
         }
-
-        return (m_hFile != INVALID_HANDLE_VALUE);
+        catch (...) {
+            return FALSE;
+        }
     }
 }
 
 void CMultiFiles::ClosePart()
 {
-    if (m_hFile != INVALID_HANDLE_VALUE) {
-        CloseHandle(m_hFile);
-        m_hFile = INVALID_HANDLE_VALUE;
+    if (m_hFile != nullptr) {
+        m_hFile.reset();
         m_nCurPart = -1;
     }
 }

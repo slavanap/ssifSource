@@ -91,18 +91,6 @@ char *basename(char *path)
 
 	return buffer;
 }
-/*---------------------------------------------------------------------------*/
-static
-char *realpath(const char *path, char *resolved_path)
-{
-	size_t len = strlen(path);
-	if (resolved_path == NULL)
-		resolved_path = (char*)malloc(len+1);
-	memcpy(resolved_path, path, len);
-	resolved_path[len] = 0;
-	return resolved_path;
-}
-/*---------------------------------------------------------------------------*/
 
 #endif
 
@@ -223,7 +211,7 @@ file_read_string(UDFFILE file, int offset, int length)
     char* chars = (char*) calloc(length + 1, sizeof(char));
     
     // Jump to the requested position (byte offset) in the file
-	fseek(file, offset, SEEK_SET);
+	udfseek(file, offset, SEEK_SET);
     
     // Read 4 bytes of data into a char array
     // e.g., fread(chars, 1, 8) = first eight chars
@@ -235,7 +223,7 @@ file_read_string(UDFFILE file, int offset, int length)
     }
     
     // Reset cursor to beginning of file
-	rewind(file);
+	udfrewind(file);
 
     return chars;
 }
@@ -416,10 +404,11 @@ init_mpls(char* path)
 {
     mpls_file_t mpls_file = create_mpls_file_t();
 
-    mpls_file.path = realpath(path, NULL);
-    if (mpls_file.path == NULL)
     {
-        DIE("Unable to get the full path (realpath) of \"%s\".", path);
+        size_t len = strlen(path);
+        mpls_file.path = (char*)malloc(len + 1);
+        memcpy(mpls_file.path, path, len);
+        mpls_file.path[len] = 0;
     }
     
     mpls_file.name = basename(mpls_file.path);

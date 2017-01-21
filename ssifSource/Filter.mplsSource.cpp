@@ -78,10 +78,10 @@ namespace Filter {
 		std::string mplsFilename = args[0].AsString();
 		std::string mplsDir = ExtractFileDir(mplsFilename);
 		ssifPath = args[1].Defined() ? args[1].AsString() : (mplsDir + "..\\STREAM\\");
-		if (IsDirectoryExists((ssifPath + "SSIF").c_str())) {
+//		if (IsDirectoryExists((ssifPath + "SSIF").c_str())) {	// assume MVC
 			flagMVC = true;
 			ssifPath += "SSIF\\";
-		}
+//		}
 
 		// parse playlist
 		mpls_file_t mpls_file;
@@ -110,7 +110,7 @@ namespace Filter {
 
 			std::string filename = clip->filename;
 			filename.erase(filename.length() - 4);
-			filename = ssifPath + filename + (flagMVC ? "SSIF" : "M2TS");
+			filename = ssifPath + filename + (flagMVC ? "ssif" : "m2ts");
 			fileNames.push_back(filename);
 
 			frameOffsets.push_back(num_frames);

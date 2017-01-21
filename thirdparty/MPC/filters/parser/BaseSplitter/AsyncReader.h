@@ -39,7 +39,7 @@ public IUnknown {
     STDMETHOD_(LPCTSTR, GetFileName)() = 0;
 };
 
-class CAsyncFileReader : public CUnknown, public CMultiFiles, public IAsyncReader, public ISyncReader, public IFileHandle
+class CAsyncFileReader : public CUnknown, public CMultiFiles, public IAsyncReader, public ISyncReader
 {
 protected:
     ULONGLONG m_len;
@@ -76,11 +76,6 @@ public:
     STDMETHODIMP_(bool) HasErrors() { return m_lOsError != 0; }
     STDMETHODIMP_(void) ClearErrors() { m_lOsError = 0; }
     STDMETHODIMP_(void) SetPTSOffset(REFERENCE_TIME* rtPTSOffset) { m_pCurrentPTSOffset = rtPTSOffset; };
-
-    // IFileHandle
-
-    STDMETHODIMP_(HANDLE) GetFileHandle();
-    STDMETHODIMP_(LPCTSTR) GetFileName();
 
 };
 

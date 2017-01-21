@@ -21,6 +21,7 @@
 #pragma once
 
 #include <atlcoll.h>
+#include <libufileread.h>
 #include "../../../DSUtil/DSUtil.h"
 
 class CMultiFiles : public CObject
@@ -90,7 +91,7 @@ protected:
     CAtlArray<CString> m_strFiles;
     CAtlArray<ULONGLONG> m_FilesSize;
     CAtlArray<REFERENCE_TIME> m_rtPtsOffsets;
-    HANDLE m_hFile;
+    std::unique_ptr<UniversalFileStream> m_hFile;
     int m_nCurPart;
     ULONGLONG m_llTotalLength;
 

@@ -47,7 +47,9 @@ extern "C" LIBUDFREAD_API void DeleteUdfFileBuf(std::streambuf* ptr) {
 
 
 
-constexpr int default_buffer_size = UDF_BLOCK_SIZE * 1024;
+constexpr int default_buffer_size = UDF_BLOCK_SIZE;
+
+std::string GetRealPath(const std::string& path);
 
 udffilebuf::udffilebuf(const char* filename) :
 	_udf(nullptr),
@@ -56,6 +58,8 @@ udffilebuf::udffilebuf(const char* filename) :
 {
 	std::string dvd_fn(filename);
 	std::string file_fn;
+
+	dvd_fn = GetRealPath(dvd_fn);
 
 	std::replace(dvd_fn.begin(), dvd_fn.end(), '/', '\\');
 	size_t pos = dvd_fn.find_first_of('\\');
@@ -107,26 +111,24 @@ udffilebuf::~udffilebuf() {
 	udfread_close(_udf);
 }
 
-std::streampos udffilebuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
-	bool success = false;
-	if (which == std::ios_base::in) {
-		int whence;
-		switch (way) {
-			case std::ios_base::beg:
-				whence = UDF_SEEK_SET;
-				break;
-			case std::ios_base::cur:
-				whence = UDF_SEEK_CUR;
-				break;
-			case std::ios_base::end:
-				whence = UDF_SEEK_END;
-				break;
-			default:
-				return std::streamoff(-1);
-		}
-		return udfread_file_seek(_file, off, whence);
+std::streampos udffilebuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode /* which */) {
+	int whence;
+	switch (way) {
+		case std::ios_base::beg:
+			whence = UDF_SEEK_SET;
+			break;
+		case std::ios_base::cur:
+			whence = UDF_SEEK_CUR;
+			break;
+		case std::ios_base::end:
+			whence = UDF_SEEK_END;
+			break;
+		default:
+			return std::streamoff(-1);
 	}
-	return std::streamoff(-1);
+	auto ret = udfread_file_seek(_file, off, whence);
+	this->setg(eback(), egptr(), egptr());
+	return ret;
 }
 
 std::streampos udffilebuf::seekpos(std::streampos sp, std::ios_base::openmode which) {
@@ -153,3 +155,31 @@ int udffilebuf::underflow() {
 std::streamoff udffilebuf::getpos() {
 	return udfread_file_tell(_file);
 }
+
+
+#ifdef _WIN32
+
+#include <Windows.h>
+#include <Shlwapi.h>
+std::string GetRealPath(const std::string& path) {
+	std::string ret;
+	ret.resize(MAX_PATH);
+	if (!PathCanonicalizeA(&ret[0], path.c_str()))
+		throw std::runtime_error("Can't canonicalize the path");
+	ret.resize(strlen(ret.c_str()));
+	return ret;
+}
+
+#else
+
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+std::string GetRealPath(const std::string& path) {
+	char ret[PATH_MAX];
+	if (realpath("this_source.c", buf) == nullptr)
+		throw std::runtime_error("realpath method failed");
+	return std::string(ret);
+}
+
+#endif

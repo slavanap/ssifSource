@@ -90,7 +90,7 @@ namespace Filter {
 				if (!first)
 					muxedFilenamePart << '+';
 				muxedFilenamePart << filename;
-				filename = ssifPath + filename + (flagMVC ? ".SSIF" : ".M2TS");
+				filename = ssifPath + filename + (flagMVC ? ".ssif" : ".m2ts");
 				if (!first)
 					optionFileListPart << '+';
 				optionFileListPart << '"' << filename << '"';

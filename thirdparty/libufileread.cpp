@@ -61,6 +61,17 @@ UniversalFileStream::UniversalFileStream(const char* filename) :
 	// empty
 }
 
+std::streamsize UniversalFileStream::size() {
+	std::streampos pos = rdbuf()->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
+	std::streampos ret = rdbuf()->pubseekoff(0, std::ios_base::end, std::ios_base::in);
+	rdbuf()->pubseekpos(pos, std::ios_base::in);
+	return (std::streamsize)ret;
+}
+
+std::streampos UniversalFileStream::pos() {
+	return rdbuf()->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
+}
+
 
 
 size_t udfread(void* buffer, size_t elementSize, size_t elementCount, UDFFILE stream) {
@@ -70,11 +81,7 @@ size_t udfread(void* buffer, size_t elementSize, size_t elementCount, UDFFILE st
 }
 
 long udffile_get_length(UDFFILE stream) {
-	auto buf = stream->rdbuf();
-	auto pos = buf->pubseekoff(0, std::ios_base::cur, std::ios_base::in);
-	auto ret = buf->pubseekoff(0, std::ios_base::end, std::ios_base::in);
-	buf->pubseekpos(pos, std::ios_base::in);
-	return (long)ret;
+	return (long)stream->size();
 }
 
 UDFFILE udfopen(const char* path, const char* mode) {
@@ -87,4 +94,16 @@ UDFFILE udfopen(const char* path, const char* mode) {
 int udfclose(UDFFILE stream) {
 	delete stream;
 	return 0;
+}
+
+int udfseek(UDFFILE stream, long offset, int origin) {
+	std::ios_base::seekdir way;
+	switch (origin) {
+		case SEEK_SET: way = std::ios_base::beg; break;
+		case SEEK_CUR: way = std::ios_base::cur; break;
+		case SEEK_END: way = std::ios_base::end; break;
+		default:
+			return -1;
+	}
+	return (int)stream->rdbuf()->pubseekoff(offset, way);
 }
