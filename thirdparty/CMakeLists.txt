@@ -10,3 +10,7 @@ file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} Lua/src/*.c Lua/src/*.h)
 list(REMOVE_ITEM SOURCES Lua/src/luac.c)
 add_library(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Third Party")
+
+project(libufileread)
+add_library(${PROJECT_NAME} libufileread.h libufileread.cpp)
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Third Party")

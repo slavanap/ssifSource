@@ -45,7 +45,7 @@ namespace Tools {
 		DEFINE_GUID(MFVideoFormat_YUY2, 0x32595559, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71);
 
 		HRESULT DSHelpCreateInstance(LPOLESTR bstrLibName, REFCLSID rclsid, LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppv);
-		HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, IPin **ppPin, bool bVideo = false);
+		HRESULT GetPin(IBaseFilter* pFilter, PIN_DIRECTION dirrequired, int iNum, CComPtr<IPin>& pin, bool bVideo);
 		HRESULT GetPinByName(IBaseFilter* pFilter, PIN_DIRECTION dirreq, LPCWSTR wszName, IPin **ppPin);
 
 		//
@@ -56,8 +56,8 @@ namespace Tools {
 		// 
 		//     For example:  CComPtr<IPin> pPin = GetInPin(pFilter,0);
 		//
-		IPin* GetInPin(IBaseFilter * pFilter, int nPin, bool bVideo = false);
-		IPin* GetOutPin(IBaseFilter * pFilter, int nPin, bool bVideo = false);
+		CComPtr<IPin> GetInPin(IBaseFilter * pFilter, int nPin, bool bVideo = false);
+		CComPtr<IPin> GetOutPin(IBaseFilter * pFilter, int nPin, bool bVideo = false);
 
 		HRESULT RenderOutputPins(IGraphBuilder* pGB, IBaseFilter* pFilter);
 

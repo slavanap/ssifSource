@@ -1,6 +1,6 @@
 //
 // Histogram Matching algorithm
-// Copyright 2016 Vyacheslav Napadovsky.
+// Copyright 2017 Vyacheslav Napadovsky.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,6 @@ namespace Filter {
 		static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
 	private:
 		PClip m_reference;
-		VideoInfo m_rvi;
 		HistogramMatching(IScriptEnvironment* env, PClip input, PClip reference);
 	};
 

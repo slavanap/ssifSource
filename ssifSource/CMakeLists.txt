@@ -33,7 +33,7 @@ list(APPEND SOURCES
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} BaseClasses AvsTools)
+target_link_libraries(${PROJECT_NAME} BaseClasses AvsTools libufileread)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT ${PROJECT_NAME})
 

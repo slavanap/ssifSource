@@ -270,7 +270,7 @@ namespace Filter {
 	{
 		USES_CONVERSION;
 		std::wstring BinPathW(A2W(ProcessHolder::BinPath.c_str()));
-		BinPathW += L"MpegSplitter_mod.ax";
+		BinPathW += L"MpegSplitter.dll";
 
 		HRESULT hr = S_OK;
 		pGraph = nullptr;

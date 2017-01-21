@@ -3,28 +3,30 @@ project(AvsTools)
 set(HEADERS
 	common.h
 	
+	Filter.AdjustedColorDifference.hpp
 	Filter.CropDetect.hpp
+	Filter.HistogramMatching.hpp
 	Filter.Pipe.hpp
 	Filter.RestoreAlpha.hpp
 	Filter.SequentialToSeekable.hpp
 	Filter.SetLogger.hpp
 	Tools.AviSynth.hpp
 	Tools.AviSynth.Frame.hpp
-	Tools.HistogramMatching.hpp
 	Tools.Motion.hpp
 	Tools.Pipe.hpp
 	Tools.WinApi.hpp
 )
 
 set(SOURCES
+	Filter.AdjustedColorDifference.cpp
 	Filter.CropDetect.cpp
+	Filter.HistogramMatching.cpp
 	Filter.Pipe.cpp
 	Filter.RestoreAlpha.cpp
 	Filter.SequentialToSeekable.cpp
 	Filter.SetLogger.cpp
 	Tools.AviSynth.cpp
 	Tools.AviSynth.Frame.cpp
-	Tools.HistogramMatching.cpp
 	Tools.Motion.cpp
 	Tools.Pipe.cpp
 	Tools.WinApi.cpp

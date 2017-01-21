@@ -22,7 +22,7 @@
 
 
 #include "stdafx.h"
-#include "Tools.HistogramMatching.hpp"
+#include "Filter.HistogramMatching.hpp"
 
 namespace Tools {
 
@@ -137,8 +137,8 @@ namespace Filter {
 	{
 		if (!vi.IsRGB32())
 			env->ThrowError("plugin supports only RGB32 input");
-		m_rvi = reference->GetVideoInfo();
-		CheckVideoInfo(env, vi, m_rvi);
+		auto rvi = reference->GetVideoInfo();
+		CheckVideoInfo(env, vi, rvi);
 	}
 
 	PVideoFrame HistogramMatching::GetFrame(int n, IScriptEnvironment* env) {

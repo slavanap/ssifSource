@@ -1,6 +1,6 @@
-// MIT license
-// 
-// Copyright 2017 Vyacheslav Napadovsky <napadovskiy@gmail.com>.
+//
+// Adjusted Color Difference filter
+// Copyright 2017 Vyacheslav Napadovsky.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,34 +23,20 @@
 
 #pragma once
 
-#ifndef LIBUDFREAD_API
-#	ifdef LIBUDFREAD_EXPORTS
-#		define LIBUDFREAD_API __declspec(dllexport)
-#	else
-#		define LIBUDFREAD_API __declspec(dllimport)
-#	endif
-#endif
+#include "Tools.AviSynth.Frame.hpp"
 
-#include <streambuf>
+namespace Filter {
 
-struct udfread;
-typedef struct udfread_file UDFFILE;
+	class AdjustedColorDifference : public GenericVideoFilter {
+	public:
+		PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env) override;
 
-class LIBUDFREAD_API udffilebuf : public std::streambuf {
-public:
-	udffilebuf(const char* filename);
-	~udffilebuf();
-	std::streampos seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) override;
-	std::streampos seekpos(std::streampos sp, std::ios_base::openmode which) override;
-	int underflow() override;
+		static AvsParams CreateParams;
+		static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
+	private:
+		double m_factor;
+		PClip m_subtrahend;
+		AdjustedColorDifference(IScriptEnvironment* env, PClip input, double factor, PClip subtrahend = PClip());
+	};
 
-	udffilebuf(const udffilebuf& other) = delete;
-	udffilebuf& operator=(const udffilebuf& other) = delete;
-private:
-	udfread *_udf;
-	udfread_file *_file;
-	std::streamoff _size;
-	char *_buffer;
-
-	std::streamoff getpos();
-};
+}

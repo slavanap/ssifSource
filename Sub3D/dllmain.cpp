@@ -39,8 +39,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 
 #include <Tools.AviSynth.hpp>
-#include <Tools.HistogramMatching.hpp>
+#include <Filter.AdjustedColorDifference.hpp>
 #include <Filter.CropDetect.hpp>
+#include <Filter.HistogramMatching.hpp>
 #include <Filter.Pipe.hpp>
 #include <Filter.SequentialToSeekable.hpp>
 #include <Filter.SetLogger.hpp>
@@ -68,6 +69,7 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("PipeWriter", Filter::Pipe::PipeWriter::CreateParams, Filter::Pipe::PipeWriter::Create, nullptr);
 	env->AddFunction("PipeWriterForHandle", Filter::Pipe::PipeWriter::CreateForHandleParams, Filter::Pipe::PipeWriter::CreateForHandle, nullptr);
 	// Tools
+	env->AddFunction("AdjustedColorDifference", Filter::AdjustedColorDifference::CreateParams, Filter::AdjustedColorDifference::Create, nullptr);
 	env->AddFunction("CropDetect", Filter::CropDetect::CreateParams, Filter::CropDetect::Create, nullptr);
 	env->AddFunction("HistogramMatching", Filter::HistogramMatching::CreateParams, Filter::HistogramMatching::Create, nullptr);
 	env->AddFunction("SequentialToSeekable", Filter::SequentialToSeekable::CreateParams, Filter::SequentialToSeekable::Create, nullptr);
