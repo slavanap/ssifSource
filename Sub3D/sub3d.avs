@@ -1,4 +1,4 @@
-test_dir = "c:\Users\Vyacheslav\Projects\ssifSource-misc\test sequences\"
+test_dir = "x:\@_Research Material\3D\3D Video\"
 
 #
 # About: Plugin to create 3D subtitles with correct depth for 3D video files.

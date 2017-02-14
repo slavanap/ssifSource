@@ -1,4 +1,4 @@
-test_dir = "c:\Users\Vyacheslav\Projects\ssifSource-misc\test sequences\"
+test_dir = "x:\@_Research Material\3D\3D Video\"
 
 vid = test_dir + "MM1_test\MM1-001.mkv"
 sub = test_dir + "MM1_test\MM1_ANSI.srt"

@@ -39,7 +39,6 @@ install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT ${PROJECT_NAME})
 
 install(FILES
 	ssifSource.avs
-	MpegSplitter_mod.ax
 	libmfxsw64.dll
 	vcomp90.dll
 	vcomp90d.dll

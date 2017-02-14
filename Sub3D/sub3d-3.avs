@@ -1,4 +1,4 @@
-test_dir = "c:\Users\Vyacheslav\Projects\ssifSource-misc\test sequences\"
+test_dir = "x:\@_Research Material\3D\3D Video\"
 
 vid = test_dir + "SupTitle_Sample\video_Full-SBS.mkv"
 global sub = test_dir + "SupTitle_Sample\FRA_2D.sup"
