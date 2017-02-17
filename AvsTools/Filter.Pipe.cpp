@@ -35,6 +35,7 @@ namespace Filter {
 
 		AvsParams CreateReadPipeParams = "[pipe_name]s";
 
+#if !defined _WIN64 && !defined __x86_64__ && !defined __ppc64__
 		AVSValue __cdecl CreateReadPipe(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			LPCSTR pipe_name = args[0].AsString();
 			HANDLE hPipe = CreateNamedPipeA(pipe_name, PIPE_ACCESS_INBOUND,
@@ -64,6 +65,7 @@ namespace Filter {
 			CloseHandle(hPipe);
 			return AVSValue();
 		}
+#endif
 
 
 
@@ -108,10 +110,12 @@ namespace Filter {
 			return new PipeWriter(env, args[1].AsClip(), args[0].AsString());
 		}
 		
+#if !defined _WIN64 && !defined __x86_64__ && !defined __ppc64__
 		AvsParams PipeWriter::CreateForHandleParams = "[pipe_cookie]i[clip]c";
 		AVSValue __cdecl PipeWriter::CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			return new PipeWriter(env, args[1].AsClip(), reinterpret_cast<HANDLE>(args[0].AsInt()));
 		}
+#endif
 
 
 
@@ -147,7 +151,7 @@ namespace Filter {
 			PVideoFrame vf = env->NewVideoFrame(vi);
 			VideoFrameBuffer *vfb = vf->GetFrameBuffer();
 			if (!ConfidentRead(hPipe, vfb->GetWritePtr(), vfb->GetDataSize()))
-				env->ThrowError("Error writing to pipe #%d, code 0x%08X", (int)hPipe, GetLastError());
+				env->ThrowError("Error writing to pipe #%d, code 0x%08X", (int)(size_t)hPipe, GetLastError());
 			return vf;
 		}
 
@@ -156,10 +160,12 @@ namespace Filter {
 			return new PipeReader(env, args[0].AsString());
 		}
 
+#if !defined _WIN64 && !defined __x86_64__ && !defined __ppc64__
 		AvsParams PipeReader::CreateForHandleParams = "[pipe_cookie]i";
 		AVSValue __cdecl PipeReader::CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env) {
 			return new PipeReader(env, reinterpret_cast<HANDLE>(args[0].AsInt()));
 		}
+#endif
 
 	}
 }

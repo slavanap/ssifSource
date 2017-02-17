@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\thirdparty\BaseClasses\amextra.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\amfilter.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\cache.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\checkbmi.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\combase.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\cprop.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\ctlutil.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\ddmm.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\dllsetup.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\dxmperf.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\fourcc.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\measure.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\msgthrd.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\mtype.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\outputq.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\perflog.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\perfstruct.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\pstream.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\pullpin.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\refclock.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\reftime.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\renbase.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\schedule.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\seekpt.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\source.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\streams.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\strmctl.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\sysclock.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\transfrm.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\transip.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\videoctl.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\vtrans.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\winctrl.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\winutil.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\wxdebug.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\wxlist.h" />
+    <ClInclude Include="..\..\thirdparty\BaseClasses\wxutil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\thirdparty\BaseClasses\amextra.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\amfilter.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\amvideo.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\arithutil.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\combase.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\cprop.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\ctlutil.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\ddmm.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\dllentry.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\dllsetup.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\mtype.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\outputq.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\perflog.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\pstream.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\pullpin.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\refclock.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\renbase.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\schedule.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\seekpt.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\source.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\strmctl.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\sysclock.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\transfrm.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\transip.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\videoctl.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\vtrans.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\winctrl.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\winutil.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\wxdebug.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\wxlist.cpp" />
+    <ClCompile Include="..\..\thirdparty\BaseClasses\wxutil.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E7205816-9D04-4A04-A8E8-53F0D19EA25C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>BaseClasses</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty\BaseClasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Winmm.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty\BaseClasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Winmm.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty\BaseClasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Winmm.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty\BaseClasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Winmm.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

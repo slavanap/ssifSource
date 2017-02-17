@@ -41,7 +41,7 @@ namespace Tools {
 
 		void AddLibraryPathToPathEnv() {
 			szLibraryPath.resize(PATH_BUFFER_LENGTH, 0);
-			if (!GetModuleFileName(hInstance, &szLibraryPath[0], szLibraryPath.size()))
+			if (!GetModuleFileName(hInstance, &szLibraryPath[0], (DWORD)szLibraryPath.size()))
 				goto error;
 			size_t len;
 			if (FAILED(StringCchLength(&szLibraryPath[0], szLibraryPath.size(), &len)))
@@ -49,7 +49,7 @@ namespace Tools {
 			while (len > 0 && szLibraryPath[len - 1] != '\\') --len;
 			if (len > 0) {
 				szLibraryPath[len - 1] = ';';
-				size_t path_len = GetEnvironmentVariable(TEXT("PATH"), &szLibraryPath[len], szLibraryPath.size() - len);
+				size_t path_len = GetEnvironmentVariable(TEXT("PATH"), &szLibraryPath[len], (DWORD)(szLibraryPath.size() - len));
 				if (path_len <= szLibraryPath.size() - len)
 					SetEnvironmentVariable(TEXT("PATH"), &szLibraryPath[0]);
 				szLibraryPath[len - 1] = '\\';
@@ -98,7 +98,8 @@ namespace Tools {
 			if (cbSize < 0) return false;
 			DWORD temp;
 			do {
-				if (!ReadFile(hFile, buf, cbSize, &temp, nullptr))
+				DWORD toread = (cbSize <= std::numeric_limits<DWORD>::max()) ? (DWORD)cbSize : std::numeric_limits<DWORD>::max();
+				if (!ReadFile(hFile, buf, toread, &temp, nullptr))
 					return false;
 				cbSize -= temp;
 				buf += temp;
@@ -112,7 +113,8 @@ namespace Tools {
 			if (cbSize < 0) return false;
 			DWORD temp;
 			do {
-				if (!WriteFile(hFile, buf, cbSize, &temp, nullptr))
+				DWORD towrite = (cbSize <= std::numeric_limits<DWORD>::max()) ? (DWORD)cbSize : std::numeric_limits<DWORD>::max();
+				if (!WriteFile(hFile, buf, towrite, &temp, nullptr))
 					return false;
 				cbSize -= temp;
 				buf += temp;
@@ -171,8 +173,9 @@ namespace Tools {
 		}
 
 		std::string GetTempFilename() {
+			static_assert(MAX_PATH < MAXDWORD32, "unexpected");
 			std::string path(MAX_PATH, 0);
-			path.resize(GetTempPathA(path.length(), &path[0]));
+			path.resize(GetTempPathA((DWORD)path.length(), &path[0]));
 			std::string filename(MAX_PATH, 0);
 			GetTempFileNameA(path.c_str(), "sstmp", 0, &filename[0]);
 			filename.resize(strlen(filename.c_str())); 

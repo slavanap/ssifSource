@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7531C193-4FC8-4D55-A41B-97853693999F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MpegSplitter</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_AFXDLL;NOSETTINGS;STANDALONE_FILTER;WIN32;_DEBUG;_WINDOWS;_USRDLL;MPEGSPLITTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty;$(ProjectDir)..\..\thirdparty\BaseClasses;$(ProjectDir)..\..\thirdparty\MPC\filters\parser\MpegSplitter;$(ProjectDir)..\..\thirdparty\MPC\include;$(ProjectDir)..\..\thirdparty\MPC\thirdparty\VirtualDub\h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Vfw32.lib;Mincore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_AFXDLL;NOSETTINGS;STANDALONE_FILTER;_DEBUG;_WINDOWS;_USRDLL;MPEGSPLITTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty;$(ProjectDir)..\..\thirdparty\BaseClasses;$(ProjectDir)..\..\thirdparty\MPC\filters\parser\MpegSplitter;$(ProjectDir)..\..\thirdparty\MPC\include;$(ProjectDir)..\..\thirdparty\MPC\thirdparty\VirtualDub\h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Vfw32.lib;Mincore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_AFXDLL;NOSETTINGS;STANDALONE_FILTER;WIN32;NDEBUG;_WINDOWS;_USRDLL;MPEGSPLITTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty;$(ProjectDir)..\..\thirdparty\BaseClasses;$(ProjectDir)..\..\thirdparty\MPC\filters\parser\MpegSplitter;$(ProjectDir)..\..\thirdparty\MPC\include;$(ProjectDir)..\..\thirdparty\MPC\thirdparty\VirtualDub\h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Vfw32.lib;Mincore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_AFXDLL;NOSETTINGS;STANDALONE_FILTER;NDEBUG;_WINDOWS;_USRDLL;MPEGSPLITTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\thirdparty;$(ProjectDir)..\..\thirdparty\BaseClasses;$(ProjectDir)..\..\thirdparty\MPC\filters\parser\MpegSplitter;$(ProjectDir)..\..\thirdparty\MPC\include;$(ProjectDir)..\..\thirdparty\MPC\thirdparty\VirtualDub\h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Vfw32.lib;Mincore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\AsyncReader.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitter.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFile.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFileEx.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\MultiFiles.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\IMpegSplitterFilter.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterFile.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterSettingsWnd.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\resource.h" />
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\AudioParser.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\DSMPropertyBag.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\DSUtil.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\FontInstaller.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\GolombBuffer.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\HdmvClipInfo.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\vd.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\vd_asm.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\FilterApp.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\AsyncReader.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitter.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFile.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFileEx.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\MultiFiles.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterFile.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterSettingsWnd.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\thirdparty\VirtualDub\system\source\cpuaccel.cpp" />
+    <ClCompile Include="..\..\thirdparty\MPC\thirdparty\VirtualDub\system\source\memory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\thirdparty\MPC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\thirdparty\MPC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\..\thirdparty\MPC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\..\thirdparty\MPC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NO_VERSION_REV_NEEDED;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NO_VERSION_REV_NEEDED;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NO_VERSION_REV_NEEDED;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NO_VERSION_REV_NEEDED;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BaseClasses\BaseClasses.vcxproj">
+      <Project>{e7205816-9d04-4a04-a8e8-53f0d19ea25c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\libufileread\libufileread.vcxproj">
+      <Project>{e2ad9b82-518d-4c3a-853d-6ae58e816f7d}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

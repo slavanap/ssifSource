@@ -27,6 +27,7 @@
 namespace Filter {
 	namespace Pipe {
 
+#if !defined _WIN64 && !defined __x86_64__ && !defined __ppc64__
 		extern AvsParams CreateReadPipeParams;
 		AVSValue __cdecl CreateReadPipe(AVSValue args, void* user_data, IScriptEnvironment* env);
 
@@ -35,6 +36,7 @@ namespace Filter {
 
 		extern AvsParams DestroyPipeParams;
 		AVSValue __cdecl DestroyPipe(AVSValue args, void* user_data, IScriptEnvironment* env);
+#endif
 
 		class PipeWriter : public GenericVideoFilter {
 		public:
@@ -46,8 +48,10 @@ namespace Filter {
 			// AviSynth functions
 			static AvsParams CreateParams;
 			static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
+#if !defined _WIN64 && !defined __x86_64__ && !defined __ppc64__
 			static AvsParams CreateForHandleParams;
 			static AVSValue __cdecl CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env);
+#endif
 		private:
 			HANDLE hPipe;
 			bool flagClose;
@@ -65,9 +69,10 @@ namespace Filter {
 			// AviSynth functions
 			static AvsParams CreateParams;
 			static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
+#if !defined _WIN64 && !defined __x86_64__ && !defined __ppc64__
 			static AvsParams CreateForHandleParams;
 			static AVSValue __cdecl CreateForHandle(AVSValue args, void* user_data, IScriptEnvironment* env);
-			
+#endif
 		private:
 			HANDLE hPipe;
 			bool flagClose;

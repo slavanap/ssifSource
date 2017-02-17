@@ -1,0 +1,11 @@
+/.vs
+/Debug
+/Release
+/x64
+/ipch
+/*/Debug
+/*/Release
+/*/x64
+/*/ipch
+/*.VC.VC.opendb
+/*.VC.db

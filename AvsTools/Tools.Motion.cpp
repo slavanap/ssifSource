@@ -166,7 +166,7 @@ namespace Tools {
 
 #pragma omp parallel for schedule(guided)
 				for (int y = 0; y < (int)map_dest.height(); ++y) {
-					for (size_t x = 0; x < map_dest.width(); ++x) {
+					for (int x = 0; x < (int)map_dest.width(); ++x) {
 						if (mask(x, y)) {
 							map_dest(x, y) = ProcessBlock(map_source, x, y);
 						}

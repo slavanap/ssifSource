@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\BaseSplitter">
+      <UniqueIdentifier>{09f91545-e933-4025-8164-a6169b15e7e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\BaseSplitter">
+      <UniqueIdentifier>{fd1e490f-b9c4-44a7-a1f4-7203ea61ca55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DSUtil">
+      <UniqueIdentifier>{3e6a98af-49f7-40cb-b09d-2c6e8251177c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FilterApp">
+      <UniqueIdentifier>{91e689d5-d36a-4815-b28a-3fb554ce7486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\VirtualDub">
+      <UniqueIdentifier>{fbf60eda-838e-49bb-bba4-4d95a1707503}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\IMpegSplitterFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterSettingsWnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\AsyncReader.h">
+      <Filter>Header Files\BaseSplitter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitter.h">
+      <Filter>Header Files\BaseSplitter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFile.h">
+      <Filter>Header Files\BaseSplitter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFileEx.h">
+      <Filter>Header Files\BaseSplitter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\MultiFiles.h">
+      <Filter>Header Files\BaseSplitter</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitterSettingsWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\AsyncReader.cpp">
+      <Filter>Source Files\BaseSplitter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitter.cpp">
+      <Filter>Source Files\BaseSplitter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFile.cpp">
+      <Filter>Source Files\BaseSplitter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\BaseSplitterFileEx.cpp">
+      <Filter>Source Files\BaseSplitter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\parser\BaseSplitter\MultiFiles.cpp">
+      <Filter>Source Files\BaseSplitter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\AudioParser.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\DSMPropertyBag.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\DSUtil.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\FontInstaller.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\GolombBuffer.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\HdmvClipInfo.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\vd.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\DSUtil\vd_asm.cpp">
+      <Filter>Source Files\DSUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\filters\FilterApp.cpp">
+      <Filter>Source Files\FilterApp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\thirdparty\VirtualDub\system\source\cpuaccel.cpp">
+      <Filter>Source Files\VirtualDub</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\thirdparty\MPC\thirdparty\VirtualDub\system\source\memory.cpp">
+      <Filter>Source Files\VirtualDub</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\thirdparty\MPC\filters\parser\MpegSplitter\MpegSplitter.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
