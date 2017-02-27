@@ -76,9 +76,12 @@ namespace Tools {
 			void NewCandidate(int pixel_x, int pixel_y, Vector& v);
 
 			void AddCandidate(Vector& candidate, int pixel_x, int pixel_y, int dx, int dy) {
-				if ((abs(dx) > move_x_threshold) ||
-					!((0 <= pixel_x + dx) && (pixel_x + dx + BLOCK_COMPARE_SIZE < from.width())) ||
-					!((0 <= pixel_y + dy) && (pixel_y + dy + BLOCK_COMPARE_SIZE < from.height())))
+				if ((abs(dx) > move_x_threshold)
+					|| (pixel_x + dx < 0) || (pixel_x + dx + BLOCK_COMPARE_SIZE >= from.width())
+					|| (pixel_y + dy < 0) || (pixel_y + dy + BLOCK_COMPARE_SIZE >= from.height())
+					|| (pixel_x < 0) || (pixel_x + BLOCK_COMPARE_SIZE >= from.width())
+					|| (pixel_y < 0) || (pixel_y + BLOCK_COMPARE_SIZE >= from.height())
+				)
 				{
 					return;
 				}

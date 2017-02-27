@@ -22,6 +22,8 @@
 
 
 #pragma once
+#include <cassert>
+
 #include "Tools.AviSynth.Frame.hpp"
 
 namespace Tools {

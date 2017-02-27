@@ -45,6 +45,23 @@ namespace Tools {
 				Pixel() { }
 				Pixel(BYTE r, BYTE g, BYTE b, BYTE a = 0xFF) : r(r), g(g), b(b), a(a) { }
 
+				Pixel(int r, int g, int b, int a = 0xFF) :
+					r(ColorLimits(r)),
+					g(ColorLimits(g)),
+					b(ColorLimits(b)),
+					a(ColorLimits(a))
+				{
+					// empty
+				}
+				Pixel(float r, float g, float b, float a = 1.0f) :
+					r((int)(r * (ColorCount - 1))),
+					g((int)(g * (ColorCount - 1))),
+					b((int)(b * (ColorCount - 1))),
+					a((int)(a * (ColorCount - 1)))
+				{
+					// empty
+				}
+
 				void assign(BYTE r, BYTE g, BYTE b, BYTE a = 0xFF) {
 					this->r = r, this->g = g, this->b = b, this->a = a;
 				}
