@@ -90,11 +90,5 @@
     <Content Include="..\..\ssifSource\libmfxsw64.dll">
       <Filter>Resource Files</Filter>
     </Content>
-    <Content Include="..\..\ssifSource\vcomp90.dll">
-      <Filter>Resource Files</Filter>
-    </Content>
-    <Content Include="..\..\ssifSource\vcomp90d.dll">
-      <Filter>Resource Files</Filter>
-    </Content>
   </ItemGroup>
 </Project>

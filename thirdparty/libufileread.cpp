@@ -85,10 +85,7 @@ long udffile_get_length(UDFFILE stream) {
 }
 
 UDFFILE udfopen(const char* path, const char* mode) {
-	if (!strcmp(mode, "rb") || !strcmp(mode, "br") || !strcmp(mode, "b")) {
-		try { return new UniversalFileStream(path); } catch (...) {}
-	}
-	return nullptr;
+	return new UniversalFileStream(path);
 }
 
 int udfclose(UDFFILE stream) {
