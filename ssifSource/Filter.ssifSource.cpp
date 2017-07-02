@@ -408,7 +408,7 @@ namespace Filter {
 			}
 			else {
 				errstream << "ERROR:\\n"
-					"Can't retrieve frame #" + IntToStr(n) + " !\\n";
+					"Can't retrieve frame #" + std::to_string(n) + " !\\n";
 				if (lastFrame >= vi.num_frames - 1)
 					errstream << "Video sequence is over. Reload the script.\\n";
 				else

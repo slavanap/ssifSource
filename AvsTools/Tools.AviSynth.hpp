@@ -22,7 +22,7 @@
 
 
 #pragma once
-#include <AviSynth/avisynth.h>
+#include <thirdparty/AviSynth/avisynth.h>
 #include <string>
 
 typedef const LPCSTR AvsParams;
@@ -113,6 +113,11 @@ namespace Tools {
 		PClip ConvertToRGB32(IScriptEnvironment* env, PClip src);
 		void ClipSplit(IScriptEnvironment* env, PClip source, PClip& left, PClip& right);
 		void CheckVideoInfo(IScriptEnvironment* env, const VideoInfo& svi, const VideoInfo& tvi);
+
+		template<typename T>
+		inline void AddFilter(IScriptEnvironment* env) {
+			env->AddFunction(T::FilterName, T::CreateParams, T::Create, nullptr);
+		}
 
 	}
 }

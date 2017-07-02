@@ -33,9 +33,9 @@ namespace Tools {
 		extern HINSTANCE hInstance;
 
 #ifdef UNICODE
-		typedef std::wstring tstring;
+		using tstring = std::wstring;
 #else
-		typedef std::string tstring;
+		using tstring = std::string;
 #endif
 
 		extern tstring szLibraryPath;
@@ -48,7 +48,6 @@ namespace Tools {
 		bool ConfidentRead(HANDLE hFile, LPVOID buffer, size_t cbSize);
 		bool ConfidentWrite(HANDLE hFile, LPCVOID buffer, size_t cbSize);
 
-		std::string IntToStr(int a);
 		std::string format(LPCSTR fmt, int size, ...);
 		std::string GetErrorMessage(DWORD code);
 		std::string ExtractFileDir(const std::string& fn);
@@ -73,6 +72,7 @@ namespace Tools {
 		public:
 			static std::string BinPath;
 			ProcessHolder(std::string exe_name, const std::string& exe_args, bool flag_debug);
+			ProcessHolder(const ProcessHolder& other) = delete;
 			~ProcessHolder();
 			void Resume();
 		private:
@@ -118,9 +118,13 @@ namespace Tools {
 #ifdef UNICODE
 		inline std::string tostring(const tstring& tstr) { return tostring(tstr, CP_ACP); }
 		inline std::wstring towstring(const tstring& tstr) { return tstr; }
+		inline tstring totstring(const std::string& str) { return towstring(str, CP_ACP); }
+		inline tstring totstring(const std::wstring& wstr) { return wstr; }
 #else
 		inline std::string tostring(const tstring& tstr) { return tstr; }
 		inline std::wstring towstring(const tstring& tstr) { return towstring(tstr, CP_ACP); }
+		inline tstring totstring(const std::string& str) { return str; }
+		inline tstring totstring(const std::wstring& wstr) { return tostring(str, CP_ACP); }
 #endif
 
 		size_t string_pos_max(size_t pos1, size_t pos2);

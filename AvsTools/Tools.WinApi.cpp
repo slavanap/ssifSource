@@ -122,12 +122,6 @@ namespace Tools {
 			return true;
 		}
 
-		std::string IntToStr(int a) {
-			char buffer[32];
-			_itoa_s(a, buffer, 32, 10);
-			return buffer;
-		}
-
 		std::string format(LPCSTR fmt, int size, ...) {
 			va_list al;
 			va_start(al, size);
