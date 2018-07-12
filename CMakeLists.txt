@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(ssifSource VERSION "5.0.4")
+project(ssifSource VERSION "5.0.5")
 include(utils.cmake)
 set(PRODUCT_COMPANY "Vyacheslav Napadovsky")
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})

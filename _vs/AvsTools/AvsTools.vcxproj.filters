@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\AvsTools\Filter.SetLogger.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\AvsTools\Filter.VideoCorrelation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\AvsTools\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\AvsTools\Filter.SetLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AvsTools\Filter.VideoCorrelation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\AvsTools\stdafx.cpp">

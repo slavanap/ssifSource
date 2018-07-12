@@ -58,18 +58,6 @@ BEGIN
     END
 END
 
-1 DIALOGEX FIXED IMPURE LOADONCALL DISCARDABLE 0, 0, 208, 99, 0
-EXSTYLE 0
-STYLE DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_SYSMENU | WS_CAPTION 
-CAPTION "Sub3d donation info"
-FONT 8, "MS Shell Dlg", 0, 0, 0
-LANGUAGE LANG_NEUTRAL, 0
-BEGIN
-  CONTROL "Glad to see you interested in donation!\x0A\x0AUnfortunately, donation way is still under development, but if you want to contribute to the project or have other ideas about contribution or collaboration, please contact the developer via e-mail.\x0A\x0AVyacheslav", -1, "STATIC", SS_LEFT|WS_CHILD|WS_GROUP|WS_VISIBLE, 6, 5, 197, 90, 0x0, 0
-  CONTROL "Send mail...",1,"BUTTON",BS_PUSHBUTTON|WS_CHILD|WS_TABSTOP|WS_VISIBLE, 86, 79, 55, 15, 0x0, 0
-  CONTROL "Close",2,"BUTTON",BS_DEFPUSHBUTTON|WS_CHILD|WS_TABSTOP|WS_VISIBLE, 146, 79, 55, 15, 0x0, 0
-END
-
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 

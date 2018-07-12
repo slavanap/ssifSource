@@ -23,12 +23,12 @@ set(SOURCES
 	Filter.mplsSource2.cpp
 	Filter.ssifSource.cpp
 	Tools.DirectShow.cpp
-	ssifSource.rc
 )
 
 set_precompiled_header(stdafx.h stdafx.cpp)
 
 list(APPEND SOURCES
+	ssifSource.rc
 	mplsReader.c
 )
 

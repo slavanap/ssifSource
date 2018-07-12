@@ -32,8 +32,8 @@ namespace Filter {
 		struct subtitle_desc_t {
 			int length;
 			int depth;
-			subtitle_desc_t() {}
-			subtitle_desc_t(int length, int depth) : length(length), depth(depth) { }
+			subtitle_desc_t() = default;
+			subtitle_desc_t(int length, int depth) noexcept: length(length), depth(depth) { }
 		};
 		typedef std::map<int, subtitle_desc_t> subtitles_map_t;
 

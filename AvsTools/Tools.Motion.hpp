@@ -61,7 +61,7 @@ namespace Tools {
 	template<typename T>
 	class Array2D : public std::vector<T> {
 	public:
-		Array2D() { }
+		Array2D() = default;
 		Array2D(size_t width, size_t height) : m_width(width), m_height(height) {
 			resize(width, height);
 		}
@@ -97,7 +97,7 @@ namespace Tools {
 		struct Vector {
 			int confidence;
 			int dx, dy;
-			Vector() : confidence(INT_MAX), dx(0), dy(0) {}
+			Vector() noexcept: confidence(INT_MAX), dx(0), dy(0) {}
 
 			void AssignIfBetter(const Vector& other) {
 				if (other.confidence < confidence)

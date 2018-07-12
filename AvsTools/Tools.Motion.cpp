@@ -81,7 +81,7 @@ namespace Tools {
 					|| (pixel_y + dy < 0) || (pixel_y + dy + BLOCK_COMPARE_SIZE >= from.height())
 					|| (pixel_x < 0) || (pixel_x + BLOCK_COMPARE_SIZE >= from.width())
 					|| (pixel_y < 0) || (pixel_y + BLOCK_COMPARE_SIZE >= from.height())
-				)
+					)
 				{
 					return;
 				}
@@ -137,17 +137,18 @@ namespace Tools {
 			}
 
 			static void init_patterns() {
+				// diamond pattern
 				patterns.push_back({
 					Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0)
-				});
+					});
 				patterns.push_back({
 					Point(0, 5), Point(5, 0), Point(0, -5), Point(-5, 0),
 					Point(2, 2), Point(2, -2), Point(-2, -2), Point(-2, 2)
-				});
+					});
 				patterns.push_back({
 					Point(0, 2), Point(2, 0), Point(0, -2), Point(-2, 0),
 					Point(1, 1), Point(1, -1), Point(-1, -1), Point(-1, 1)
-				});
+					});
 			}
 
 		public:
@@ -180,12 +181,21 @@ namespace Tools {
 		};
 
 		std::vector<Pattern> Estimation::patterns;
+
+		inline void PrepareFrames(const Frame& left, Frame& right);
+
+		void Estimate(const Frame& from, const Frame& to, Map& result, const Array2D<char>& mask) {
+			Frame new_to(to);
+			PrepareFrames(from, new_to);
+			Map m(result);
+			Estimation(from, new_to, m, result, mask);
+		}
+
 	}
 }
 
-#ifdef MOTION_PROPRIETARY
-	#include <Tools.Motion.Proprietary.hpp>
-#else
+
+#ifdef MOTION_SIMPLE
 namespace Tools {
 	namespace Motion {
 
@@ -214,17 +224,76 @@ namespace Tools {
 
 	}
 }
-#endif
+#else
+
+#include "Filter.HistogramMatching.hpp"
 
 namespace Tools {
 	namespace Motion {
 
-		void Estimate(const Frame& from, const Frame& to, Map& result, const Array2D<char>& mask) {
-			Frame new_to(to);
-			PrepareFrames(from, new_to);
-			Map m(result);
-			Estimation(from, new_to, m, result, mask);
+		/* In case of publishing papers based on this method, please refer to:
+
+			A. Voronov, D. Vatolin, D. Sumin, V. Napadovsky, A. Borisov
+			"Towards Automatic Stereo-video Quality Assessment and Detection of Color and Sharpness Mismatch" //
+			International Conference on 3D Imaging (IC3D) — 2012. — pp. 1-6. DOI:10.1109/IC3D.2012.6615121
+			(section 4.2. Color-Independent Stereo Matching)
+
+			or
+
+			Napadovsky, V. 2014. Locally adaptive algorithm for detection
+			and elimination of color inconsistencies between views of stereoscopic video,
+			M.S. Thesis, Moscow State University
+
+		*/
+
+		inline void PrepareFrames(const Frame& left, Frame& right) {
+			HistogramMatching(right, left);
 		}
 
+		inline int dot(const IntPixel& x, const IntPixel& y) {
+			return x.r * y.r + x.g * y.g + x.b * y.b;
+		}
+
+		inline void Estimation::NewCandidate(int pixel_x, int pixel_y, Vector& v) {
+			IntPixel sum;
+			for (int y = 0; y < BLOCK_COMPARE_SIZE; ++y) {
+				for (int x = 0; x < BLOCK_COMPARE_SIZE; ++x) {
+					// to - from
+					sum += to.read(pixel_x + x, pixel_y + y);
+					sum -= from.read(pixel_x + v.dx + x, pixel_y + v.dy + y);
+				}
+			}
+			sum /= BLOCK_COMPARE_SIZE * BLOCK_COMPARE_SIZE;
+			int diffsum = 0;
+			int sad = 0;
+			for (int y = 0; y < BLOCK_COMPARE_SIZE; ++y) {
+				for (int x = 0; x < BLOCK_COMPARE_SIZE; ++x) {
+					// from - to
+					IntPixel pixel = from.read(pixel_x + v.dx + x, pixel_y + v.dy + y);
+					pixel -= to.read(pixel_x + x, pixel_y + y);
+					sad += dot(pixel, pixel);
+
+					pixel += sum;
+					diffsum += dot(pixel, pixel);
+				}
+			}
+			v.confidence = diffsum;
+			v.confidence += sad;
+			//v->confidence += sqr(abs(sum.r) + abs(sum.g) + abs(sum.b));
+			//v->confidence += sqr(dy);
+		}
+
+		double GetRealConfidence(const Vector& mv) {
+			double c = (double)mv.confidence / (
+				Frame::ColorCount           // color - color
+				* 3                         // 3 component in dot
+				* BLOCK_COMPARE_SIZE        // loop over block sz * sz
+				* BLOCK_COMPARE_SIZE
+				* 2                         // 2 components
+				);
+			return std::max(0.0, std::min(1.0 - c, 1.0));
+		}
 	}
 }
+
+#endif

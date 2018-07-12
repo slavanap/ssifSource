@@ -1,4 +1,4 @@
-project(Sub3D VERSION "1.0.2")
+project(Sub3D VERSION "1.0.3")
 make_version_file(${PROJECT_VERSION} "3D subtitles renderer")
 
 include_directories(
@@ -21,7 +21,6 @@ set(SOURCES
 	Tools.Lua.cpp
 
 	dllmain.cpp
-	sub3d.rc
 )
 
 if (MINGW)
@@ -29,6 +28,7 @@ if (MINGW)
 endif()
 
 set_precompiled_header(stdafx.h stdafx.cpp)
+list(APPEND SOURCES sub3d.rc)
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} AvsTools Lua TinyXML2)

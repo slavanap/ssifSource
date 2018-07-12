@@ -59,7 +59,7 @@ namespace Tools {
 		// stub for AviSynth source video filters that doesn't support audio playback
 		class SourceFilterStub : public IClip {
 		public:
-			SourceFilterStub() {
+			SourceFilterStub() noexcept {
 				memset(&vi, 0, sizeof(vi));
 			}
 			bool WINAPI GetParity(int n) override {

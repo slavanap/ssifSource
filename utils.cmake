@@ -6,7 +6,7 @@ macro(set_precompiled_header PrecompiledHeader PrecompiledSource)
 	    	PROPERTIES COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
 			OBJECT_OUTPUTS "${PrecompiledBinary}")
 		set_source_files_properties(${SOURCES}
-			PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /FI\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+			PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
 			OBJECT_DEPENDS "${PrecompiledBinary}")  
 	endif()
 	list(APPEND HEADERS ${PrecompiledHeader})

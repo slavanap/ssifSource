@@ -10,6 +10,7 @@ set(HEADERS
 	Filter.RestoreAlpha.hpp
 	Filter.SequentialToSeekable.hpp
 	Filter.SetLogger.hpp
+	Filter.VideoCorrelation.hpp
 	Tools.AviSynth.hpp
 	Tools.AviSynth.Frame.hpp
 	Tools.Motion.hpp
@@ -25,18 +26,13 @@ set(SOURCES
 	Filter.RestoreAlpha.cpp
 	Filter.SequentialToSeekable.cpp
 	Filter.SetLogger.cpp
+	Filter.VideoCorrelation.cpp
 	Tools.AviSynth.cpp
 	Tools.AviSynth.Frame.cpp
 	Tools.Motion.cpp
 	Tools.Pipe.cpp
 	Tools.WinApi.cpp
 )
-
-if (EXISTS "${CMAKE_SOURCE_DIR}/proprietary/Tools.Motion.Proprietary.hpp")
-	add_definitions(-D MOTION_PROPRIETARY)
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/proprietary")
-	list(APPEND HEADERS "${CMAKE_SOURCE_DIR}/proprietary/Tools.Motion.Proprietary.hpp")
-endif()
 
 set_precompiled_header(stdafx.h stdafx.cpp)
 

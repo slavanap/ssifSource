@@ -1,5 +1,5 @@
 @mkdir __build
 @cd __build
-cmake -G "Visual Studio 14" ../
+cmake -G "Visual Studio 15" ../
 @cd ..
 @pause

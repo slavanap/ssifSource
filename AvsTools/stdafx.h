@@ -14,3 +14,8 @@
 #include <vector>
 #include <climits>
 #include <stdexcept>
+
+template<typename T>
+inline T sqr(T v) {
+	return v * v;
+}

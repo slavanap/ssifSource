@@ -45,6 +45,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 #include <Filter.Pipe.hpp>
 #include <Filter.SequentialToSeekable.hpp>
 #include <Filter.SetLogger.hpp>
+#include <Filter.VideoCorrelation.hpp>
 #include "Filter.XMLRenderer.hpp"
 #include "Filter.SRTRenderer.hpp"
 #include "Filter.RestoreAlpha.hpp"
@@ -73,39 +74,8 @@ const char* WINAPI AvisynthPluginInit2(IScriptEnvironment* env) {
 	env->AddFunction("CropDetect", Filter::CropDetect::CreateParams, Filter::CropDetect::Create, nullptr);
 	env->AddFunction("HistogramMatching", Filter::HistogramMatching::CreateParams, Filter::HistogramMatching::Create, nullptr);
 	env->AddFunction("SequentialToSeekable", Filter::SequentialToSeekable::CreateParams, Filter::SequentialToSeekable::Create, nullptr);
+	env->AddFunction("VideoCorrelation", Filter::VideoCorrelation::CreateParams, Filter::VideoCorrelation::Create, nullptr);
+	env->AddFunction("VideoCorrelationPreprocess", Filter::VideoCorrelation::PreprocessParams, Filter::VideoCorrelation::Preprocess, nullptr);
+	env->AddFunction("VideoCorrelationGetShift", Filter::VideoCorrelation::GetShiftParams, Filter::VideoCorrelation::GetShift, nullptr);
 	return nullptr;
-}
-
-
-
-#include <Shellapi.h>
-
-enum {
-	IDD_DONATION = 1,
-	ID_SENDEMAIL = 1,
-	ID_CLOSE = 2,
-};
-
-INT_PTR CALLBACK DlgMsgHandler(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	switch (message) {
-		case WM_CLOSE:
-		close:
-			EndDialog(hwnd, 0);
-			break;
-		case WM_COMMAND:
-			switch (wParam) {
-				case ID_SENDEMAIL:
-					ShellExecute(hwnd, TEXT("open"), TEXT("mailto:napadovskiy@gmail.com?subject=sub3d%20plugin"), TEXT(""), TEXT(""), SW_SHOWNORMAL);
-					break;
-				case ID_CLOSE:
-					goto close;
-			}
-			break;
-	}
-	return 0;
-}
-
-extern "C" __declspec(dllexport)
-void CALLBACK Donate(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow) {
-	DialogBoxParam(Tools::WinApi::hInstance, (LPCTSTR)IDD_DONATION, hwnd, DlgMsgHandler, 0);
 }

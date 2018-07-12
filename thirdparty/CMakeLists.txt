@@ -38,3 +38,9 @@ target_link_libraries(${PROJECT_NAME} Shlwapi.lib)
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Third Party")
 
 add_subdirectory(MPC)
+
+if (MSVC)
+	set_property( TARGET BaseClasses  APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4996 " )
+	set_property( TARGET MpegSplitter APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 " )
+	set_property( TARGET libudfread   APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4996 -wd4244 -wd4267 " )
+endif()

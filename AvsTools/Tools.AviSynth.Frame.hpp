@@ -42,8 +42,8 @@ namespace Tools {
 				BYTE g;
 				BYTE r;
 				BYTE a;
-				Pixel() { }
-				Pixel(BYTE r, BYTE g, BYTE b, BYTE a = 0xFF) : r(r), g(g), b(b), a(a) { }
+				Pixel() = default;
+				Pixel(BYTE r, BYTE g, BYTE b, BYTE a = 0xFF) noexcept: r(r), g(g), b(b), a(a) { }
 
 				Pixel(int r, int g, int b, int a = 0xFF) :
 					r(ColorLimits(r)),
@@ -129,13 +129,14 @@ namespace Tools {
 			friend class Iterator;
 			friend class ConstIterator;
 
-			Frame() :
+			Frame() noexcept:
 				m_env(nullptr),
 				m_width(0),
 				m_height(0),
 				m_pitch(0),
 				m_read_ptr(nullptr),
-				m_write_ptr(nullptr)
+				m_write_ptr(nullptr),
+				m_is_bff(true)
 			{
 				// empty
 			}
@@ -143,7 +144,8 @@ namespace Tools {
 			Frame(IScriptEnvironment* env, const VideoInfo& vi) :
 				m_env(env),
 				m_vi(vi),
-				m_frame(env->NewVideoFrame(vi))
+				m_frame(env->NewVideoFrame(vi)),
+				m_is_bff(vi.IsBFF()) // create frame with default BFF parity
 			{
 				CheckRGB32();
 				m_width = m_frame->GetRowSize() / sizeof(Pixel);
@@ -151,8 +153,12 @@ namespace Tools {
 				m_pitch = m_frame->GetPitch();
 				m_read_ptr = m_frame->GetReadPtr();
 				m_write_ptr = m_frame->GetWritePtr();
+
+				if (vi.IsBFF() && vi.IsTFF())
+					fprintf(stderr, "WARNING: VideoInfo supports both field parities!\n");
 			}
 
+			__declspec(deprecated("This constructor may create frame instance with wrong IsBFF field"))
 			Frame(IScriptEnvironment* env, const VideoInfo& vi, const PVideoFrame frame) :
 				m_env(env),
 				m_vi(vi),
@@ -164,12 +170,21 @@ namespace Tools {
 				m_pitch = frame->GetPitch();
 				m_read_ptr = frame->GetReadPtr();
 				m_write_ptr = nullptr;
+
+				m_is_bff = vi.IsBFF();
 			}
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 			Frame(IScriptEnvironment* env, const PClip& clip, int framenum) :
 				Frame(env, clip->GetVideoInfo(), clip->GetFrame(framenum, env))
 			{
+				m_is_bff = !clip->GetParity(framenum);
 			}
+#pragma warning(pop) 
+
+			bool IsBFF() const { return m_is_bff; }
+			void SetBFF(bool value) { m_is_bff = value; }
 
 			operator PVideoFrame() const { return m_frame; }
 			int width() const { return m_width; }
@@ -219,6 +234,11 @@ namespace Tools {
 			bool operator!=(const Frame& other) const;
 			void EnableWriting();
 
+			static void CheckRGB32(const VideoInfo& vi, IScriptEnvironment* env) {
+				if (vi.IsFieldBased() || !vi.IsRGB32())
+					env->ThrowError("Only RGB32 input supported");
+			}
+
 		private:
 			VideoInfo m_vi;
 			IScriptEnvironment *m_env;
@@ -228,13 +248,13 @@ namespace Tools {
 			int m_pitch;
 			const BYTE *m_read_ptr;
 			BYTE *m_write_ptr;
+			bool m_is_bff;
 
 			int get_real_y(int offset_y) const {
-				return (!m_vi.IsBFF()) ? offset_y : (m_vi.height - offset_y - 1);
+				return (!m_is_bff) ? offset_y : (m_vi.height - offset_y - 1);
 			}
 			void CheckRGB32() const {
-				if (!m_vi.IsRGB32())
-					m_env->ThrowError("Only RGB32 input supported");
+				CheckRGB32(m_vi, m_env);
 			}
 		};
 

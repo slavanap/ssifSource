@@ -27,6 +27,7 @@
     <ClInclude Include="..\..\AvsTools\Filter.RestoreAlpha.hpp" />
     <ClInclude Include="..\..\AvsTools\Filter.SequentialToSeekable.hpp" />
     <ClInclude Include="..\..\AvsTools\Filter.SetLogger.hpp" />
+    <ClInclude Include="..\..\AvsTools\Filter.VideoCorrelation.hpp" />
     <ClInclude Include="..\..\AvsTools\stdafx.h" />
     <ClInclude Include="..\..\AvsTools\Tools.AviSynth.Frame.hpp" />
     <ClInclude Include="..\..\AvsTools\Tools.AviSynth.hpp" />
@@ -42,11 +43,9 @@
     <ClCompile Include="..\..\AvsTools\Filter.RestoreAlpha.cpp" />
     <ClCompile Include="..\..\AvsTools\Filter.SequentialToSeekable.cpp" />
     <ClCompile Include="..\..\AvsTools\Filter.SetLogger.cpp" />
+    <ClCompile Include="..\..\AvsTools\Filter.VideoCorrelation.cpp" />
     <ClCompile Include="..\..\AvsTools\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\AvsTools\Tools.AviSynth.cpp" />
     <ClCompile Include="..\..\AvsTools\Tools.AviSynth.Frame.cpp" />
@@ -58,26 +57,26 @@
     <ProjectGuid>{D2EE1A9A-D7BC-4BEE-99F7-41313913860E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AvsTools</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

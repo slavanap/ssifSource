@@ -30,7 +30,25 @@ namespace Filter {
 	public:
 		SequentialToSeekable(IScriptEnvironment* env, const char* command);
 		PVideoFrame WINAPI GetFrame(int n, IScriptEnvironment* env);
-		
+
+		bool WINAPI GetParity(int n) override {
+			return clip->GetParity(n);
+		}
+
+		void WINAPI GetAudio(void* buf, __int64 start, __int64 count, IScriptEnvironment* env) override {
+			return clip->GetAudio(buf, start, count, env);
+		}
+
+#if defined __AVISYNTH_H__
+		void WINAPI SetCacheHints(int cachehints, int frame_range) override {
+			clip->SetCacheHints(cachehints, frame_range);
+		}
+#elif defined __AVISYNTH_6_H__
+		int WINAPI SetCacheHints(int cachehints, int frame_range) override {
+			return clip->SetCacheHints(cachehints, frame_range);
+		}
+#endif
+
 		static AvsParams CreateParams;
 		static AVSValue __cdecl Create(AVSValue args, void* user_data, IScriptEnvironment* env);
 	private:

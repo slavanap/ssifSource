@@ -146,8 +146,10 @@ namespace Tools {
 
 		int Script::luaCalcForFrameRaw(lua_State* L) {
 			Script *self = m_luaStates[L];
-			if (!self->m_depth_list)
+			if (!self->m_depth_list) {
 				luaL_error(L, "Unexpected. You should call CalcForFrameRaw only in borders of CalcForFrame function!");
+				return 0; // make VS static analyzer happy
+			}
 			const depth_list_t &list = *self->m_depth_list;
 
 			auto conf_threshold = luaL_optnumber(L, 1, 0);
@@ -184,8 +186,10 @@ namespace Tools {
 
 		int Script::luaGetFrameRawData(lua_State* L) {
 			Script *self = m_luaStates[L];
-			if (!self->m_depth_list)
+			if (!self->m_depth_list) {
 				luaL_error(L, "Unexpected situation. You should call CalcForFrameRaw only in borders of CalcForFrame function!");
+				return 0; // make VS static analyzer happy
+			}
 			const depth_list_t &list = *self->m_depth_list;
 			std::map<depth_list_t::value_type, int> counting;
 			for (auto it = list.begin(); it != list.end(); ++it) {
