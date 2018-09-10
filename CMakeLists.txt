@@ -42,6 +42,7 @@ if (MSVC)
 	add_subdirectory(ssifSource)
 endif()
 add_subdirectory(Sub3D)
+add_subdirectory(TextDecode)
 
 set(CPACK_GENERATOR NSIS)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${PROJECT_NAME})
