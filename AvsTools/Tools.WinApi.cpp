@@ -246,6 +246,8 @@ namespace Tools {
 		ProcessHolder::~ProcessHolder() {
 			if (PI.hProcess != INVALID_HANDLE_VALUE)
 				TerminateProcess(PI.hProcess, 0);
+			CloseHandle(PI.hThread);
+			CloseHandle(PI.hProcess);
 		}
 
 

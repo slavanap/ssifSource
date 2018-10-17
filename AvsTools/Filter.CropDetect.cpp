@@ -15,7 +15,7 @@ namespace Filter {
 		clip = ConvertToRGB32(env, clip);
 		RECT rect = { INT_MAX, INT_MAX, INT_MIN, INT_MIN };
 		for (int idx = 0; idx < detectFrames; ++idx) {
-			int n = (int)((INT64)(vi.num_frames - 1) * idx / (detectFrames - 1));
+			int n = (int)(((int64_t)vi.num_frames - 1) * idx / (detectFrames - 1));
 			AdjustForFrame(rect, Frame(env, clip, n));
 		}
 

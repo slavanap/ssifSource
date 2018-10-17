@@ -285,7 +285,7 @@ namespace Tools {
 
 		double GetRealConfidence(const Vector& mv) {
 			double c = (double)mv.confidence / (
-				Frame::ColorCount           // color - color
+				(int)Frame::ColorCount      // color - color
 				* 3                         // 3 component in dot
 				* BLOCK_COMPARE_SIZE        // loop over block sz * sz
 				* BLOCK_COMPARE_SIZE

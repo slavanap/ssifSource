@@ -61,7 +61,7 @@ namespace Tools {
 	template<typename T>
 	class Array2D : public std::vector<T> {
 	public:
-		Array2D() = default;
+		Array2D(): m_width(0), m_height(0) {}
 		Array2D(size_t width, size_t height) : m_width(width), m_height(height) {
 			resize(width, height);
 		}

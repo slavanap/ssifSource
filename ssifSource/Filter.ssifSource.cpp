@@ -91,7 +91,7 @@ namespace Filter {
 			AllocConsole();
 #pragma warning(push)
 #pragma warning(disable:4996)
-			freopen("CONOUT$", "wb", stdout);
+			(void)freopen("CONOUT$", "wb", stdout);
 #pragma warning(pop)
 		}
 

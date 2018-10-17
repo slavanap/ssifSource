@@ -105,8 +105,8 @@ namespace Filter {
 		stream_clip_t *clip = playlist->stream_clip_list.first;
 		int num_frames = 0;
 		while (clip != nullptr) {
-			int currect_framecount = (int)((double)clip->raw_duration * 24 / (45 * 1001) + 0.5);
-			printf("%s: adding file %s with %d frames to sequences list.\n", FILTER_NAME, clip->filename, currect_framecount);
+			int current_framecount = (int)((double)clip->raw_duration * 24 / (45 * 1001) + 0.5);
+			printf("%s: adding file %s with %d frames to sequences list.\n", FILTER_NAME, clip->filename, current_framecount);
 
 			std::string filename = clip->filename;
 			filename.erase(filename.length() - 4);
@@ -114,7 +114,7 @@ namespace Filter {
 			fileNames.push_back(filename);
 
 			frameOffsets.push_back(num_frames);
-			num_frames += currect_framecount;
+			num_frames += current_framecount;
 			clip = clip->next;
 		}
 		frameOffsets.push_back(num_frames);

@@ -1,0 +1,20 @@
+version: 5.0.5.{build}
+image: Visual Studio 2017
+
+configuration: Release
+platform: Win32
+
+install:
+  - git submodule update --init --recursive
+
+before_build:
+  - cmake -G "Visual Studio 15" -DAPP_VERSION="%APPVEYOR_BUILD_VERSION%" .
+
+build_script:
+  - cmake --build . --target PACKAGE --config "%CONFIGURATION%" -- /nologo /verbosity:minimal
+  # Note, I don't use /maxcpucount in order to not mix up project filenames in build log
+
+test: off
+
+artifacts:
+  - path: ssifSource-$(appveyor_build_version)-$(platform).exe

@@ -19,17 +19,15 @@ namespace Filter {
 				filename = "CONOUT$";
 			}
 			else {
-				_dup2(orig_stdout, 1);
-				_dup2(orig_stderr, 2);
-				return true;
+				return !_dup2(orig_stdout, 1)
+					&& !_dup2(orig_stderr, 2);
 			}
 		}
 #pragma warning(push)
 #pragma warning(disable: 4996)
-		freopen(filename, "wb", stdout);
-		freopen(filename, "wb", stderr);
+		return !!freopen(filename, "wb", stdout)
+			&& !!freopen(filename, "wb", stderr);
 #pragma warning(pop)
-		return true;
 	}
 
 }

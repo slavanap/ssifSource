@@ -124,7 +124,7 @@ namespace Tools {
 		inline std::string tostring(const tstring& tstr) { return tstr; }
 		inline std::wstring towstring(const tstring& tstr) { return towstring(tstr, CP_ACP); }
 		inline tstring totstring(const std::string& str) { return str; }
-		inline tstring totstring(const std::wstring& wstr) { return tostring(str, CP_ACP); }
+		inline tstring totstring(const std::wstring& wstr) { return tostring(wstr, CP_ACP); }
 #endif
 
 		size_t string_pos_max(size_t pos1, size_t pos2);

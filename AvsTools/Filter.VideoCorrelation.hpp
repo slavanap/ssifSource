@@ -36,7 +36,8 @@ namespace Filter {
 		Correlation(const std::vector<T>& pattern, T maxvalue, T threshold = 0) :
 			m_threshold(threshold),
 			m_maxvalue(maxvalue),
-			m_inited(false)
+			m_inited(false),
+			m_last_pos(), m_best_pos(), m_last_error(), m_best_error()
 		{
 			if (pattern.empty())
 				throw std::runtime_error("Pattern could not be empty");

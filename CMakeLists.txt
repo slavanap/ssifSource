@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(ssifSource VERSION "5.0.5")
+set(APP_VERSION "5.0.5" CACHE STRING "User defined version value")
+
+project(ssifSource VERSION "${APP_VERSION}")
 include(utils.cmake)
 set(PRODUCT_COMPANY "Vyacheslav Napadovsky")
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
@@ -8,7 +10,7 @@ set(CPACK_PACKAGE_VENDOR "Copyright (C) ${PRODUCT_COMPANY} 2012-2016")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Utility package for blu-ray files processing")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 install(FILES LICENSE DESTINATION bin)
 
 include_directories(${PROJECT_SOURCE_DIR} thirdparty)
@@ -17,12 +19,12 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-	add_definitions(-D _UNICODE)
+	add_definitions(-D_UNICODE -DUNICODE)
 	configure_msvc_runtime("static")
 elseif(MINGW)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	add_definitions(-D _ASSERT=assert)
+	add_definitions(-D_ASSERT=assert)
 endif()
 
 add_subdirectory(thirdparty)

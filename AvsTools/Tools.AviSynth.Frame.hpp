@@ -131,6 +131,7 @@ namespace Tools {
 
 			Frame() noexcept:
 				m_env(nullptr),
+				m_vi(),
 				m_width(0),
 				m_height(0),
 				m_pitch(0),

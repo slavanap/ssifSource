@@ -65,6 +65,9 @@ namespace Filter {
 			typedef int Histogram[Frame::ColorCount];
 
 			Histogram hr, hg, hb;
+			memset(&hr, 0, sizeof(hr));
+			memset(&hg, 0, sizeof(hg));
+			memset(&hb, 0, sizeof(hb));
 			for (auto &pixel : finp) {
 				hr[pixel.r]++;
 				hg[pixel.g]++;
