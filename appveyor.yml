@@ -14,7 +14,8 @@ build_script:
   - cmake --build . --target PACKAGE --config "%CONFIGURATION%" -- /nologo /verbosity:minimal
   # Note, I don't use /maxcpucount in order to not mix up project filenames in build log
 
-test: off
+test_script:
+  - ctest -C "%CONFIGURATION%"
 
 artifacts:
   - path: ssifSource-$(appveyor_build_version)-$(platform).exe

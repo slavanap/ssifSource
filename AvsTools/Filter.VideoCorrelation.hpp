@@ -26,12 +26,16 @@
 #include <memory>
 #include <vector>
 
+#include "stdafx.h"
 #include "Tools.AviSynth.Frame.hpp"
 
 namespace Tools {
 
-	/** Correlation detection automate.\ Class that detects correlation with specified pattern.
-		Looks for square error minimization and reports if it's less than `threshold`.
+	/** Correlation detection automate.\ Class that detects correlation between histograms
+		with specified pattern histogram.
+		It searches square error minimum (computed for number of elements with the same value in histograms)
+		and reports if it's less than `threshold`.
+		See VideoCorrelation.Test.cpp for the data sample (note, order of values does not matter).
 	*/
 	template<typename T>
 	class Correlation {
@@ -39,7 +43,7 @@ namespace Tools {
 		/** Initializes the automate with \a pattern to detect, \a maxvalue that is the maximum possible
 			value in the pattern and a \a threshold that determines when to report a match
 		*/
-		Correlation(const std::vector<T>& pattern, T maxvalue, T threshold = 0) :
+		Correlation(const std::vector<T>& pattern, size_t maxvalue, T threshold = 0) :
 			m_threshold(threshold),
 			m_maxvalue(maxvalue),
 			m_inited(false),
@@ -111,7 +115,8 @@ namespace Tools {
 				++hist[v];
 		}
 
-		T m_threshold, m_maxvalue;
+		T m_threshold;
+		size_t m_maxvalue;
 		int64_t m_best_error, m_last_error;
 		size_t m_pattern_size, m_best_pos, m_last_pos;
 		bool m_inited;

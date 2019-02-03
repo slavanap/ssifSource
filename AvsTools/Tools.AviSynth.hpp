@@ -22,6 +22,7 @@
 
 
 #pragma once
+#include <windows.h>
 #include <thirdparty/AviSynth/avisynth.h>
 #include <string>
 
