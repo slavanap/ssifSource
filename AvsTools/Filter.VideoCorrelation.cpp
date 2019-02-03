@@ -9,6 +9,7 @@ namespace Filter {
 
 	// API & Tools
 
+	/// Writes \a vs signature to file stream \a out
 	std::ostream& operator<<(std::ostream& out, const VideoCorrelation::Signature& vs) {
 		out << vs.size() << std::endl;
 		for (auto it = vs.begin(); it != vs.end(); ++it)
@@ -16,6 +17,7 @@ namespace Filter {
 		return out;
 	}
 
+	/// Reads \a vs signature from the file stream \a in
 	std::istream& operator>>(std::istream& in, VideoCorrelation::Signature& vs) {
 		size_t temp;
 		if (!(in >> temp))
@@ -92,6 +94,9 @@ namespace Filter {
 
 	using Tools::AviSynth::Frame;
 
+	/** We use floor(sum_i(pixel_i.red^2 + pixel_i.green^2 + pixel_i.blue^2) * 100 / #i) as a signature value for a frame.
+		Here's a maximum possible value for that function (assume 0 < pixel_i.* < 256).
+	*/
 	constexpr size_t MaxSigValue = (size_t)((Frame::ColorCount - 1) * (Frame::ColorCount - 1) * 3) * 100;
 
 	VideoCorrelation::Signature::value_type VideoCorrelation::ComputeForFrame(const Frame& frame) {
@@ -121,7 +126,7 @@ namespace Filter {
 		if ((int)input_sig.size() <= overlay->GetVideoInfo().num_frames)
 			throw std::exception("Overlay must me shorter than input");
 		Signature overlay_sig = Preprocess(env, overlay);
-		Correlation<SigValue> c(overlay_sig, MaxSigValue);
+		Tools::Correlation<SigValue> c(overlay_sig, MaxSigValue);
 		for (SigValue v : input_sig)
 			if (c.Next(v))
 				break;
@@ -150,7 +155,10 @@ namespace Filter {
 		if (vi.num_frames <= m_overlay_vi.num_frames)
 			env->ThrowError("Overlay must be shorter than input");
 
+		// compute overlay signature that has "overlay_sig_len" length
 		int overlay_sig_len = std::min(m_overlay_vi.num_frames, OverlaySigLength);
+
+		// compute overlay signature starting from "m_overlay_sig_shift" frame number.
 		m_overlay_sig_shift = std::min(m_overlay_vi.num_frames - overlay_sig_len, OverlaySigShiftFrames);
 		if (m_overlay_sig_shift < OverlaySigShiftFrames)
 			fprintf(stderr, "WARNING: overlay is too short. Consider increasing its length to improve matching quality\n");
@@ -162,7 +170,7 @@ namespace Filter {
 			overlay_sig.reserve(overlay_sig_len);
 			for (int i = m_overlay_sig_shift; i < m_overlay_sig_shift + overlay_sig_len; ++i)
 				overlay_sig.push_back(ComputeForFrame(Frame(env, m_overlay, i)));
-			m_correlation = std::make_unique<Correlation<SigValue>>(overlay_sig, MaxSigValue, threshold);
+			m_correlation = std::make_unique<Tools::Correlation<SigValue>>(overlay_sig, MaxSigValue, threshold);
 			if (!input_sig.empty()) {
 				for (SigValue v : input_sig) {
 					m_correlation->Next(v);
@@ -181,18 +189,23 @@ namespace Filter {
 	}
 
 	PVideoFrame VideoCorrelation::GetFrame(int n, IScriptEnvironment* env) {
+		// if the shift value hasn't been found yet
 		if (m_shift < 0) {
+			// keep trying to find the correlation
 			if (m_correlation->Next(ComputeForFrame(Frame(env, child, n))))
 				m_shift = m_correlation->GetMatch() - m_overlay_sig_shift;
 		}
 		if (0 <= m_shift && m_shift < vi.num_frames) {
+			// if the shift value has been found, render the overlay accordingly
 			if (m_shift <= n && n < m_shift + m_overlay_vi.num_frames)
 				return m_overlay->GetFrame(n - m_shift, env);
 		}
+		// if shift hasn't been found yet, or if the overlay is short that it lies inside the input, then render the input.
 		return child->GetFrame(n, env);
 	}
 
 	void VideoCorrelation::GetAudio(void* buf, __int64 start, __int64 count, IScriptEnvironment* env) {
+		// switch audio the same way as we switch video for the overlay
 		if (0 <= m_shift && m_shift < vi.num_frames) {
 			auto audio_start = vi.AudioSamplesFromFrames(m_shift);
 			auto audio_end = vi.AudioSamplesFromFrames(m_shift + m_overlay_vi.num_frames);
@@ -205,6 +218,7 @@ namespace Filter {
 	}
 
 	bool VideoCorrelation::GetParity(int n) {
+		// same goes for the parity
 		if (0 <= m_shift && m_shift < vi.num_frames) {
 			if (m_shift <= n && n < m_shift + m_overlay_vi.num_frames)
 				return m_overlay->GetParity(n - m_shift);
