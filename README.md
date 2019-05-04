@@ -1,5 +1,6 @@
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/05825vxmi4nweh8e/branch/master?svg=true)](https://ci.appveyor.com/project/slavanap/ssifsource/branch/master)
-[![If you want to ease my life, consider a donation](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/slavanap)
+
+> If you like the stuff, you may [donate me](https://rocketbank.ru/vyacheslav-napadovsky-dark-frog).
 
 Collection of AviSynth plugins
 ------------------------------
