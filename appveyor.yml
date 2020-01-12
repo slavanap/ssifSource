@@ -1,5 +1,5 @@
 version: 5.0.5.{build}
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 configuration: Release
 platform: Win32
@@ -8,7 +8,7 @@ install:
   - git submodule update --init --recursive
 
 before_build:
-  - cmake -G "Visual Studio 15" -DAPP_VERSION="%APPVEYOR_BUILD_VERSION%" .
+  - cmake -G "Visual Studio 16" -A %PLATFORM% -DAPP_VERSION="%APPVEYOR_BUILD_VERSION%" .
 
 build_script:
   - cmake --build . --target PACKAGE --config "%CONFIGURATION%" -- /nologo /verbosity:minimal

@@ -6,4 +6,4 @@
 	url = https://github.com/slavanap/JM.git
 [submodule "thirdparty/libudfread"]
 	path = thirdparty/libudfread
-	url = git://git.videolan.org/libudfread.git
+	url = https://code.videolan.org/videolan/libudfread.git
